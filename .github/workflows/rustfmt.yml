@@ -3,7 +3,7 @@ name: rustfmt
 on: [push, pull_request]
 
 jobs:
-  build:
+  rustfmt:
 
     runs-on: ubuntu-latest
 
