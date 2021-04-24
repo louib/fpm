@@ -160,21 +160,21 @@ pub fn normalize_name(name: &String) -> String {
     response
 }
 
-// TODO migrate to pb-tools
+// TODO migrate to fpm-tools
 pub struct PagedResponse {
     pub next_page_url: Option<String>,
     pub results: Vec<crate::projects::SoftwareProject>,
     pub token: Option<String>,
 }
 
-// TODO migrate to pb-tools
+// TODO migrate to fpm-tools
 pub struct PagedRequest {
     pub next_page_url: Option<String>,
     pub domain: String,
     pub token: Option<String>,
 }
 
-// TODO migrate to pb-tools
+// TODO migrate to fpm-tools
 /// See https://www.w3.org/wiki/LinkHeader
 ///```
 ///let link_header = r###"
