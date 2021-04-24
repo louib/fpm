@@ -9,7 +9,7 @@ pub mod utils;
 mod config;
 mod version;
 
-pub use flatpak_manifest::FlatpakModule;
+pub use flatpak_manifest::{FlatpakModule, FlatpakModuleDescription};
 pub use projects::SoftwareProject;
 
 use std::env;
@@ -81,7 +81,9 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             if !output.is_empty() {
                 output.push_str(&separator)
             }
-            output.push_str(&module.name);
+            if let FlatpakModule::Description(module_description) = module {
+                output.push_str(&module_description.name);
+            }
         }
         println!("{}", output);
     }
@@ -101,7 +103,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         eprintln!("Search for {} in the projects database.", &search_term);
 
         let db = crate::db::Database::get_database();
-        let modules: Vec<&FlatpakModule> = db.search_modules(search_term);
+        let modules: Vec<&FlatpakModuleDescription> = db.search_modules(search_term);
         for module in modules {
             println!("found candidate artifact in {}.", module.name);
         }

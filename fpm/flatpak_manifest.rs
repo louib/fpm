@@ -351,6 +351,16 @@ impl FlatpakManifest {
     }
 }
 
+// Each module item can be either a path to a module description file,
+// or an inline module description.
+#[derive(Debug, Deserialize, Serialize, Hash)]
+#[serde(rename_all = "kebab-case")]
+#[serde(untagged)]
+pub enum FlatpakModule {
+    Path(String),
+    Description(FlatpakModuleDescription),
+}
+
 // Each module specifies a source that has to be separately built and installed.
 // It contains the build options and a list of sources to download and extract before
 // building.
@@ -359,7 +369,7 @@ impl FlatpakManifest {
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
 #[serde(rename_all = "kebab-case")]
 #[serde(default)]
-pub struct FlatpakModule {
+pub struct FlatpakModuleDescription {
     // The name of the module, used in e.g. build logs. The name is also
     // used for constructing filenames and commandline arguments,
     // therefore using spaces or '/' in this string is a bad idea.
@@ -488,7 +498,7 @@ pub struct FlatpakModule {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub modules: Vec<FlatpakModule>,
 }
-impl FlatpakModule {
+impl FlatpakModuleDescription {
     pub fn get_hash(&self) -> u64 {
         let mut s = DefaultHasher::new();
         self.hash(&mut s);

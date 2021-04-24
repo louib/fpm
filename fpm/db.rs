@@ -3,7 +3,7 @@ use std::env;
 use std::fs;
 use std::path;
 
-use crate::flatpak_manifest::FlatpakModule;
+use crate::flatpak_manifest::FlatpakModuleDescription;
 use crate::projects::SoftwareProject;
 
 pub const DEFAULT_DB_PATH: &str = ".fpm-db";
@@ -12,7 +12,7 @@ pub const PROJECTS_DB_SUBDIR: &str = "/projects";
 
 pub struct Database {
     pub projects: Vec<SoftwareProject>,
-    pub modules: Vec<FlatpakModule>,
+    pub modules: Vec<FlatpakModuleDescription>,
     pub indexed_projects: BTreeMap<String, SoftwareProject>,
 }
 impl Database {
@@ -96,7 +96,7 @@ impl Database {
         projects
     }
 
-    pub fn get_all_modules() -> Vec<FlatpakModule> {
+    pub fn get_all_modules() -> Vec<FlatpakModuleDescription> {
         let modules_path = Database::get_modules_db_path();
         let modules_path = path::Path::new(&modules_path);
         let all_modules_paths = match crate::utils::get_all_paths(modules_path) {
@@ -105,7 +105,7 @@ impl Database {
                 return vec![];
             }
         };
-        let mut modules: Vec<FlatpakModule> = vec![];
+        let mut modules: Vec<FlatpakModuleDescription> = vec![];
         for module_path in all_modules_paths.iter() {
             let module_path_str = module_path.to_str().unwrap();
             if !module_path.is_file() {
@@ -139,8 +139,8 @@ impl Database {
         modules
     }
 
-    pub fn search_modules(&self, search_term: &str) -> Vec<&FlatpakModule> {
-        let mut modules: Vec<&FlatpakModule> = vec![];
+    pub fn search_modules(&self, search_term: &str) -> Vec<&FlatpakModuleDescription> {
+        let mut modules: Vec<&FlatpakModuleDescription> = vec![];
         for module in &self.modules {
             if module.name.contains(&search_term) {
                 modules.push(&module);
@@ -151,7 +151,7 @@ impl Database {
 
     pub fn remove_module() {}
 
-    pub fn add_module(&mut self, mut new_module: FlatpakModule) {
+    pub fn add_module(&mut self, mut new_module: FlatpakModuleDescription) {
         let module_hash = new_module.get_hash();
         let modules_path = Database::get_modules_db_path();
         let new_module_path = format!("{}/{}.yaml", modules_path, module_hash,);

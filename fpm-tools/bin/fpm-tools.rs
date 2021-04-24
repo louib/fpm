@@ -66,11 +66,13 @@ fn main() {
 
         println!("Importing {} Flatpak module.", &flatpak_modules.len());
         for flatpak_module in flatpak_modules {
-            if flatpak_module.sources.len() == 0 {
-                continue;
-            }
+            if let FlatpakModule::Description(module_description) = flatpak_module {
+                if module_description.sources.len() == 0 {
+                    continue;
+                }
 
-            db.add_module(flatpak_module);
+                db.add_module(module_description);
+            }
         }
 
     }
@@ -117,7 +119,9 @@ fn main() {
                 };
 
                 for module in flatpak_manifest.modules {
-                    db.add_module(module);
+                    if let FlatpakModule::Description(module_description) = module {
+                        db.add_module(module_description);
+                    }
                 }
 
                 // TODO infer projects from the modules when possible.
