@@ -82,6 +82,12 @@ fn main() {
         let all_flathub_repos = fpm_tools::hubs::github::get_org_repos("flathub");
         for flathub_repo in &all_flathub_repos {
             let repo_url = &flathub_repo.vcs_urls[0];
+            // FIXME for some reason, the valvesoftware.Steam.CompatibilityTool.Proton
+            // project causes an infinite loop when we try to clone it...
+            if repo_url.contains("CompatibilityTool.Proton") {
+                continue;
+            }
+
             let repo_dir = match fpm::utils::clone_git_repo(&repo_url) {
                 Ok(d) => d,
                 Err(e) => {
