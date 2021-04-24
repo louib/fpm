@@ -852,4 +852,37 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    pub fn test_parse_shared_modules() {
+        match FlatpakManifest::parse(
+            &r###"
+            app-id: net.louib.fpm
+            runtime: org.gnome.Platform
+            runtime-version: "3.36"
+            sdk: org.gnome.Sdk
+            command: fpm
+            tags: ["nightly"]
+            modules:
+              -
+                name: "fpm"
+                buildsystem: simple
+                cleanup: [ "*" ]
+                config-opts: []
+                sources:
+                  -
+                    type: git
+                    url: https://github.com/louib/fpm.git
+                    branch: master
+              -
+                "shared-modules/linux-audio/lv2.json"
+        "###
+            .to_string(),
+        ) {
+            None => panic!("Error while parsing the flatpak manifest."),
+            Some(manifest) => {
+                assert_eq!(manifest.app_id, "net.louib.fpm");
+            }
+        }
+    }
 }
