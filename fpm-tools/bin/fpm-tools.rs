@@ -101,9 +101,7 @@ fn main() {
                     continue;
                 }
 
-                // We're a bit aggressive here, we could try parsing only the files
-                // that match exactly the flatpak path convention.
-                if !file_path.ends_with(".json") && !file_path.ends_with(".yaml") && !file_path.ends_with(".yml") {
+                if !FlatpakManifest::file_path_matches(file_path) {
                     continue;
                 }
                 let manifest_content = match fs::read_to_string(file_path) {
