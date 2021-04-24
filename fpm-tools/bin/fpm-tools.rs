@@ -106,6 +106,7 @@ fn main() {
                 if !FlatpakManifest::file_path_matches(file_path) {
                     continue;
                 }
+                log::info!("Parsing manifest file {}", &file_path);
                 let manifest_content = match fs::read_to_string(file_path) {
                     Ok(content) => content,
                     Err(e) => {

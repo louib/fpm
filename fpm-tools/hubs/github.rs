@@ -63,7 +63,7 @@ pub fn get_org_repos(org_name: &str) -> Vec<fpm::projects::SoftwareProject> {
     let mut projects = paged_response.results;
     while projects.len() > 0 {
         for project in projects {
-            log::info!("Adding project {}.", &project.name);
+            log::debug!("Adding project {}.", &project.name);
             all_projects.push(project);
         }
 

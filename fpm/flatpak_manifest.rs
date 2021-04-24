@@ -299,7 +299,7 @@ impl FlatpakManifest {
                 dot_count = dot_count + 1;
                 continue;
             }
-            if c.is_alphabetic() || c.is_numeric() {
+            if c.is_alphabetic() || c.is_numeric() || c == '-' {
                 continue;
             }
             return false;
@@ -786,6 +786,9 @@ mod tests {
         ));
         assert!(FlatpakManifest::file_path_matches(
             "/path/to/com.example.department.product.yaml"
+        ));
+        assert!(FlatpakManifest::file_path_matches(
+            "/path/to/com.example.department.name-of-product.yaml"
         ));
         assert!(!FlatpakManifest::file_path_matches("/path/to/file.yaml"));
         assert!(!FlatpakManifest::file_path_matches("/path/to/file.json"));
