@@ -1,0 +1,19 @@
+name: tests
+
+on: [push, pull_request]
+
+jobs:
+  tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: printing rust version
+      run: rustc --version
+    - name: printing cargo version
+      run: cargo --version
+    - name: building the project
+      run: cargo build -p fpm
+    - name: running the unit tests
+      run: cargo test -p fpm
