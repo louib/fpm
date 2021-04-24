@@ -325,9 +325,7 @@ impl FlatpakManifest {
 
         // TODO I think there's other fields to validate here.
         if flatpak_manifest.app_id.is_empty() && flatpak_manifest.id.is_empty() {
-            log::warn!(
-                "Required top-level field id (or app-id) is missing from flatpak manifest."
-            );
+            log::warn!("Required top-level field id (or app-id) is missing from flatpak manifest.");
             return None;
         }
 
