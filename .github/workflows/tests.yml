@@ -13,7 +13,5 @@ jobs:
       run: rustc --version
     - name: printing cargo version
       run: cargo --version
-    - name: building the project
-      run: cargo build -p fpm
     - name: running the unit tests
       run: cargo test -p fpm
