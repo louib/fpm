@@ -11,7 +11,7 @@ pub fn init() {
 }
 
 fn get_log_level() -> log::LevelFilter {
-    let log_level_string = match env::var("PB_LOG_LEVEL") {
+    let log_level_string = match env::var("FPM_LOG_LEVEL") {
         Ok(level) => level,
         Err(e) => return DEFAULT_LOG_LEVEL,
     };

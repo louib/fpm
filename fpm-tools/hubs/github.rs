@@ -132,7 +132,7 @@ pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse
         "Accept",
         header::HeaderValue::from_str("application/vnd.github.v3+json").unwrap(),
     );
-    if let Ok(token) = env::var("PB_GITHUB_TOKEN") {
+    if let Ok(token) = env::var("FPM_GITHUB_TOKEN") {
         let auth_header_value = format!("token {}", &token);
         headers.insert(
             "Authorization",
@@ -140,7 +140,7 @@ pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse
         );
     } else {
         log::warn!(
-            "No GitHub API token located at PB_GITHUB_TOKEN. We will get rate limited faster."
+            "No GitHub API token located at FPM_GITHUB_TOKEN. We will get rate limited faster."
         );
     }
 

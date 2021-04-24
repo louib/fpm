@@ -36,7 +36,7 @@ impl Database {
     }
 
     pub fn get_db_path() -> String {
-        if let Ok(path) = env::var("PB_DB_PATH") {
+        if let Ok(path) = env::var("FPM_DB_PATH") {
             return path.to_string();
         }
         if let Ok(path) = env::var("HOME") {
