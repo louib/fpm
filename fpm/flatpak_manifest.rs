@@ -259,7 +259,7 @@ impl FlatpakManifest {
     pub fn load_from_file(path: String) -> Option<FlatpakManifest> {
         let file_path = path::Path::new(&path);
         if !file_path.is_file() {
-            eprintln!("{} is not a file.", path);
+            log::error!("{} is not a file.", path);
             return None;
         }
 
@@ -267,16 +267,20 @@ impl FlatpakManifest {
             let manifest_content = match fs::read_to_string(file_path) {
                 Ok(content) => content,
                 Err(e) => {
-                    eprintln!("Could not read manifest file {}: {}.", path, e);
+                    log::error!("Could not read manifest file {}: {}.", path, e);
                     return None;
                 }
             };
+            log::info!("Parsing Flatpak manifest file {}", &path);
             match FlatpakManifest::parse(&manifest_content) {
-                Some(m) => return Some(m),
-                None => return None,
+                Ok(m) => return Some(m),
+                Err(e) => {
+                    log::warn!("Failed to parse Flatpak manifest at {}: {}", path, e);
+                    return None;
+                }
             };
         } else {
-            eprintln!("{} is not a Flatpak manifest.", path);
+            log::debug!("{} is not a Flatpak manifest.", path);
             return None;
         }
     }
@@ -314,22 +318,23 @@ impl FlatpakManifest {
         return true;
     }
 
-    pub fn parse(manifest_content: &String) -> Option<FlatpakManifest> {
+    pub fn parse(manifest_content: &String) -> Result<FlatpakManifest, String> {
         let flatpak_manifest: FlatpakManifest = match serde_yaml::from_str(&manifest_content) {
             Ok(m) => m,
             Err(e) => {
-                log::warn!("Failed to parse the Flatpak manifest: {}.", e);
-                return None;
+                return Err(format!("Failed to parse the Flatpak manifest: {}.", e));
             }
         };
 
         // TODO I think there's other fields to validate here.
         if flatpak_manifest.app_id.is_empty() && flatpak_manifest.id.is_empty() {
-            log::warn!("Required top-level field id (or app-id) is missing from flatpak manifest.");
-            return None;
+            return Err(
+                "Required top-level field id (or app-id) is missing from Flatpak manifest."
+                    .to_string(),
+            );
         }
 
-        Some(flatpak_manifest)
+        Ok(flatpak_manifest)
     }
 
     pub fn dump(&self, format: &FlatpakManifestFormat) -> Result<String, String> {
@@ -825,7 +830,7 @@ mod tests {
         "###
             .to_string(),
         )
-        .is_none());
+        .is_err());
     }
 
     #[test]
@@ -852,8 +857,8 @@ mod tests {
         "###
             .to_string(),
         ) {
-            None => panic!("Error while parsing the flatpak manifest."),
-            Some(manifest) => {
+            Err(e) => panic!(e),
+            Ok(manifest) => {
                 assert_eq!(manifest.app_id, "net.louib.fpm");
             }
         }
@@ -885,8 +890,8 @@ mod tests {
         "###
             .to_string(),
         ) {
-            None => panic!("Error while parsing the flatpak manifest."),
-            Some(manifest) => {
+            Err(e) => panic!(e),
+            Ok(manifest) => {
                 assert_eq!(manifest.app_id, "net.louib.fpm");
             }
         }

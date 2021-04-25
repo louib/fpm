@@ -109,18 +109,7 @@ fn main() {
                     continue;
                 }
 
-                if !FlatpakManifest::file_path_matches(file_path) {
-                    continue;
-                }
-                log::info!("Parsing manifest file {}", &file_path);
-                let manifest_content = match fs::read_to_string(file_path) {
-                    Ok(content) => content,
-                    Err(e) => {
-                        log::debug!("Could not read manifest file {}: {}.", &file_path, e);
-                        continue;
-                    }
-                };
-                let flatpak_manifest = match FlatpakManifest::parse(&manifest_content) {
+                let flatpak_manifest = match FlatpakManifest::load_from_file(file_path.to_string()) {
                     Some(m) => m,
                     None => continue,
                 };
