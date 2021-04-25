@@ -176,15 +176,12 @@ pub struct FlatpakManifest {
 
     // This is a dictionary of extension objects.
     // The key is the name of the extension.
-    // See below for details.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub add_extensions: Vec<String>,
+    pub add_extensions: BTreeMap<String, FlatpakExtension>,
 
     // This is a dictionary of extension objects similar to add-extensions.
     // The main difference is that the extensions are added early and are
     // available for use during the build.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub add_build_extensions: Vec<String>,
+    pub add_build_extensions: BTreeMap<String, FlatpakExtension>,
 
     // An array of file patterns that should be removed at the end.
     // Patterns starting with / are taken to be full pathnames (without the /app prefix),
@@ -558,7 +555,7 @@ pub struct FlatpakSource {
 // directly into the metadata file: autodelete, no-autodownload, subdirectories,
 // add-ld-path, download-if, enable-if, merge-dirs, subdirectory-suffix, locale-subset,
 // version, versions. See the flatpak metadata documentation for more information on these.
-#[derive(Deserialize, Serialize, Default)]
+#[derive(Deserialize, Serialize, Default, Debug)]
 #[serde(rename_all = "kebab-case")]
 #[serde(default)]
 pub struct FlatpakExtension {
