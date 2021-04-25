@@ -553,6 +553,11 @@ pub struct FlatpakSource {
 
 // Extension define extension points in the app/runtime that can be implemented by extensions,
 // supplying extra files which are available during runtime..
+//
+// Additionally the standard flatpak extension properties are supported, and put
+// directly into the metadata file: autodelete, no-autodownload, subdirectories,
+// add-ld-path, download-if, enable-if, merge-dirs, subdirectory-suffix, locale-subset,
+// version, versions. See the flatpak metadata documentation for more information on these.
 #[derive(Deserialize, Serialize, Default)]
 #[serde(rename_all = "kebab-case")]
 #[serde(default)]
@@ -568,12 +573,66 @@ pub struct FlatpakExtension {
 
     // If this is true, the extension is removed during when finishing.
     // This is only interesting for extensions in the add-build-extensions property.
-    // Additionally the standard flatpak extension properties are supported, and put
-    // directly into the metadata file: autodelete, no-autodownload, subdirectories,
-    // add-ld-path, download-if, enable-if, merge-dirs, subdirectory-suffix, locale-subset,
-    // version, versions. See the flatpak metadata documentation for more information on these.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub remove_after_build: Option<bool>,
+
+    // Whether to automatically delete extensions matching this extension point
+    // when deleting a 'related' application or runtime.
+    pub autodelete: Option<bool>,
+
+    // Whether to automatically download extensions matching this extension point
+    // when updating or installing a 'related' application or runtime.
+    pub no_autodownload: Option<bool>,
+
+    // If this key is set to true, then flatpak will look for extensions whose name is a
+    // prefix of the extension point name, and mount them at the corresponding
+    // name below the subdirectory.
+    pub subdirectories: Option<bool>,
+
+    // A path relative to the extension point directory that will be appended to LD_LIBRARY_PATH.
+    pub add_ld_path: Option<String>,
+
+    // A list of conditions, separated by semi-colons, that must be true for the extension to be auto-downloaded.
+    // These are the supported conditions:
+    //  active-gl-driver
+    //     Is true if the name of the active GL driver matches the extension point basename.
+    //  active-gtk-theme
+    //     Is true if the name of the current GTK theme (via org.gnome.desktop.interface GSetting)
+    //     matches the extension point basename.
+    //  have-intel-gpu
+    //     Is true if the i915 kernel module is loaded.
+    //  on-xdg-desktop-*
+    //     Is true if the suffix (case-insensitively) is in the XDG_CURRENT_DESKTOP env var.
+    //     For example on-xdg-desktop-GNOME-classic.
+    pub download_if: Option<String>,
+
+    // A list of conditions, separated by semi-colons, that must be true for the extension to be
+    // enabled. See download_if for available conditions.
+    pub enable_if: Option<String>,
+
+    // A list of relative paths of directories below the extension point directory that will be merged.
+    pub merge_dirs: Option<String>,
+
+    // A suffix that gets appended to the directory name.
+    // This is very useful when the extension point naming scheme is "reversed".
+    // For example, an extension point for GTK+ themes would be /usr/share/themes/$NAME/gtk-3.0,
+    // which could be achieved using subdirectory-suffix=gtk-3.0.
+    pub subdirectory_suffix: Option<String>,
+
+    // If set, then the extensions are partially downloaded by default, based on the currently
+    // configured locales. This means that the extension contents should be
+    // a set of directories with the language code as name.
+    pub locale_subset: Option<bool>,
+
+    // The branch to use when looking for the extension.
+    // If this is not specified, it defaults to the branch of the application or
+    // runtime that the extension point is for.
+    pub version: Option<String>,
+
+    // The branches to use when looking for the extension.
+    // If this is not specified, it defaults to the branch of the application or
+    // runtime that the extension point is for.
+    pub versions: Option<String>,
 }
 
 // Build options specify the build environment of a module,
