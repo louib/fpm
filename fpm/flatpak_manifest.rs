@@ -384,7 +384,6 @@ pub struct FlatpakModuleDescription {
     // An array of objects defining sources that will be downloaded and extracted in order.
     // String members in the array are interpreted as the name of a separate
     // json or yaml file that contains sources. See below for details.
-    // FIXME this can also be a string, which represents a local path to a module file.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub sources: Vec<FlatpakSource>,
 
@@ -521,6 +520,14 @@ pub const ALLOWED_SOURCE_TYPES: [&'static str; 10] = [
     "extra-data",
 ];
 
+#[derive(Debug, Deserialize, Serialize, Hash)]
+#[serde(rename_all = "kebab-case")]
+#[serde(untagged)]
+pub enum FlatpakSource {
+    Path(String),
+    Description(FlatpakSourceDescription),
+}
+
 // The sources are a list pointer to the source code that needs to be extracted into
 // the build directory before the build starts.
 // They can be of several types, distinguished by the type property.
@@ -530,7 +537,7 @@ pub const ALLOWED_SOURCE_TYPES: [&'static str; 10] = [
 // point. The file can contain a single source, or an array of sources.
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
 #[serde(rename_all = "kebab-case")]
-pub struct FlatpakSource {
+pub struct FlatpakSourceDescription {
     #[serde(skip_serializing_if = "String::is_empty")]
     pub r#type: String,
 
@@ -990,6 +997,35 @@ mod tests {
             Ok(manifest) => {
                 assert_eq!(manifest.app_id, "net.pcsx2.PCSX2");
                 assert_eq!(manifest.add_extensions.len(), 3);
+            }
+        }
+    }
+
+    #[test]
+    pub fn test_parse_string_source() {
+        match FlatpakManifest::parse(
+            &r###"
+            app-id: net.louib.fpm
+            runtime: org.gnome.Platform
+            runtime-version: "3.36"
+            sdk: org.gnome.Sdk
+            command: fpm
+            tags: ["nightly"]
+            modules:
+              -
+                name: "fpm"
+                buildsystem: simple
+                cleanup: [ "*" ]
+                config-opts: []
+                sources:
+                  -
+                    "shared-modules/linux-audio/lv2.json"
+        "###
+            .to_string(),
+        ) {
+            Err(e) => panic!(e),
+            Ok(manifest) => {
+                assert_eq!(manifest.app_id, "net.louib.fpm");
             }
         }
     }
