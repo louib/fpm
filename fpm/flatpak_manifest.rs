@@ -955,4 +955,45 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    pub fn test_parse_add_extensions() {
+        match FlatpakManifest::parse(
+            &r###"
+            app-id: net.pcsx2.PCSX2
+            runtime: org.freedesktop.Platform
+            runtime-version: "19.08"
+            sdk: org.freedesktop.Sdk
+            command: PCSX2
+            tags: ["nightly"]
+            modules: []
+            add-extensions:
+                "org.freedesktop.Platform.Compat.i386":
+                    directory: "lib/i386-linux-gnu"
+                    version: "19.08"
+                "org.freedesktop.Platform.Compat.i386.Debug":
+                    directory: "lib/debug/lib/i386-linux-gnu"
+                    version: "19.08"
+                    no-autodownload: true
+                "org.freedesktop.Platform.GL32":
+                    directory: "lib/i386-linux-gnu/GL"
+                    version: "1.4"
+                    versions: "19.08;1.4"
+                    subdirectories: true
+                    no-autodownload: true
+                    autodelete: false
+                    add-ld-path: "lib"
+                    merge-dirs: "vulkan/icd.d;glvnd/egl_vendor.d"
+                    download-if: "active-gl-driver"
+                    enable-if: "active-gl-driver"
+        "###
+            .to_string(),
+        ) {
+            Err(e) => panic!(e),
+            Ok(manifest) => {
+                assert_eq!(manifest.app_id, "net.pcsx2.PCSX2");
+                assert_eq!(manifest.add_extensions.len(), 3);
+            }
+        }
+    }
 }
