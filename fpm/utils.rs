@@ -8,7 +8,7 @@ use std::time::SystemTime;
 // Gets the path the repos should be located at.
 // FIXME not sure this function belongs in utils...
 pub fn get_repos_dir_path() -> String {
-    if let Ok(path) = env::var("FPM_REPOS_DIR_PATH") {
+    if let Ok(path) = env::var("FPM_CLONED_REPOS_DIR") {
         return path.to_string();
     }
     "/tmp".to_string()
