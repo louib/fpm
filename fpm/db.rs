@@ -158,7 +158,8 @@ impl Database {
         log::info!("Adding module at {}", new_module_path);
         let mut new_module_fs_path = path::Path::new(&new_module_path);
         if new_module_fs_path.exists() {
-            // FIXME we should update the module if it already exists!
+            // The path is based on a hash of the module, so there should be no need to
+            // update a file that exists.
             return;
         }
         match fs::write(

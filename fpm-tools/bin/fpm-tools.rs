@@ -139,6 +139,7 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
             return;
         },
     };
+
     // TODO we should also rewind on all the commits of that repo?
     let repo_file_paths = match fpm::utils::get_all_paths(path::Path::new(&repo_dir)) {
         Ok(paths) => paths,
@@ -150,6 +151,10 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
     for file_path in &repo_file_paths {
         let file_path = file_path.to_str().unwrap();
         if file_path.contains(".git/") {
+            continue;
+        }
+        // We handle the shared modules separately.
+        if file_path.contains(".shared-modules/") {
             continue;
         }
 
