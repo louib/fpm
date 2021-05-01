@@ -88,41 +88,7 @@ fn main() {
                 continue;
             }
 
-            let repo_dir = match fpm::utils::clone_git_repo(&repo_url) {
-                Ok(d) => d,
-                Err(e) => {
-                    eprintln!("Could not clone repo {}: {}", &repo_url, e);
-                    continue;
-                },
-            };
-            // TODO we should also rewind on all the commits of that repo?
-            let repo_file_paths = match fpm::utils::get_all_paths(path::Path::new(&repo_dir)) {
-                Ok(paths) => paths,
-                Err(message) => {
-                    log::error!("Could not get the file paths for {} :sad: {}", repo_dir, message);
-                    continue;
-                }
-            };
-            for file_path in &repo_file_paths {
-                let file_path = file_path.to_str().unwrap();
-                if file_path.contains(".git/") {
-                    continue;
-                }
-
-                let flatpak_manifest = match FlatpakManifest::load_from_file(file_path.to_string()) {
-                    Some(m) => m,
-                    None => continue,
-                };
-
-                for module in flatpak_manifest.modules {
-                    if let FlatpakModule::Description(module_description) = module {
-                        db.add_module(module_description);
-                    }
-                }
-
-                // TODO infer projects from the modules when possible.
-            }
-
+            mine_repository(&mut db, &repo_url);
         }
         println!("There are {} flathub repos.", all_flathub_repos.len());
     }
@@ -158,5 +124,44 @@ fn main() {
         fpm_tools::hubs::brew::get_and_add_recipes(&mut db);
     }
 
+    if command_name == &"extract-projects-from-modules" {
+        // TODO infer projects from the modules when possible.
+    }
+
     exit(exit_code);
+}
+
+pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
+    let repo_dir = match fpm::utils::clone_git_repo(&repo_url) {
+        Ok(d) => d,
+        Err(e) => {
+            eprintln!("Could not clone repo {}: {}", &repo_url, e);
+            return;
+        },
+    };
+    // TODO we should also rewind on all the commits of that repo?
+    let repo_file_paths = match fpm::utils::get_all_paths(path::Path::new(&repo_dir)) {
+        Ok(paths) => paths,
+        Err(message) => {
+            log::error!("Could not get the file paths for {} :sad: {}", repo_dir, message);
+            return;
+        }
+    };
+    for file_path in &repo_file_paths {
+        let file_path = file_path.to_str().unwrap();
+        if file_path.contains(".git/") {
+            continue;
+        }
+
+        let flatpak_manifest = match FlatpakManifest::load_from_file(file_path.to_string()) {
+            Some(m) => m,
+            None => continue,
+        };
+
+        for module in flatpak_manifest.modules {
+            if let FlatpakModule::Description(module_description) = module {
+                db.add_module(module_description);
+            }
+        }
+    }
 }
