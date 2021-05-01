@@ -57,7 +57,8 @@ pub fn search_flatpak_repos() -> Vec<fpm::projects::SoftwareProject> {
         domain: "".to_string(),
         token: None,
         next_page_url: Some(
-            "https://api.github.com/search/repositories?type=all&per_page=100&q=flatpak".to_string(),
+            "https://api.github.com/search/repositories?type=all&per_page=100&q=flatpak"
+                .to_string(),
         ),
     });
     let mut all_projects = vec![];
