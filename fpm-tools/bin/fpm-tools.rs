@@ -29,10 +29,10 @@ fn main() {
         ) {
             Ok(p) => p,
             Err(e) => {
-                panic!("Could not glone flathub shared modules repo.");
+                panic!("Could not clone flathub shared modules repo.");
             }
         };
-        let all_repo_paths = match fpm::utils::get_all_paths(path::Path::new(&repo_path)) {
+        let all_paths_in_repo = match fpm::utils::get_all_paths(path::Path::new(&repo_path)) {
             Ok(p) => p,
             Err(e) => {
                 panic!("Could not get paths in flathub shared modules repo.");
@@ -40,7 +40,7 @@ fn main() {
         };
 
         let mut flatpak_modules: Vec<FlatpakModule> = vec![];
-        for file_path in &all_repo_paths {
+        for file_path in &all_paths_in_repo {
             let file_path_str = file_path.to_str().unwrap();
 
             let file_content = match fs::read_to_string(file_path) {
@@ -162,6 +162,8 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
             Some(m) => m,
             None => continue,
         };
+
+        let main_module_url = flatpak_manifest.get_main_module_url();
 
         for module in flatpak_manifest.modules {
             if let FlatpakModule::Description(module_description) = module {

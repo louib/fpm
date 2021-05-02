@@ -351,6 +351,30 @@ impl FlatpakManifest {
 
         Err(format!("Invalid format for Flatpak manifest."))
     }
+
+    pub fn get_main_module_url(&self) -> Option<String> {
+        let main_module = self.modules.last().unwrap();
+        let main_module: &FlatpakModuleDescription = match main_module {
+            FlatpakModule::Path(_) => return None,
+            FlatpakModule::Description(m) => m,
+        };
+        // Here we assume that anything that is not a single source definition cannot
+        // be a link to the main project's repository.
+        if main_module.sources.len() != 1 {
+            return None;
+        }
+        let main_module_source = main_module.sources.last().unwrap();
+
+        let main_module_source: &FlatpakSourceDescription = match main_module_source {
+            FlatpakSource::Path(_) => return None,
+            FlatpakSource::Description(s) => s,
+        };
+
+        match &main_module_source.url {
+            Some(s) => Some(s.to_string()),
+            None => None,
+        }
+    }
 }
 
 // Each module item can be either a path to a module description file,
