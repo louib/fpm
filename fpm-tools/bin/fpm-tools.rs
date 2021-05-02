@@ -164,6 +164,14 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
         };
 
         let main_module_url = flatpak_manifest.get_main_module_url();
+        let main_module_url = match main_module_url {
+            Some(u) => u,
+            None => String::from(""),
+        };
+        if main_module_url.ends_with(".git") && main_module_url != repo_url {
+            println!("ALSO MINING A MAIN MODULE GIT URL {}", main_module_url);
+            mine_repository(db, &main_module_url);
+        }
 
         for module in flatpak_manifest.modules {
             if let FlatpakModule::Description(module_description) = module {

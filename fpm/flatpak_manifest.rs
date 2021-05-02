@@ -358,12 +358,13 @@ impl FlatpakManifest {
             FlatpakModule::Path(_) => return None,
             FlatpakModule::Description(m) => m,
         };
-        // Here we assume that anything that is not a single source definition cannot
-        // be a link to the main project's repository.
-        if main_module.sources.len() != 1 {
+        if main_module.sources.len() < 1 {
             return None;
         }
-        let main_module_source = main_module.sources.last().unwrap();
+
+        // Here we assume that the first source is the actual project, and
+        // anything after is a patch or an additional file.
+        let main_module_source = main_module.sources.first().unwrap();
 
         let main_module_source: &FlatpakSourceDescription = match main_module_source {
             FlatpakSource::Path(_) => return None,
@@ -559,6 +560,8 @@ pub enum FlatpakSource {
 // Additionally, the sources list can contain a plain string, which is interpreted as the name
 // of a separate json or yaml file that is read and inserted at this
 // point. The file can contain a single source, or an array of sources.
+// TODO there are actually much more fields in the source descriptions, depending
+// on the type of source used. See the man page for details.
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub struct FlatpakSourceDescription {
@@ -577,6 +580,13 @@ pub struct FlatpakSourceDescription {
     // The name of the branch to checkout.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub branch: Option<String>,
+
+    // The commit to use from the git repository.
+    // If branch is also specified, then it is verified that the branch/tag is at this specific commit.
+    // This is a readable way to document that you're using a particular tag, but verify
+    // that it does not change.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub commit: Option<String>,
 }
 
 // Extension define extension points in the app/runtime that can be implemented by extensions,
