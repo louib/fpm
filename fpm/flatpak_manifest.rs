@@ -352,6 +352,18 @@ impl FlatpakManifest {
         Err(format!("Invalid format for Flatpak manifest."))
     }
 
+    pub fn get_all_module_urls(&self) -> Vec<String> {
+        let mut all_urls = vec![];
+        for module in &self.modules {
+            let module: &FlatpakModuleDescription = match module {
+                FlatpakModule::Path(_) => continue,
+                FlatpakModule::Description(m) => &m,
+            };
+            all_urls.append(&mut module.get_all_urls());
+        }
+        all_urls
+    }
+
     pub fn get_main_module_url(&self) -> Option<String> {
         let main_module = self.modules.last().unwrap();
         let main_module: &FlatpakModuleDescription = match main_module {
@@ -529,6 +541,22 @@ impl FlatpakModuleDescription {
         let mut s = DefaultHasher::new();
         self.hash(&mut s);
         s.finish()
+    }
+    pub fn get_all_urls(&self) -> Vec<String> {
+        let mut all_urls = vec![];
+        for module in &self.modules {
+            if let FlatpakModule::Description(module_description) = module {
+                all_urls.append(&mut module_description.get_all_urls());
+            }
+        }
+        for source in &self.sources {
+            if let FlatpakSource::Description(source_description) = source {
+                if let Some(url) = &source_description.url {
+                    all_urls.push(url.to_string());
+                }
+            }
+        }
+        all_urls
     }
 }
 
