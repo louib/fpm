@@ -171,6 +171,7 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
         if main_module_url.ends_with(".git") && main_module_url.starts_with("https://") && main_module_url != repo_url {
             mine_repository(db, &main_module_url);
         }
+        println!("MANIFEST MAX DEPTH {} {}", flatpak_manifest.get_max_depth(), file_path);
 
         for module in &flatpak_manifest.modules {
             if let FlatpakModule::Description(module_description) = module {

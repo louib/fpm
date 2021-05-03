@@ -388,6 +388,20 @@ impl FlatpakManifest {
             None => None,
         }
     }
+
+    pub fn get_max_depth(&self) -> i32 {
+        let mut max_depth: i32 = 0;
+        for module in &self.modules {
+            if let FlatpakModule::Description(module_description) = module {
+                let module_depth = module_description.get_max_depth();
+                if module_depth > max_depth {
+                    max_depth = module_depth;
+                }
+            }
+        }
+        return max_depth;
+    }
+
 }
 
 // Each module item can be either a path to a module description file,
@@ -557,6 +571,18 @@ impl FlatpakModuleDescription {
             }
         }
         all_urls
+    }
+    pub fn get_max_depth(&self) -> i32 {
+        let mut max_depth: i32 = 0;
+        for module in &self.modules {
+            if let FlatpakModule::Description(module_description) = module {
+                let module_depth = module_description.get_max_depth();
+                if module_depth > max_depth {
+                    max_depth = module_depth;
+                }
+            }
+        }
+        return max_depth + 1;
     }
 }
 
