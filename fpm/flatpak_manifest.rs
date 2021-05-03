@@ -401,7 +401,6 @@ impl FlatpakManifest {
         }
         return max_depth;
     }
-
 }
 
 // Each module item can be either a path to a module description file,
