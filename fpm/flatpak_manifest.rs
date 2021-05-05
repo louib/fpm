@@ -1116,4 +1116,41 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    pub fn test_parse_build_options() {
+        match FlatpakManifest::parse(
+            &r###"
+            app-id: net.louib.fpm
+            runtime: org.gnome.Platform
+            runtime-version: "3.36"
+            sdk: org.gnome.Sdk
+            command: fpm
+            tags: ["nightly"]
+            modules:
+              -
+                name: "fpm"
+                buildsystem: simple
+                cleanup: [ "*" ]
+                build-options:
+                   cflags: "-O2 -g"
+                   cxxflags: "-O2 -g"
+                   env:
+                       V: "1"
+                   arch:
+                       x86_64:
+                           cflags: "-O3 -g"
+                config-opts: []
+                sources:
+                  -
+                    "shared-modules/linux-audio/lv2.json"
+        "###
+            .to_string(),
+        ) {
+            Err(e) => panic!(e),
+            Ok(manifest) => {
+                assert_eq!(manifest.app_id, "net.louib.fpm");
+            }
+        }
+    }
 }
