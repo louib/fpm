@@ -598,6 +598,8 @@ pub const ALLOWED_SOURCE_TYPES: [&'static str; 10] = [
     "extra-data",
 ];
 
+pub const DEFAULT_SOURCE_TYPE: &str = "archive";
+
 #[derive(Debug, Deserialize, Serialize, Hash)]
 #[serde(rename_all = "kebab-case")]
 #[serde(untagged)]
@@ -618,8 +620,8 @@ pub enum FlatpakSource {
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub struct FlatpakSourceDescription {
-    #[serde(skip_serializing_if = "String::is_empty")]
-    pub r#type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
@@ -640,6 +642,14 @@ pub struct FlatpakSourceDescription {
     // that it does not change.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub commit: Option<String>,
+}
+impl FlatpakSourceDescription {
+    pub fn get_type(&self) -> String {
+        if let Some(source_type) = &self.r#type {
+            return source_type.to_string();
+        }
+        return DEFAULT_SOURCE_TYPE.to_string();
+    }
 }
 
 // Extension define extension points in the app/runtime that can be implemented by extensions,
@@ -1107,6 +1117,37 @@ mod tests {
                 sources:
                   -
                     "shared-modules/linux-audio/lv2.json"
+        "###
+            .to_string(),
+        ) {
+            Err(e) => panic!(e),
+            Ok(manifest) => {
+                assert_eq!(manifest.app_id, "net.louib.fpm");
+            }
+        }
+    }
+
+    #[test]
+    pub fn test_parse_source_without_type() {
+        match FlatpakManifest::parse(
+            &r###"
+            app-id: net.louib.fpm
+            runtime: org.gnome.Platform
+            runtime-version: "3.36"
+            sdk: org.gnome.Sdk
+            command: fpm
+            tags: ["nightly"]
+            modules:
+              -
+                name: "gcc"
+                buildsystem: simple
+                cleanup: [ "*" ]
+                config-opts: []
+                sources:
+                  -
+                    url: "https://ftp.gnu.org/gnu/gcc/gcc-7.5.0/gcc-7.5.0.tar.xz"
+                    sha256: "b81946e7f01f90528a1f7352ab08cc602b9ccc05d4e44da4bd501c5a189ee661"
+
         "###
             .to_string(),
         ) {
