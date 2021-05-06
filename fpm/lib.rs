@@ -76,6 +76,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         }
 
         let mut output: String = String::from("");
+        // TODO this should get all the modules recursively.
         for module in &flatpak_manifest.modules {
             if !output.is_empty() {
                 output.push_str(&separator)
