@@ -124,6 +124,7 @@ pub struct FlatpakManifest {
     pub sdk: String,
 
     // The name of the development extensions that the application requires to build.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub sdk_extensions: Vec<String>,
 
     // Initialize the (otherwise empty) writable /var in the build with a copy of this runtime.
@@ -184,11 +185,13 @@ pub struct FlatpakManifest {
 
     // This is a dictionary of extension objects.
     // The key is the name of the extension.
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     pub add_extensions: BTreeMap<String, FlatpakExtension>,
 
     // This is a dictionary of extension objects similar to add-extensions.
     // The main difference is that the extensions are added early and are
     // available for use during the build.
+    #[serde(skip_serializing_if = "BTreeMap::is_empty")]
     pub add_build_extensions: BTreeMap<String, FlatpakExtension>,
 
     // An array of file patterns that should be removed at the end.
