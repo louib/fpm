@@ -41,11 +41,10 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             None => return 1,
         };
 
-        let manifest_dump =
-            match flatpak_manifest.dump(&crate::flatpak_manifest::FlatpakManifestFormat::JSON) {
-                Ok(d) => d,
-                Err(e) => return 1,
-            };
+        let manifest_dump = match flatpak_manifest.dump() {
+            Ok(d) => d,
+            Err(e) => return 1,
+        };
 
         match fs::write(path::Path::new(manifest_file_path), manifest_dump) {
             Ok(content) => content,

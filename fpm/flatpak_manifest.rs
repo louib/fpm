@@ -63,12 +63,20 @@ pub enum FlatpakManifestFormat {
     JSON,
     YAML,
 }
+impl Default for FlatpakManifestFormat {
+    fn default() -> Self {
+        FlatpakManifestFormat::YAML
+    }
+}
 
 // See `man flatpak-manifest` for the flatpak manifest specs.
 #[derive(Deserialize, Serialize, Debug, Default)]
 #[serde(rename_all = "kebab-case")]
 #[serde(default)]
 pub struct FlatpakManifest {
+    #[serde(skip_serializing)]
+    pub format: FlatpakManifestFormat,
+
     // Name of the application.
     #[serde(skip_serializing_if = "String::is_empty")]
     pub app_name: String,
@@ -269,13 +277,18 @@ impl FlatpakManifest {
                 }
             };
             log::info!("Parsing Flatpak manifest file {}", &path);
-            match FlatpakManifest::parse(&manifest_content) {
-                Ok(m) => return Some(m),
+            let mut manifest = match FlatpakManifest::parse(&manifest_content) {
+                Ok(m) => m,
                 Err(e) => {
                     log::warn!("Failed to parse Flatpak manifest at {}: {}", path, e);
                     return None;
                 }
             };
+            manifest.format = FlatpakManifestFormat::YAML;
+            if path.ends_with("json") {
+                manifest.format = FlatpakManifestFormat::JSON;
+            }
+            return Some(manifest);
         } else {
             log::debug!("{} is not a Flatpak manifest.", path);
             return None;
@@ -334,15 +347,15 @@ impl FlatpakManifest {
         Ok(flatpak_manifest)
     }
 
-    pub fn dump(&self, format: &FlatpakManifestFormat) -> Result<String, String> {
-        if let FlatpakManifestFormat::JSON = format {
+    pub fn dump(&self) -> Result<String, String> {
+        if let FlatpakManifestFormat::JSON = self.format {
             return match serde_json::to_string_pretty(&self) {
                 Ok(d) => Ok(d),
                 Err(e) => return Err(format!("Failed to dump the Flatpak manifest: {}.", e)),
             };
         }
 
-        if let FlatpakManifestFormat::YAML = format {
+        if let FlatpakManifestFormat::YAML = self.format {
             return match serde_yaml::to_string(&self) {
                 Ok(d) => Ok(d),
                 Err(e) => return Err(format!("Failed to dump the Flatpak manifest: {}.", e)),
