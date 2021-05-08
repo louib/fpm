@@ -94,14 +94,27 @@ fn main() {
     if command_name == &"import-self-hosted-gitlab-manifests".to_string() {
         let mut db = fpm::db::Database::get_database();
 
-        let gitlab_repo_urls = get_gitlab_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN");
-        for gitlab_repo_url in &gitlab_repo_urls {
-            mine_repository(&mut db, &gitlab_repo_url);
+        let gitlab_repo_urls = match get_gitlab_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN") {
+            Ok(r) => r,
+            Err(e) => panic!(e),
+        };
+        for gitlab_repo_url in gitlab_repo_urls.split('\n') {
+            if gitlab_repo_url.trim().is_empty() {
+                continue;
+            }
+            // mine_repository(&mut db, &gitlab_repo_url);
         }
 
-        let gitlab_repo_urls = get_gitlab_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN");
-        for gitlab_repo_url in &gitlab_repo_urls {
-            mine_repository(&mut db, &gitlab_repo_url);
+        let gitlab_repo_urls = match get_gitlab_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN") {
+            Ok(r) => r,
+            Err(e) => panic!(e),
+        };
+        for gitlab_repo_url in gitlab_repo_urls.split('\n') {
+            if gitlab_repo_url.trim().is_empty() {
+                continue;
+            }
+            eprintln!("repo url is {}", gitlab_repo_url);
+            // mine_repository(&mut db, &gitlab_repo_url);
         }
 
         // get_gitlab_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN");
