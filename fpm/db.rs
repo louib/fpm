@@ -9,6 +9,7 @@ use crate::projects::SoftwareProject;
 pub const DEFAULT_DB_PATH: &str = ".fpm-db";
 pub const MODULES_DB_SUBDIR: &str = "/modules";
 pub const PROJECTS_DB_SUBDIR: &str = "/projects";
+pub const REPOS_DB_SUBDIR: &str = "/repositories";
 
 pub struct Database {
     pub projects: Vec<SoftwareProject>,
@@ -51,6 +52,10 @@ impl Database {
 
     pub fn get_projects_db_path() -> String {
         Database::get_db_path() + PROJECTS_DB_SUBDIR
+    }
+
+    pub fn get_repos_db_path() -> String {
+        Database::get_db_path() + REPOS_DB_SUBDIR
     }
 
     pub fn get_all_projects() -> Vec<SoftwareProject> {
