@@ -83,11 +83,7 @@ impl Database {
             let project = match serde_yaml::from_str(&project_content) {
                 Ok(p) => p,
                 Err(e) => {
-                    log::debug!(
-                        "Could not parse project file at {}: {}.",
-                        &project_path_str,
-                        e
-                    );
+                    log::debug!("Could not parse project file at {}: {}.", &project_path_str, e);
                     continue;
                 }
             };
@@ -126,11 +122,7 @@ impl Database {
             let module = match serde_yaml::from_str(&module_content) {
                 Ok(m) => m,
                 Err(e) => {
-                    log::debug!(
-                        "Could not parse module file at {}: {}.",
-                        &module_path_str,
-                        e
-                    );
+                    log::debug!("Could not parse module file at {}: {}.", &module_path_str, e);
                     continue;
                 }
             };
@@ -162,10 +154,7 @@ impl Database {
             // update a file that exists.
             return;
         }
-        match fs::write(
-            new_module_fs_path,
-            serde_yaml::to_string(&new_module).unwrap(),
-        ) {
+        match fs::write(new_module_fs_path, serde_yaml::to_string(&new_module).unwrap()) {
             Ok(content) => content,
             Err(e) => {
                 eprintln!(
@@ -194,10 +183,7 @@ impl Database {
         log::info!("Updating project at {}", new_project_path);
 
         existing_project.merge(project);
-        match fs::write(
-            project_fs_path,
-            serde_yaml::to_string(&existing_project).unwrap(),
-        ) {
+        match fs::write(project_fs_path, serde_yaml::to_string(&existing_project).unwrap()) {
             Ok(content) => content,
             Err(e) => {
                 eprintln!(
@@ -221,10 +207,7 @@ impl Database {
             // FIXME we should update the project if it already exists!
             return;
         }
-        match fs::write(
-            new_project_fs_path,
-            serde_yaml::to_string(&project).unwrap(),
-        ) {
+        match fs::write(new_project_fs_path, serde_yaml::to_string(&project).unwrap()) {
             Ok(content) => content,
             Err(e) => {
                 eprintln!(

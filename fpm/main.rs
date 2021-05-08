@@ -73,18 +73,12 @@ fn main() {
             .unwrap_or("")
             .to_string(),
     );
-    arguments.entry("env_name".to_string()).or_insert(
-        subcommand_matches
-            .value_of("env_name")
-            .unwrap_or("")
-            .to_string(),
-    );
-    arguments.entry("command".to_string()).or_insert(
-        subcommand_matches
-            .value_of("command")
-            .unwrap_or("")
-            .to_string(),
-    );
+    arguments
+        .entry("env_name".to_string())
+        .or_insert(subcommand_matches.value_of("env_name").unwrap_or("").to_string());
+    arguments
+        .entry("command".to_string())
+        .or_insert(subcommand_matches.value_of("command").unwrap_or("").to_string());
 
     let exit_code = fpm::run(command_name, arguments);
     exit(exit_code);

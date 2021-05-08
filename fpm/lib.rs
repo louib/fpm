@@ -34,12 +34,11 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             .get("manifest_file_path")
             .expect("an input file is required!");
 
-        let mut flatpak_manifest = match crate::flatpak_manifest::FlatpakManifest::load_from_file(
-            manifest_file_path.to_string(),
-        ) {
-            Some(m) => m,
-            None => return 1,
-        };
+        let mut flatpak_manifest =
+            match crate::flatpak_manifest::FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
+                Some(m) => m,
+                None => return 1,
+            };
 
         let manifest_dump = match flatpak_manifest.dump() {
             Ok(d) => d,
@@ -63,12 +62,11 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             .get("manifest_file_path")
             .expect("a manifest file is required!");
 
-        let mut flatpak_manifest = match crate::flatpak_manifest::FlatpakManifest::load_from_file(
-            manifest_file_path.to_string(),
-        ) {
-            Some(m) => m,
-            None => return 1,
-        };
+        let mut flatpak_manifest =
+            match crate::flatpak_manifest::FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
+                Some(m) => m,
+                None => return 1,
+            };
 
         let mut separator = DEFAULT_PACKAGE_LIST_SEP;
         if args.contains_key("separator") {
@@ -243,10 +241,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         }
 
         let manifest_file_path = config.workspaces.get(&current_workspace).unwrap();
-        println!(
-            "Workspace {} using {}.",
-            current_workspace, manifest_file_path
-        );
+        println!("Workspace {} using {}.", current_workspace, manifest_file_path);
     }
 
     log::debug!("Finishing...");

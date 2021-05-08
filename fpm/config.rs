@@ -24,12 +24,7 @@ pub fn write_config(config: &WorkspaceConfig) -> Result<WorkspaceConfig, String>
     if !cache_dir.is_dir() {
         match fs::create_dir(cache_dir) {
             Ok(_) => {}
-            Err(e) => {
-                return Err(format!(
-                    "Could not create cache dir at {}",
-                    DEFAULT_CACHE_DIR
-                ))
-            }
+            Err(e) => return Err(format!("Could not create cache dir at {}", DEFAULT_CACHE_DIR)),
         };
     }
 
@@ -93,7 +88,9 @@ pub fn load_manifest_from_config() -> Option<crate::flatpak_manifest::FlatpakMan
     let workspace_name = match &config.current_workspace {
         Some(w) => w,
         None => {
-            eprintln!("Not currently in a workspace. Use `ls` to list the available workspaces and manifests.");
+            eprintln!(
+                "Not currently in a workspace. Use `ls` to list the available workspaces and manifests."
+            );
             return None;
         }
     };

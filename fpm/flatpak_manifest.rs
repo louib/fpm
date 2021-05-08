@@ -304,10 +304,7 @@ impl FlatpakManifest {
             return false;
         }
         let last_part = parts[parts.len() - 1].to_lowercase();
-        if !last_part.ends_with("yaml")
-            && !last_part.ends_with("yml")
-            && !last_part.ends_with("json")
-        {
+        if !last_part.ends_with("yaml") && !last_part.ends_with("yml") && !last_part.ends_with("json") {
             return false;
         }
         let mut dot_count = 0;
@@ -342,8 +339,7 @@ impl FlatpakManifest {
         // TODO I think there's other fields to validate here.
         if flatpak_manifest.app_id.is_empty() && flatpak_manifest.id.is_empty() {
             return Err(
-                "Required top-level field id (or app-id) is missing from Flatpak manifest."
-                    .to_string(),
+                "Required top-level field id (or app-id) is missing from Flatpak manifest.".to_string(),
             );
         }
 
@@ -953,9 +949,7 @@ mod tests {
 
     #[test]
     pub fn test_file_path_matches() {
-        assert!(FlatpakManifest::file_path_matches(
-            "com.example.appName.yaml"
-        ));
+        assert!(FlatpakManifest::file_path_matches("com.example.appName.yaml"));
         assert!(FlatpakManifest::file_path_matches(
             "io.github.user.repo.Devel.yaml"
         ));
@@ -976,15 +970,9 @@ mod tests {
         ));
         assert!(!FlatpakManifest::file_path_matches("/path/to/file.yaml"));
         assert!(!FlatpakManifest::file_path_matches("/path/to/file.json"));
-        assert!(!FlatpakManifest::file_path_matches(
-            "/path/to/___432423fdsf.json"
-        ));
-        assert!(!FlatpakManifest::file_path_matches(
-            "/path/to/example.com.json"
-        ));
-        assert!(!FlatpakManifest::file_path_matches(
-            "/path/to/example.com.json."
-        ));
+        assert!(!FlatpakManifest::file_path_matches("/path/to/___432423fdsf.json"));
+        assert!(!FlatpakManifest::file_path_matches("/path/to/example.com.json"));
+        assert!(!FlatpakManifest::file_path_matches("/path/to/example.com.json."));
         assert!(!FlatpakManifest::file_path_matches(""));
         assert!(!FlatpakManifest::file_path_matches("/////////////"));
     }

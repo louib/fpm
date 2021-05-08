@@ -136,8 +136,7 @@ pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse
     };
     let next_page_url = fpm::utils::get_next_page_url(link_header);
 
-    let gitlab_projects: Vec<GitLabProject> = match serde_yaml::from_str(&response.text().unwrap())
-    {
+    let gitlab_projects: Vec<GitLabProject> = match serde_yaml::from_str(&response.text().unwrap()) {
         Ok(p) => p,
         Err(e) => {
             log::error!("Could not parse gitlab projects {}.", e);

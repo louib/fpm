@@ -57,8 +57,7 @@ pub fn search_flatpak_repos() -> Vec<fpm::projects::SoftwareProject> {
         domain: "".to_string(),
         token: None,
         next_page_url: Some(
-            "https://api.github.com/search/repositories?type=all&per_page=100&q=flatpak"
-                .to_string(),
+            "https://api.github.com/search/repositories?type=all&per_page=100&q=flatpak".to_string(),
         ),
     });
     let mut all_projects = vec![];
@@ -172,9 +171,7 @@ pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse
             header::HeaderValue::from_str(&auth_header_value.to_string()).unwrap(),
         );
     } else {
-        log::warn!(
-            "No GitHub API token located at FPM_GITHUB_TOKEN. We will get rate limited faster."
-        );
+        log::warn!("No GitHub API token located at FPM_GITHUB_TOKEN. We will get rate limited faster.");
     }
 
     let client = reqwest::blocking::Client::builder()
