@@ -83,8 +83,11 @@ fn main() {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-        for flathub_repo in flathub_repos.split('\n') {
-            // mine_repository(&mut db, &repo_url);
+        for flathub_repo_url in flathub_repos.split('\n') {
+            if flathub_repo_url.trim().is_empty() {
+                continue;
+            }
+            mine_repository(&mut db, &flathub_repo_url);
         }
     }
 
