@@ -389,12 +389,14 @@ impl FlatpakManifest {
         // anything after is a patch or an additional file.
         let main_module_source = main_module.sources.first().unwrap();
 
-        let main_module_source: &FlatpakSourceDescription = match main_module_source {
+        let main_module_source_url: &Option<String> = match main_module_source {
             FlatpakSource::Path(_) => return None,
-            FlatpakSource::Description(s) => s,
+            FlatpakSource::Description(s) => &s.url,
+            FlatpakSource::Script(s) => return None,
+            FlatpakSource::Shell(s) => return None,
         };
 
-        match &main_module_source.url {
+        match &main_module_source_url {
             Some(s) => Some(s.to_string()),
             None => None,
         }
@@ -617,6 +619,8 @@ pub const DEFAULT_SOURCE_TYPE: &str = "archive";
 pub enum FlatpakSource {
     Path(String),
     Description(FlatpakSourceDescription),
+    Script(FlatpakScriptSource),
+    Shell(FlatpakShellSource),
 }
 
 // The sources are a list pointer to the source code that needs to be extracted into
@@ -661,6 +665,34 @@ impl FlatpakSourceDescription {
         }
         return DEFAULT_SOURCE_TYPE.to_string();
     }
+}
+
+#[derive(Debug, Default, Deserialize, Serialize, Hash)]
+#[serde(rename_all = "kebab-case")]
+// This is a way to create a shell (/bin/sh) script from an inline set of commands.
+pub struct FlatpakScriptSource {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
+
+    // An array of shell commands that will be put in a shellscript file
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub commands: Vec<String>,
+
+    // Filename to use inside the source dir, default to autogen.sh.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dest_filename: Option<String>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize, Hash)]
+#[serde(rename_all = "kebab-case")]
+// This is a way to create/modify the sources by running shell commands.
+pub struct FlatpakShellSource {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
+
+    // An array of shell commands that will be run during source extraction.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub commands: Vec<String>,
 }
 
 // Extension define extension points in the app/runtime that can be implemented by extensions,
@@ -1188,6 +1220,41 @@ mod tests {
                 sources:
                   -
                     "shared-modules/linux-audio/lv2.json"
+        "###
+            .to_string(),
+        ) {
+            Err(e) => panic!(e),
+            Ok(manifest) => {
+                assert_eq!(manifest.app_id, "net.louib.fpm");
+            }
+        }
+    }
+
+    #[test]
+    pub fn test_parse_script_source() {
+        match FlatpakManifest::parse(
+            &r###"
+            app-id: net.louib.fpm
+            runtime: org.gnome.Platform
+            runtime-version: "3.36"
+            sdk: org.gnome.Sdk
+            command: fpm
+            tags: ["nightly"]
+            modules:
+              -
+                name: "fpm"
+                buildsystem: simple
+                cleanup: [ "*" ]
+                config-opts: []
+                sources:
+                  -
+                    url: "https://ftp.gnu.org/gnu/gcc/gcc-7.5.0/gcc-7.5.0.tar.xz"
+                    sha256: "b81946e7f01f90528a1f7352ab08cc602b9ccc05d4e44da4bd501c5a189ee661"
+                  -
+                    type: "shell"
+                    commands:
+                      -
+                        sed -i -e 's/\${\${NAME}_BIN}-NOTFOUND/\${NAME}_BIN-NOTFOUND/' cpp/CMakeLists.txt
         "###
             .to_string(),
         ) {
