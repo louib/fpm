@@ -90,7 +90,9 @@ pub fn get_all_repos(domain: &str, token_env_var_name: &str) {
     }
 }
 
-pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse<fpm::projects::SoftwareProject> {
+pub fn get_repos(
+    request: fpm::utils::PagedRequest,
+) -> fpm::utils::PagedResponse<fpm::projects::SoftwareProject> {
     let mut current_url = format!(
         "https://{}/api/v4/projects?per_page=100&simple=false",
         request.domain

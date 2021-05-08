@@ -142,7 +142,9 @@ pub fn get_and_add_repos(db: &mut fpm::db::Database) {
     }
 }
 
-pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse<fpm::projects::SoftwareProject> {
+pub fn get_repos(
+    request: fpm::utils::PagedRequest,
+) -> fpm::utils::PagedResponse<fpm::projects::SoftwareProject> {
     // By default, we get all the repos.
     let mut current_url = format!("https://api.github.com/repositories?type=all&per_page=2");
     if let Some(url) = request.next_page_url {
