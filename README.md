@@ -11,5 +11,8 @@ fpm is a CLI tool for managing Flatpak manifests and workspaces.
 * Development workspace management, based on `flatpak-builder`.
 * Module management, based on an internal database of available Flatpak modules.
 
+## Database
+The fpm database is also tracked using git and can be found at https://github.com/louib/fpm-db/
+
 ## License
 MIT
