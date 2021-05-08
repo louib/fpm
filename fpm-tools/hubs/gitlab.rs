@@ -48,8 +48,9 @@ pub struct GitLabParentProject {
     pub name: String,
 }
 
-pub fn get_and_add_repos(domain: &str, token_env_var_name: &str, db: &mut fpm::db::Database) {
+pub fn get_all_repos(domain: &str, token_env_var_name: &str) {
     log::info!("Getting all projects from GitLab instance at {}.", domain);
+    let mut repos: Vec<fpm::projects::SoftwareProject> = vec![];
     let mut request = fpm::utils::PagedRequest {
         domain: domain.to_string(),
         token: None,
@@ -73,7 +74,7 @@ pub fn get_and_add_repos(domain: &str, token_env_var_name: &str, db: &mut fpm::d
     while projects.len() > 0 {
         for project in projects {
             log::debug!("Adding project {}.", &project.name);
-            db.add_project(project);
+            repos.push(project);
         }
 
         if paged_response.next_page_url.is_none() {
@@ -89,7 +90,7 @@ pub fn get_and_add_repos(domain: &str, token_env_var_name: &str, db: &mut fpm::d
     }
 }
 
-pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse {
+pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse<fpm::projects::SoftwareProject> {
     let mut current_url = format!(
         "https://{}/api/v4/projects?per_page=100&simple=false",
         request.domain
@@ -99,7 +100,7 @@ pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse
     }
 
     let mut projects: Vec<fpm::projects::SoftwareProject> = vec![];
-    let default_response = fpm::utils::PagedResponse {
+    let default_response = fpm::utils::PagedResponse::<fpm::projects::SoftwareProject> {
         results: vec![],
         token: None,
         next_page_url: None,
@@ -152,7 +153,7 @@ pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse
         projects.push(gitlab_project.to_software_project());
     }
 
-    fpm::utils::PagedResponse {
+    fpm::utils::PagedResponse::<fpm::projects::SoftwareProject> {
         results: projects,
         token: request.token,
         next_page_url: next_page_url,

@@ -142,7 +142,7 @@ pub fn get_and_add_repos(db: &mut fpm::db::Database) {
     }
 }
 
-pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse {
+pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse<fpm::projects::SoftwareProject> {
     // By default, we get all the repos.
     let mut current_url = format!("https://api.github.com/repositories?type=all&per_page=2");
     if let Some(url) = request.next_page_url {
@@ -150,7 +150,7 @@ pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse
     }
 
     let mut projects: Vec<fpm::projects::SoftwareProject> = vec![];
-    let default_response = fpm::utils::PagedResponse {
+    let default_response = fpm::utils::PagedResponse::<fpm::projects::SoftwareProject> {
         results: vec![],
         token: None,
         next_page_url: None,
@@ -227,7 +227,7 @@ pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse
         projects.push(github_project.to_software_project());
     }
 
-    fpm::utils::PagedResponse {
+    fpm::utils::PagedResponse::<fpm::projects::SoftwareProject> {
         results: projects,
         token: None,
         next_page_url: next_page_url,

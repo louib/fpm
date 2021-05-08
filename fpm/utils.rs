@@ -161,9 +161,9 @@ pub fn normalize_name(name: &String) -> String {
 }
 
 // TODO migrate to fpm-tools
-pub struct PagedResponse {
+pub struct PagedResponse<T> {
     pub next_page_url: Option<String>,
-    pub results: Vec<crate::projects::SoftwareProject>,
+    pub results: Vec<T>,
     pub token: Option<String>,
 }
 

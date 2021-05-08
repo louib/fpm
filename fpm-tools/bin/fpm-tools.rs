@@ -94,22 +94,22 @@ fn main() {
     if command_name == &"import-projects-from-gitlabs".to_string() {
         // There is a list of all the public GitLab instances hosted here
         // https://wiki.p2pfoundation.net/List_of_Community-Hosted_GitLab_Instances
-        let mut db = fpm::db::Database::get_database();
-        fpm_tools::hubs::gitlab::get_and_add_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN", &mut db);
-        fpm_tools::hubs::gitlab::get_and_add_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN", &mut db);
-        fpm_tools::hubs::gitlab::get_and_add_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN", &mut db);
+        // let mut db = fpm::db::Database::get_database();
+        fpm_tools::hubs::gitlab::get_all_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN");
+        fpm_tools::hubs::gitlab::get_all_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN");
+        fpm_tools::hubs::gitlab::get_all_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN");
         // KDE was recently migrated to GitLab.
         // See https://gitlab.com/gitlab-org/gitlab-foss/-/issues/53206 for details.
-        fpm_tools::hubs::gitlab::get_and_add_repos("invent.kde.org", "FPM_KDE_GITLAB_TOKEN", &mut db);
-        fpm_tools::hubs::gitlab::get_and_add_repos("code.videolan.org", "FPM_VLC_GITLAB_TOKEN", &mut db);
-        fpm_tools::hubs::gitlab::get_and_add_repos("gitlab.haskell.org", "FPM_HASKELL_GITLAB_TOKEN", &mut db);
-        fpm_tools::hubs::gitlab::get_and_add_repos("devel.trisquel.info", "FPM_TRISQUEL_GITLAB_TOKEN", &mut db);
-        fpm_tools::hubs::gitlab::get_and_add_repos("gitlab.freedesktop.org", "FPM_XDG_GITLAB_TOKEN", &mut db);
+        fpm_tools::hubs::gitlab::get_all_repos("invent.kde.org", "FPM_KDE_GITLAB_TOKEN");
+        fpm_tools::hubs::gitlab::get_all_repos("code.videolan.org", "FPM_VLC_GITLAB_TOKEN");
+        fpm_tools::hubs::gitlab::get_all_repos("gitlab.haskell.org", "FPM_HASKELL_GITLAB_TOKEN");
+        fpm_tools::hubs::gitlab::get_all_repos("devel.trisquel.info", "FPM_TRISQUEL_GITLAB_TOKEN");
+        fpm_tools::hubs::gitlab::get_all_repos("gitlab.freedesktop.org", "FPM_XDG_GITLAB_TOKEN");
     }
 
     if command_name == &"import-projects-from-gitlab-com".to_string() {
         let mut db = fpm::db::Database::get_database();
-        fpm_tools::hubs::gitlab::get_and_add_repos("gitlab.com", "FPM_GITLAB_TOKEN", &mut db);
+        fpm_tools::hubs::gitlab::get_all_repos("gitlab.com", "FPM_GITLAB_TOKEN");
     }
 
     if command_name == &"import-projects-from-github-com".to_string() {
