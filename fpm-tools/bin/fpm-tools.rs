@@ -144,12 +144,12 @@ pub fn get_gitlab_repos(gitlab_instance_url: &str, gitlab_instance_auth_token_na
     }
 
     log::info!("Fetching repos from GitLab at {}.", &gitlab_instance_url);
-    let gitlab_repos = fpm_tools::hubs::github::get_org_repos("flathub");
+    let gitlab_repos = fpm_tools::hubs::gitlab::get_all_repos(&gitlab_instance_url, &gitlab_instance_auth_token_name);
     log::info!("There are {} GitLab repos at {}.", gitlab_repos.len(), &gitlab_instance_url);
 
     let mut gitlab_repos_dump = "".to_string();
     for gitlab_repo in &gitlab_repos {
-        let repo_url = &gitlab_repo.vcs_urls[0];
+        let repo_url = &gitlab_repo.http_url_to_repo;
         gitlab_repos_dump += &format!("{}\n", repo_url);
     }
 

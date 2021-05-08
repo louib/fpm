@@ -36,7 +36,7 @@ pub struct GitLabParentProject {
     pub name: String,
 }
 
-pub fn get_all_repos(domain: &str, token_env_var_name: &str) {
+pub fn get_all_repos(domain: &str, token_env_var_name: &str) -> Vec<GitLabProject> {
     log::info!("Getting all projects from GitLab instance at {}.", domain);
     let mut repos: Vec<GitLabProject> = vec![];
     let mut request = fpm::utils::PagedRequest {
@@ -54,7 +54,7 @@ pub fn get_all_repos(domain: &str, token_env_var_name: &str) {
             token_env_var_name,
             domain
         );
-        return;
+        return repos;
     }
     let mut paged_response = get_repos(request);
 
@@ -76,6 +76,7 @@ pub fn get_all_repos(domain: &str, token_env_var_name: &str) {
         });
         projects = paged_response.results;
     }
+    repos
 }
 
 pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse<GitLabProject> {
