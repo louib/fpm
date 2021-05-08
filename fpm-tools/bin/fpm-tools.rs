@@ -91,7 +91,7 @@ fn main() {
         }
     }
 
-    if command_name == &"import-projects-from-gitlabs".to_string() {
+    if command_name == &"import-self-hosted-gitlab-manifests".to_string() {
         let mut db = fpm::db::Database::get_database();
 
         let gitlab_repo_urls = get_gitlab_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN");
@@ -99,15 +99,17 @@ fn main() {
             mine_repository(&mut db, &gitlab_repo_url);
         }
 
-        // fpm_tools::hubs::gitlab::get_all_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN");
-        // fpm_tools::hubs::gitlab::get_all_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN");
-        // KDE was recently migrated to GitLab.
-        // See https://gitlab.com/gitlab-org/gitlab-foss/-/issues/53206 for details.
-        // fpm_tools::hubs::gitlab::get_all_repos("invent.kde.org", "FPM_KDE_GITLAB_TOKEN");
-        // fpm_tools::hubs::gitlab::get_all_repos("code.videolan.org", "FPM_VLC_GITLAB_TOKEN");
-        // fpm_tools::hubs::gitlab::get_all_repos("gitlab.haskell.org", "FPM_HASKELL_GITLAB_TOKEN");
-        // fpm_tools::hubs::gitlab::get_all_repos("devel.trisquel.info", "FPM_TRISQUEL_GITLAB_TOKEN");
-        // fpm_tools::hubs::gitlab::get_all_repos("gitlab.freedesktop.org", "FPM_XDG_GITLAB_TOKEN");
+        let gitlab_repo_urls = get_gitlab_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN");
+        for gitlab_repo_url in &gitlab_repo_urls {
+            mine_repository(&mut db, &gitlab_repo_url);
+        }
+
+        // get_gitlab_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN");
+        // get_gitlab_repos("invent.kde.org", "FPM_KDE_GITLAB_TOKEN");
+        // get_gitlab_repos("gitlab.freedesktop.org", "FPM_XDG_GITLAB_TOKEN");
+        // get_gitlab_repos("code.videolan.org", "FPM_VLC_GITLAB_TOKEN");
+        // get_gitlab_repos("gitlab.haskell.org", "FPM_HASKELL_GITLAB_TOKEN");
+        // get_gitlab_repos("devel.trisquel.info", "FPM_TRISQUEL_GITLAB_TOKEN");
     }
 
     if command_name == &"import-projects-from-gitlab-com".to_string() {
