@@ -103,7 +103,7 @@ fn main() {
                 continue;
             }
             eprintln!("repo url is {}", gitlab_repo_url);
-            // mine_repository(&mut db, &gitlab_repo_url);
+            mine_repository(&mut db, &gitlab_repo_url);
         }
 
         let gitlab_repo_urls = match get_gitlab_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN") {
@@ -115,7 +115,7 @@ fn main() {
                 continue;
             }
             eprintln!("repo url is {}", gitlab_repo_url);
-            // mine_repository(&mut db, &gitlab_repo_url);
+            mine_repository(&mut db, &gitlab_repo_url);
         }
 
         let gitlab_repo_urls = match get_gitlab_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN") {
@@ -127,7 +127,7 @@ fn main() {
                 continue;
             }
             eprintln!("repo url is {}", gitlab_repo_url);
-            // mine_repository(&mut db, &gitlab_repo_url);
+            mine_repository(&mut db, &gitlab_repo_url);
         }
 
         let gitlab_repo_urls = match get_gitlab_repos("gitlab.freedesktop.org", "FPM_XDG_GITLAB_TOKEN") {
@@ -139,7 +139,7 @@ fn main() {
                 continue;
             }
             eprintln!("repo url is {}", gitlab_repo_url);
-            // mine_repository(&mut db, &gitlab_repo_url);
+            mine_repository(&mut db, &gitlab_repo_url);
         }
 
         let gitlab_repo_urls = match get_gitlab_repos("invent.kde.org", "FPM_KDE_GITLAB_TOKEN") {
@@ -151,7 +151,7 @@ fn main() {
                 continue;
             }
             eprintln!("repo url is {}", gitlab_repo_url);
-            // mine_repository(&mut db, &gitlab_repo_url);
+            mine_repository(&mut db, &gitlab_repo_url);
         }
 
         // TODO also get code.videolan.org ??
