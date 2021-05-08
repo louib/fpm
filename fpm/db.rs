@@ -24,6 +24,9 @@ impl Database {
         if let Err(e) = fs::create_dir_all(Database::get_projects_db_path()) {
             panic!("Could not initialize database directory: {}.", e);
         }
+        if let Err(e) = fs::create_dir_all(Database::get_repos_db_path()) {
+            panic!("Could not initialize database directory: {}.", e);
+        }
         let mut indexed_projects: BTreeMap<String, SoftwareProject> = BTreeMap::new();
         for project in Database::get_all_projects() {
             indexed_projects.insert(project.id.clone(), project);
