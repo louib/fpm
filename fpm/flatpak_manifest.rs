@@ -3,9 +3,8 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::hash::{Hash, Hasher};
 use std::path;
-use std::process::{Command, Output, Stdio};
+use std::process::{Command, Stdio};
 use std::str;
-use std::time::SystemTime;
 
 use serde::{Deserialize, Serialize};
 

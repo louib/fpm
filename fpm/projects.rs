@@ -1,7 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::path::Path;
-
-use std::process::Command;
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct SoftwareProject {

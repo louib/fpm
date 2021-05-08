@@ -62,7 +62,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             .get("manifest_file_path")
             .expect("a manifest file is required!");
 
-        let mut flatpak_manifest =
+        let flatpak_manifest =
             match crate::flatpak_manifest::FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
                 Some(m) => m,
                 None => return 1,
@@ -142,10 +142,10 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             // TODO Test that if it starts with the cache directories listed above,
             // you skip the file.
 
-            // if let Some(manifest) = crate::manifests::manifest::AbstractManifest::load_from_file(file_path_str.to_string()) {
-            // println!("{} {}", manifest.get_type().unwrap_or("unknown"), file_path_str);
-            // found_manifest = true;
-            // }
+            if let Some(manifest) = crate::flatpak_manifest::FlatpakManifest::load_from_file(file_path_str.to_string()) {
+                println!("{}", file_path_str);
+                found_manifest = true;
+            }
         }
 
         if !found_manifest {

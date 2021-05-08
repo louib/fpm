@@ -1,9 +1,8 @@
 use std::env;
-use std::fs::{self, DirEntry};
+use std::fs;
 use std::io::{stdin, stdout, Write};
 use std::path::Path;
-use std::process::{Command, Output, Stdio};
-use std::time::SystemTime;
+use std::process::{Command, Stdio};
 
 // Gets the path the repos should be located at.
 // FIXME not sure this function belongs in utils...
