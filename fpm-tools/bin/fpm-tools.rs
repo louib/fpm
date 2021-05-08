@@ -129,7 +129,38 @@ fn main() {
 
 /// Gets all the repositories' URLs for a specific GitLab instance, one on each line.
 pub fn get_gitlab_repos(gitlab_instance_url: &str, gitlab_instance_auth_token_name: &str) -> Result<String, String> {
-    Ok("".to_string())
+    let gitlab_instance_dump_key = gitlab_instance_url.replace('.', "_");
+
+    let gitlab_instance_repos_dump_path = format!("{}/{}.txt", fpm::db::Database::get_repos_db_path(), gitlab_instance_dump_key);
+    let gitlab_instance_repos_dump_path = path::Path::new(&gitlab_instance_repos_dump_path);
+
+    // Reuse the dump if it exists.
+    if gitlab_instance_repos_dump_path.is_file() {
+        log::info!("Dump of the repos at GitLab instance {} exists, not fetching.", &gitlab_instance_url);
+        return match fs::read_to_string(gitlab_instance_repos_dump_path) {
+            Ok(content) => Ok(content),
+            Err(e) => Err(e.to_string()),
+        };
+    }
+
+    log::info!("Fetching repos from GitLab at {}.", &gitlab_instance_url);
+    let gitlab_repos = fpm_tools::hubs::github::get_org_repos("flathub");
+    log::info!("There are {} GitLab repos at {}.", gitlab_repos.len(), &gitlab_instance_url);
+
+    let mut gitlab_repos_dump = "".to_string();
+    for gitlab_repo in &gitlab_repos {
+        let repo_url = &gitlab_repo.vcs_urls[0];
+        gitlab_repos_dump += &format!("{}\n", repo_url);
+    }
+
+    match fs::write(gitlab_instance_repos_dump_path, &gitlab_repos_dump) {
+        Ok(_) => {},
+        Err(e) => {
+            log::warn!("Could not save the Flathub repos dump to {}: {}.", gitlab_instance_repos_dump_path.display(), e);
+        },
+    };
+
+    Ok(gitlab_repos_dump)
 }
 
 /// Gets all the repositories' URLs for the Flathub organization hosted
