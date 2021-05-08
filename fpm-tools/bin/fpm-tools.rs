@@ -92,8 +92,6 @@ fn main() {
     }
 
     if command_name == &"import-projects-from-gitlabs".to_string() {
-        // There is a list of all the public GitLab instances hosted here
-        // https://wiki.p2pfoundation.net/List_of_Community-Hosted_GitLab_Instances
         // let mut db = fpm::db::Database::get_database();
         fpm_tools::hubs::gitlab::get_all_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN");
         fpm_tools::hubs::gitlab::get_all_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN");
@@ -129,7 +127,13 @@ fn main() {
     exit(exit_code);
 }
 
-/// Gets all the flathub repositories' URLs, one on each line.
+/// Gets all the repositories' URLs for a specific GitLab instance, one on each line.
+pub fn get_gitlab_repos(gitlab_instance_url: &str, gitlab_instance_auth_token_name: &str) -> Result<String, String> {
+    Ok("".to_string())
+}
+
+/// Gets all the repositories' URLs for the Flathub organization hosted
+/// on github.com, one on each line.
 pub fn get_flathub_repos() -> Result<String, String> {
     let flathub_repos_dump_path = format!("{}/flathub.txt", fpm::db::Database::get_repos_db_path());
     let flathub_repos_dump_path = path::Path::new(&flathub_repos_dump_path);
