@@ -29,18 +29,6 @@ pub struct GitLabProject {
     // the forked_from_project field appears in the response.
     pub forked_from_project: Option<GitLabParentProject>,
 }
-impl GitLabProject {
-    pub fn to_software_project(self) -> fpm::projects::SoftwareProject {
-        let mut project = fpm::projects::SoftwareProject::default();
-        project.id = fpm::utils::repo_url_to_reverse_dns(&self.http_url_to_repo);
-        project.name = self.name;
-        project.default_branch = self.default_branch;
-        project.description = self.description.unwrap_or("".to_string());
-        project.vcs_urls.push(self.http_url_to_repo);
-        project.keywords = self.tag_list;
-        project
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GitLabParentProject {
@@ -50,7 +38,7 @@ pub struct GitLabParentProject {
 
 pub fn get_all_repos(domain: &str, token_env_var_name: &str) {
     log::info!("Getting all projects from GitLab instance at {}.", domain);
-    let mut repos: Vec<fpm::projects::SoftwareProject> = vec![];
+    let mut repos: Vec<GitLabProject> = vec![];
     let mut request = fpm::utils::PagedRequest {
         domain: domain.to_string(),
         token: None,
@@ -92,7 +80,7 @@ pub fn get_all_repos(domain: &str, token_env_var_name: &str) {
 
 pub fn get_repos(
     request: fpm::utils::PagedRequest,
-) -> fpm::utils::PagedResponse<fpm::projects::SoftwareProject> {
+) -> fpm::utils::PagedResponse<GitLabProject> {
     let mut current_url = format!(
         "https://{}/api/v4/projects?per_page=100&simple=false",
         request.domain
@@ -101,8 +89,8 @@ pub fn get_repos(
         current_url = url;
     }
 
-    let mut projects: Vec<fpm::projects::SoftwareProject> = vec![];
-    let default_response = fpm::utils::PagedResponse::<fpm::projects::SoftwareProject> {
+    let mut projects: Vec<GitLabProject> = vec![];
+    let default_response = fpm::utils::PagedResponse::<GitLabProject> {
         results: vec![],
         token: None,
         next_page_url: None,
@@ -152,10 +140,10 @@ pub fn get_repos(
             continue;
         }
         log::debug!("Adding GitLab project {}.", gitlab_project.name);
-        projects.push(gitlab_project.to_software_project());
+        projects.push(gitlab_project);
     }
 
-    fpm::utils::PagedResponse::<fpm::projects::SoftwareProject> {
+    fpm::utils::PagedResponse::<GitLabProject> {
         results: projects,
         token: request.token,
         next_page_url: next_page_url,
