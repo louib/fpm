@@ -118,7 +118,18 @@ fn main() {
             // mine_repository(&mut db, &gitlab_repo_url);
         }
 
-        // get_gitlab_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN");
+        let gitlab_repo_urls = match get_gitlab_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN") {
+            Ok(r) => r,
+            Err(e) => panic!(e),
+        };
+        for gitlab_repo_url in gitlab_repo_urls.split('\n') {
+            if gitlab_repo_url.trim().is_empty() {
+                continue;
+            }
+            eprintln!("repo url is {}", gitlab_repo_url);
+            // mine_repository(&mut db, &gitlab_repo_url);
+        }
+
         // get_gitlab_repos("invent.kde.org", "FPM_KDE_GITLAB_TOKEN");
         // get_gitlab_repos("gitlab.freedesktop.org", "FPM_XDG_GITLAB_TOKEN");
         // get_gitlab_repos("code.videolan.org", "FPM_VLC_GITLAB_TOKEN");
