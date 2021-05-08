@@ -102,6 +102,7 @@ fn main() {
             if gitlab_repo_url.trim().is_empty() {
                 continue;
             }
+            eprintln!("repo url is {}", gitlab_repo_url);
             // mine_repository(&mut db, &gitlab_repo_url);
         }
 
