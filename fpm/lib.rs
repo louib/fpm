@@ -142,7 +142,9 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             // TODO Test that if it starts with the cache directories listed above,
             // you skip the file.
 
-            if let Some(manifest) = crate::flatpak_manifest::FlatpakManifest::load_from_file(file_path_str.to_string()) {
+            if let Some(manifest) =
+                crate::flatpak_manifest::FlatpakManifest::load_from_file(file_path_str.to_string())
+            {
                 println!("{}", file_path_str);
                 found_manifest = true;
             }
