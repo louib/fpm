@@ -7,6 +7,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GitLab {}
 
+// The url should have the format
+// https://oauth2:${Personal Access Tokens}@gitlab.com/username/myrepo.git
+pub fn add_auth_token_to_repo_url(repo_url: &str) -> &str {
+    return "";
+}
+
 // GitLab API described here
 // https://docs.gitlab.com/ee/api/projects.html
 #[derive(Debug, Serialize, Deserialize)]
