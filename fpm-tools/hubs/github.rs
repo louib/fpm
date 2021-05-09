@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 // See https://docs.github.com/en/rest/reference/repos
 #[derive(Debug, Serialize, Deserialize)]
-struct GitHubRepo {
+pub struct GitHubRepo {
     id: String,
     name: String,
     full_name: String,
@@ -42,46 +42,78 @@ impl GitHubRepo {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GitHub {}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub struct GitHubError {
     pub message: String,
     pub documentation_url: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GitHubRepoSearchResponse {
+    pub repos: Vec<GitHubRepo>,
+}
+
 pub fn search_repos(search_term: &str) -> Vec<fpm::projects::SoftwareProject> {
+    let mut projects: Vec<fpm::projects::SoftwareProject> = vec![];
+
     // Using a search query with the repository search feature of GitHub
     // will by default search in the title, description and README.
-    let first_page_url = format!(
+    let next_page_url = format!(
         "https://api.github.com/search/repositories?type=all&per_page=100&q={}",
         search_term,
     );
-    let mut paged_response = get_repos(fpm::utils::PagedRequest {
-        domain: "".to_string(),
-        token: None,
-        next_page_url: Some(first_page_url),
-    });
-    let mut all_projects = vec![];
-    let mut projects = paged_response.results;
-    while projects.len() > 0 {
-        for project in projects {
-            log::debug!("Adding project {}.", &project.name);
-            all_projects.push(project);
+
+    let client = get_github_client();
+
+    log::info!("Search GitHub for term {}.", search_term);
+    while !next_page_url.is_empty() {
+        // TODO make this really asynchronous with async/await.
+        let response = match client.get(&next_page_url).send() {
+            Ok(r) => r,
+            Err(e) => {
+                log::error!("Could not fetch GitHub url {}: {}.", next_page_url, e);
+                return projects;
+            }
+        };
+
+        if response.status().as_u16() == 204 {
+            return projects;
         }
 
-        if paged_response.next_page_url.is_none() {
-            break;
+        if response.status().as_u16() > 399 {
+            let error_object: GitHubError = match serde_yaml::from_str(&response.text().unwrap()) {
+                Ok(e) => e,
+                Err(e) => {
+                    log::error!("Could not parse GitHub error {}.", e);
+                    return projects;
+                }
+            };
+            log::error!("Error returned by the GitHub API: {}", error_object.message);
+            return projects;
         }
 
-        paged_response = get_repos(fpm::utils::PagedRequest {
-            domain: "".to_string(),
-            token: None,
-            next_page_url: paged_response.next_page_url,
-        });
-        projects = paged_response.results;
+        let link_header = match &response.headers().get("link") {
+            Some(h) => h.to_str().unwrap(),
+            None => "",
+        };
+        let next_page_url = fpm::utils::get_next_page_url(link_header);
+
+        let response_content = response.text().unwrap();
+        let response: GitHubRepoSearchResponse = match serde_yaml::from_str(&response_content) {
+            Ok(p) => p,
+            Err(e) => {
+                log::error!("Could not parse GitHub repo search response {}.", e);
+                return projects;
+            }
+        };
+        for github_project in response.repos {
+            if github_project.fork {
+                continue;
+            }
+            log::debug!("Adding GitHub repo {}.", github_project.name);
+            projects.push(github_project.to_software_project());
+        }
     }
-    all_projects
+    projects
 }
 
 pub fn get_org_repos(org_name: &str) -> Vec<fpm::projects::SoftwareProject> {
@@ -160,28 +192,7 @@ pub fn get_repos(
         next_page_url: None,
     };
 
-    let mut headers = header::HeaderMap::new();
-    // User agent is required when using the GitHub API.
-    // See https://docs.github.com/en/rest/overview/resources-in-the-rest-api#user-agent-required
-    headers.insert("User-Agent", header::HeaderValue::from_str("fpm").unwrap());
-    headers.insert(
-        "Accept",
-        header::HeaderValue::from_str("application/vnd.github.v3+json").unwrap(),
-    );
-    if let Ok(token) = env::var("FPM_GITHUB_TOKEN") {
-        let auth_header_value = format!("token {}", &token);
-        headers.insert(
-            "Authorization",
-            header::HeaderValue::from_str(&auth_header_value.to_string()).unwrap(),
-        );
-    } else {
-        log::warn!("No GitHub API token located at FPM_GITHUB_TOKEN. We will get rate limited faster.");
-    }
-
-    let client = reqwest::blocking::Client::builder()
-        .default_headers(headers)
-        .build()
-        .unwrap();
+    let client = get_github_client();
 
     log::info!("Getting GitHub projects page at {}.", current_url);
     // TODO make this really asynchronous with async/await.
@@ -236,4 +247,29 @@ pub fn get_repos(
         token: None,
         next_page_url: next_page_url,
     }
+}
+
+pub fn get_github_client() -> reqwest::blocking::Client {
+    let mut headers = header::HeaderMap::new();
+    // User agent is required when using the GitHub API.
+    // See https://docs.github.com/en/rest/overview/resources-in-the-rest-api#user-agent-required
+    headers.insert("User-Agent", header::HeaderValue::from_str("fpm").unwrap());
+    headers.insert(
+        "Accept",
+        header::HeaderValue::from_str("application/vnd.github.v3+json").unwrap(),
+    );
+    if let Ok(token) = env::var("FPM_GITHUB_TOKEN") {
+        let auth_header_value = format!("token {}", &token);
+        headers.insert(
+            "Authorization",
+            header::HeaderValue::from_str(&auth_header_value.to_string()).unwrap(),
+        );
+    } else {
+        log::warn!("No GitHub API token located at FPM_GITHUB_TOKEN. We will get rate limited faster.");
+    }
+
+    reqwest::blocking::Client::builder()
+        .default_headers(headers)
+        .build()
+        .unwrap()
 }

@@ -4,9 +4,6 @@ use reqwest::header;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GitLab {}
-
 /// The url should have the format
 /// https://oauth2:TOKEN@gitlab.com/username/myrepo.git
 ///```
