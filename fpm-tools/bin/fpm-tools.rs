@@ -159,14 +159,15 @@ fn main() {
         // TODO also get devel.trisquel.info ??
     }
 
+    if command_name == &"search-github-com".to_string() {
+        let mut db = fpm::db::Database::get_database();
+        let github_repos = fpm_tools::hubs::github::search_repos("flatpak");
+        let github_repos = fpm_tools::hubs::github::search_repos("flathub");
+    }
+
     if command_name == &"import-projects-from-gitlab-com".to_string() {
         let mut db = fpm::db::Database::get_database();
         fpm_tools::hubs::gitlab::get_all_repos("gitlab.com", "FPM_GITLAB_TOKEN");
-    }
-
-    if command_name == &"import-projects-from-github-com".to_string() {
-        let mut db = fpm::db::Database::get_database();
-        fpm_tools::hubs::github::get_and_add_repos(&mut db);
     }
 
     if command_name == &"import-brew-recipes".to_string() {
