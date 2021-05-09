@@ -118,7 +118,11 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
                 return projects;
             }
         };
-        log::info!("Total count for search term {} is {}", &search_term, response.total_count);
+        log::info!(
+            "Total count for search term {} is {}",
+            &search_term,
+            response.total_count
+        );
 
         for github_project in response.items {
             if github_project.fork {
