@@ -352,7 +352,7 @@ impl FlatpakManifest {
                 if is_in_a_comment {
                     continue;
                 }
-                // TODO should we also filter out multi-line comments?
+                // TODO should we also filter out comments at the end of the lines?
                 json_content_without_comments += manifest_line;
             }
             flatpak_manifest = match serde_json::from_str(&json_content_without_comments) {
