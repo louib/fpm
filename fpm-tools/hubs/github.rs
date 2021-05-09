@@ -110,7 +110,11 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
         let response: GitHubRepoSearchResponse = match serde_yaml::from_str(&response_content) {
             Ok(p) => p,
             Err(e) => {
-                log::error!("Could not parse GitHub repo search response {}: {}.", e, &response_content);
+                log::error!(
+                    "Could not parse GitHub repo search response {}: {}.",
+                    e,
+                    &response_content
+                );
                 return projects;
             }
         };
