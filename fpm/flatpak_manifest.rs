@@ -335,8 +335,15 @@ impl FlatpakManifest {
             };
             flatpak_manifest.format = FlatpakManifestFormat::YAML;
         } else if manifest_path.to_lowercase().ends_with("json") {
-            // TODO remove comments in JSON!!!
-            flatpak_manifest = match serde_json::from_str(&manifest_content) {
+            let mut json_content_without_comments = "".to_string();
+            for manifest_line in manifest_content.split('\n') {
+                if manifest_line.trim().starts_with("/*") && manifest_line.trim().ends_with("*/") {
+                    continue;
+                }
+                // TODO should we also filter out multi-line comments?
+                json_content_without_comments += manifest_line;
+            }
+            flatpak_manifest = match serde_json::from_str(&json_content_without_comments) {
                 Ok(m) => m,
                 Err(e) => {
                     return Err(format!("Failed to parse the Flatpak manifest: {}.", e));
@@ -1271,6 +1278,75 @@ mod tests {
             Err(e) => panic!(e),
             Ok(manifest) => {
                 assert_eq!(manifest.app_id, "net.louib.fpm");
+            }
+        }
+    }
+
+    #[test]
+    pub fn test_parse_json() {
+        match FlatpakManifest::parse(
+            "manifest.json",
+            r###"
+            {
+                "app-id": "org.gnome.SoundJuicer",
+                "runtime": "org.gnome.Platform",
+                "runtime-version": "master",
+                "sdk": "org.gnome.Sdk",
+                "command": "sound-juicer",
+                "tags": [ "nightly" ],
+                "desktop-file-name-suffix": " ☢️",
+                "finish-args": [
+                    "--talk-name=org.gtk.vfs", "--talk-name=org.gtk.vfs.*",
+                    "--env=GST_PLUGIN_PATH=/app/lib/codecs/lib/gstreamer-1.0"
+                ],
+                "cleanup": [ "/include", "/share/bash-completion" ],
+                "modules": [
+                    {
+                        "name": "cdparanoia",
+                        "buildsystem": "simple",
+                        "build-commands": [
+                            "cp /usr/share/automake-*/config.{sub,guess} .",
+                            "./configure --prefix=/app",
+                            "make all slib",
+                            "make install"
+                        ],
+                        "sources": [
+                            {
+                                "type": "archive",
+                                "url": "http://downloads.xiph.org/releases/cdparanoia/cdparanoia-III-10.2.src.tgz",
+                                "sha256": "005db45ef4ee017f5c32ec124f913a0546e77014266c6a1c50df902a55fe64df"
+                            },
+                            {
+                                "type": "patch",
+                                "path": "cdparanoia-use-proper-gnu-config-files.patch"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "gst-plugins-base",
+                        "buildsystem": "meson",
+                        "config-opts": [
+                            "--prefix=/app",
+                            "-Dauto_features=disabled",
+                            "-Dcdparanoia=enabled"
+                        ],
+                        "cleanup": [ "*.la", "/share/gtk-doc" ],
+                        "sources": [
+                            {
+                                "type": "git",
+                                "url": "https://gitlab.freedesktop.org/gstreamer/gst-plugins-base.git",
+                                "branch" : "1.16.2",
+                                "commit" : "9d3581b2e6f12f0b7e790d1ebb63b90cf5b1ef4e"
+                            }
+                        ]
+                    }
+                ]
+            }
+            "###,
+        ) {
+            Err(e) => panic!(e),
+            Ok(manifest) => {
+                assert_eq!(manifest.app_id, "org.gnome.SoundJuicer");
             }
         }
     }
