@@ -62,7 +62,7 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
 
     // Using a search query with the repository search feature of GitHub
     // will by default search in the title, description and README.
-    let next_page_url = format!(
+    let mut next_page_url = format!(
         "https://api.github.com/search/repositories?type=all&per_page=100&q={}+in:readme",
         search_term,
     );
@@ -71,6 +71,7 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
 
     log::info!("Search GitHub for term {}.", search_term);
     while !next_page_url.is_empty() {
+        log::info!("Calling GitHub API at {}", &next_page_url);
         // TODO make this really asynchronous with async/await.
         let response = match client.get(&next_page_url).send() {
             Ok(r) => r,
@@ -100,7 +101,10 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
             Some(h) => h.to_str().unwrap(),
             None => "",
         };
-        let next_page_url = fpm::utils::get_next_page_url(link_header);
+        next_page_url = match fpm::utils::get_next_page_url(link_header) {
+            Some(u) => u,
+            None => "".to_string(),
+        };
 
         let response_content = response.text().unwrap();
         let response: GitHubRepoSearchResponse = match serde_yaml::from_str(&response_content) {

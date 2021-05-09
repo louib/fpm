@@ -207,7 +207,7 @@ fn main() {
 /// return their URLs, one on each line.
 pub fn search_github(search_term: &str) -> Result<String, String> {
     // TODO clean up the search term.
-    let github_repos_search_dump_path = format!("{}/{}.txt", fpm::db::Database::get_repos_db_path(), search_term);
+    let github_repos_search_dump_path = format!("{}/github_repo_search_{}.txt", fpm::db::Database::get_repos_db_path(), search_term);
     let github_repos_search_dump_path = path::Path::new(&github_repos_search_dump_path);
 
     // Reuse the dump if it exists.
