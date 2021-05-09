@@ -7,23 +7,23 @@ use serde::{Deserialize, Serialize};
 // See https://docs.github.com/en/rest/reference/repos
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GitHubRepo {
-    id: String,
-    name: String,
-    full_name: String,
-    description: String,
-    fork: bool,
-    is_template: Option<bool>,
-    archived: Option<bool>,
-    disabled: Option<bool>,
-    topics: Option<Vec<String>>,
-    clone_url: Option<String>,
-    git_url: Option<String>,
-    homepage: Option<String>,
-    forks_count: Option<i64>,
-    stargazers_count: Option<i64>,
-    watchers_count: Option<i64>,
-    size: Option<i64>,
-    default_branch: Option<String>,
+    pub id: String,
+    pub name: String,
+    pub full_name: String,
+    pub description: String,
+    pub fork: bool,
+    pub is_template: Option<bool>,
+    pub archived: Option<bool>,
+    pub disabled: Option<bool>,
+    pub topics: Option<Vec<String>>,
+    pub clone_url: Option<String>,
+    pub git_url: Option<String>,
+    pub homepage: Option<String>,
+    pub forks_count: Option<i64>,
+    pub stargazers_count: Option<i64>,
+    pub watchers_count: Option<i64>,
+    pub size: Option<i64>,
+    pub default_branch: Option<String>,
 }
 impl GitHubRepo {
     pub fn to_software_project(self) -> fpm::projects::SoftwareProject {
@@ -39,6 +39,9 @@ impl GitHubRepo {
         }
         project
     }
+    pub fn get_git_url(&self) -> String {
+        format!("https://github.com/{}.git", self.full_name)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -52,8 +55,8 @@ pub struct GitHubRepoSearchResponse {
     pub repos: Vec<GitHubRepo>,
 }
 
-pub fn search_repos(search_term: &str) -> Vec<fpm::projects::SoftwareProject> {
-    let mut projects: Vec<fpm::projects::SoftwareProject> = vec![];
+pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
+    let mut projects: Vec<GitHubRepo> = vec![];
 
     // Using a search query with the repository search feature of GitHub
     // will by default search in the title, description and README.
@@ -110,7 +113,7 @@ pub fn search_repos(search_term: &str) -> Vec<fpm::projects::SoftwareProject> {
                 continue;
             }
             log::debug!("Adding GitHub repo {}.", github_project.name);
-            projects.push(github_project.to_software_project());
+            projects.push(github_project);
         }
     }
     projects
