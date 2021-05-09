@@ -279,17 +279,13 @@ impl FlatpakManifest {
                 }
             };
             log::info!("Parsing Flatpak manifest file {}", &path);
-            let mut manifest = match FlatpakManifest::parse(&manifest_content) {
+            let mut manifest = match FlatpakManifest::parse(&path, &manifest_content) {
                 Ok(m) => m,
                 Err(e) => {
                     log::warn!("Failed to parse Flatpak manifest at {}: {}", path, e);
                     return None;
                 }
             };
-            manifest.format = FlatpakManifestFormat::YAML;
-            if path.ends_with("json") {
-                manifest.format = FlatpakManifestFormat::JSON;
-            }
             return Some(manifest);
         } else {
             log::debug!("{} is not a Flatpak manifest.", path);
@@ -327,8 +323,13 @@ impl FlatpakManifest {
         return true;
     }
 
-    pub fn parse(manifest_content: &String) -> Result<FlatpakManifest, String> {
-        let flatpak_manifest: FlatpakManifest = match serde_yaml::from_str(&manifest_content) {
+    pub fn parse(manifest_path: &str, manifest_content: &str) -> Result<FlatpakManifest, String> {
+        let mut response: Option<FlatpakManifest> = None;
+
+        if manifest_path.to_lowercase().ends_with("yaml") || manifest_path.to_lowercase().ends_with("yml") {
+        } else if manifest_path.to_lowercase().ends_with("yaml") {
+        }
+        let mut flatpak_manifest: FlatpakManifest = match serde_yaml::from_str(&manifest_content) {
             Ok(m) => m,
             Err(e) => {
                 return Err(format!("Failed to parse the Flatpak manifest: {}.", e));
@@ -340,6 +341,11 @@ impl FlatpakManifest {
             return Err(
                 "Required top-level field id (or app-id) is missing from Flatpak manifest.".to_string(),
             );
+        }
+
+        flatpak_manifest.format = FlatpakManifestFormat::YAML;
+        if manifest_path.ends_with("json") {
+            flatpak_manifest.format = FlatpakManifestFormat::JSON;
         }
 
         Ok(flatpak_manifest)
@@ -1011,19 +1017,19 @@ mod tests {
     #[test]
     #[should_panic]
     pub fn test_parse_invalid_yaml() {
-        FlatpakManifest::parse(&"----------------------------".to_string()).unwrap();
+        FlatpakManifest::parse("", "----------------------------").unwrap();
     }
 
     #[test]
     pub fn test_parse_missing_fields() {
         assert!(FlatpakManifest::parse(
-            &r###"
+            "",
+            r###"
             runtime: org.gnome.Platform
             runtime-version: "3.36"
             sdk: org.gnome.Sdk
             command: fpm
-        "###
-            .to_string(),
+            "###
         )
         .is_err());
     }
@@ -1031,7 +1037,8 @@ mod tests {
     #[test]
     pub fn test_parse() {
         match FlatpakManifest::parse(
-            &r###"
+            "",
+            r###"
             app-id: net.louib.fpm
             runtime: org.gnome.Platform
             runtime-version: "3.36"
@@ -1049,8 +1056,7 @@ mod tests {
                     type: git
                     url: https://github.com/louib/fpm.git
                     branch: master
-        "###
-            .to_string(),
+            "###,
         ) {
             Err(e) => panic!(e),
             Ok(manifest) => {
@@ -1062,7 +1068,8 @@ mod tests {
     #[test]
     pub fn test_parse_shared_modules() {
         match FlatpakManifest::parse(
-            &r###"
+            "",
+            r###"
             app-id: net.louib.fpm
             runtime: org.gnome.Platform
             runtime-version: "3.36"
@@ -1082,8 +1089,7 @@ mod tests {
                     branch: master
               -
                 "shared-modules/linux-audio/lv2.json"
-        "###
-            .to_string(),
+            "###,
         ) {
             Err(e) => panic!(e),
             Ok(manifest) => {
@@ -1095,7 +1101,8 @@ mod tests {
     #[test]
     pub fn test_parse_add_extensions() {
         match FlatpakManifest::parse(
-            &r###"
+            "",
+            r###"
             app-id: net.pcsx2.PCSX2
             runtime: org.freedesktop.Platform
             runtime-version: "19.08"
@@ -1122,8 +1129,7 @@ mod tests {
                     merge-dirs: "vulkan/icd.d;glvnd/egl_vendor.d"
                     download-if: "active-gl-driver"
                     enable-if: "active-gl-driver"
-        "###
-            .to_string(),
+            "###,
         ) {
             Err(e) => panic!(e),
             Ok(manifest) => {
@@ -1136,7 +1142,8 @@ mod tests {
     #[test]
     pub fn test_parse_string_source() {
         match FlatpakManifest::parse(
-            &r###"
+            "",
+            r###"
             app-id: net.louib.fpm
             runtime: org.gnome.Platform
             runtime-version: "3.36"
@@ -1152,8 +1159,7 @@ mod tests {
                 sources:
                   -
                     "shared-modules/linux-audio/lv2.json"
-        "###
-            .to_string(),
+            "###,
         ) {
             Err(e) => panic!(e),
             Ok(manifest) => {
@@ -1165,7 +1171,8 @@ mod tests {
     #[test]
     pub fn test_parse_source_without_type() {
         match FlatpakManifest::parse(
-            &r###"
+            "",
+            r###"
             app-id: net.louib.fpm
             runtime: org.gnome.Platform
             runtime-version: "3.36"
@@ -1183,8 +1190,7 @@ mod tests {
                     url: "https://ftp.gnu.org/gnu/gcc/gcc-7.5.0/gcc-7.5.0.tar.xz"
                     sha256: "b81946e7f01f90528a1f7352ab08cc602b9ccc05d4e44da4bd501c5a189ee661"
 
-        "###
-            .to_string(),
+            "###,
         ) {
             Err(e) => panic!(e),
             Ok(manifest) => {
@@ -1196,7 +1202,8 @@ mod tests {
     #[test]
     pub fn test_parse_build_options() {
         match FlatpakManifest::parse(
-            &r###"
+            "",
+            r###"
             app-id: net.louib.fpm
             runtime: org.gnome.Platform
             runtime-version: "3.36"
@@ -1220,8 +1227,7 @@ mod tests {
                 sources:
                   -
                     "shared-modules/linux-audio/lv2.json"
-        "###
-            .to_string(),
+            "###,
         ) {
             Err(e) => panic!(e),
             Ok(manifest) => {
@@ -1233,7 +1239,8 @@ mod tests {
     #[test]
     pub fn test_parse_script_source() {
         match FlatpakManifest::parse(
-            &r###"
+            "",
+            r###"
             app-id: net.louib.fpm
             runtime: org.gnome.Platform
             runtime-version: "3.36"
@@ -1255,12 +1262,98 @@ mod tests {
                     commands:
                       -
                         sed -i -e 's/\${\${NAME}_BIN}-NOTFOUND/\${NAME}_BIN-NOTFOUND/' cpp/CMakeLists.txt
-        "###
-            .to_string(),
+            "###,
         ) {
             Err(e) => panic!(e),
             Ok(manifest) => {
                 assert_eq!(manifest.app_id, "net.louib.fpm");
+            }
+        }
+    }
+
+    #[test]
+    pub fn test_parse_json_with_comments() {
+        match FlatpakManifest::parse(
+            "",
+            r###"
+            {
+                "app-id": "org.gnome.SoundJuicer",
+                "runtime": "org.gnome.Platform",
+                "runtime-version": "master",
+                "sdk": "org.gnome.Sdk",
+                "command": "sound-juicer",
+                "tags": [ "nightly" ],
+                "desktop-file-name-suffix": " ☢️",
+                "finish-args": [
+                    /* X11 + XShm access */
+                    "--share=ipc", "--socket=fallback-x11",
+                    /* Wayland access */
+                    "--socket=wayland",
+                    /* audio CDs */
+                    "--device=all",
+                    /* Needs to talk to the network */
+                    "--share=network",
+                    /* Play sounds */
+                    "--socket=pulseaudio",
+                    /* Browse user's Music directory */
+                    "--filesystem=xdg-music",
+                    /* Migrate DConf settings from the host */
+                    "--metadata=X-DConf=migrate-path=/org/gnome/sound-juicer/",
+                    /* optical media detection */
+                    "--talk-name=org.gtk.vfs", "--talk-name=org.gtk.vfs.*",
+                    /* Ensure cdda gstreamer plugin is picked found for audio CD's */
+                    "--env=GST_PLUGIN_PATH=/app/lib/codecs/lib/gstreamer-1.0"
+                ],
+                "cleanup": [ "/include", "/share/bash-completion" ],
+                "modules": [
+                    /* gst-plugins-base needs cdparanoia to add support for cdda */
+                    {
+                        "name": "cdparanoia",
+                        "buildsystem": "simple",
+                        "build-commands": [
+                            "cp /usr/share/automake-*/config.{sub,guess} .",
+                            "./configure --prefix=/app",
+                            "make all slib",
+                            "make install"
+                        ],
+                        "sources": [
+                            {
+                                "type": "archive",
+                                "url": "http://downloads.xiph.org/releases/cdparanoia/cdparanoia-III-10.2.src.tgz",
+                                "sha256": "005db45ef4ee017f5c32ec124f913a0546e77014266c6a1c50df902a55fe64df"
+                            },
+                            {
+                                "type": "patch",
+                                "path": "cdparanoia-use-proper-gnu-config-files.patch"
+                            }
+                        ]
+                    },
+                    /* To play cdda */
+                    {
+                        "name": "gst-plugins-base",
+                        "buildsystem": "meson",
+                        "config-opts": [
+                            "--prefix=/app",
+                            "-Dauto_features=disabled",
+                            "-Dcdparanoia=enabled"
+                        ],
+                        "cleanup": [ "*.la", "/share/gtk-doc" ],
+                        "sources": [
+                            {
+                                "type": "git",
+                                "url": "https://gitlab.freedesktop.org/gstreamer/gst-plugins-base.git",
+                                "branch" : "1.16.2",
+                                "commit" : "9d3581b2e6f12f0b7e790d1ebb63b90cf5b1ef4e"
+                            }
+                        ]
+                    }
+                ]
+            }
+            "###,
+        ) {
+            Err(e) => panic!(e),
+            Ok(manifest) => {
+                assert_eq!(manifest.app_id, "org.gnome.SoundJuicer");
             }
         }
     }
