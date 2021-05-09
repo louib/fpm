@@ -324,28 +324,32 @@ impl FlatpakManifest {
     }
 
     pub fn parse(manifest_path: &str, manifest_content: &str) -> Result<FlatpakManifest, String> {
-        let mut response: Option<FlatpakManifest> = None;
+        let mut flatpak_manifest: FlatpakManifest = FlatpakManifest::default();
 
         if manifest_path.to_lowercase().ends_with("yaml") || manifest_path.to_lowercase().ends_with("yml") {
-        } else if manifest_path.to_lowercase().ends_with("yaml") {
+            flatpak_manifest = match serde_yaml::from_str(&manifest_content) {
+                Ok(m) => m,
+                Err(e) => {
+                    return Err(format!("Failed to parse the Flatpak manifest: {}.", e));
+                }
+            };
+            flatpak_manifest.format = FlatpakManifestFormat::YAML;
+        } else if manifest_path.to_lowercase().ends_with("json") {
+            // TODO remove comments in JSON!!!
+            flatpak_manifest = match serde_json::from_str(&manifest_content) {
+                Ok(m) => m,
+                Err(e) => {
+                    return Err(format!("Failed to parse the Flatpak manifest: {}.", e));
+                }
+            };
+            flatpak_manifest.format = FlatpakManifestFormat::JSON;
         }
-        let mut flatpak_manifest: FlatpakManifest = match serde_yaml::from_str(&manifest_content) {
-            Ok(m) => m,
-            Err(e) => {
-                return Err(format!("Failed to parse the Flatpak manifest: {}.", e));
-            }
-        };
 
         // TODO I think there's other fields to validate here.
         if flatpak_manifest.app_id.is_empty() && flatpak_manifest.id.is_empty() {
             return Err(
                 "Required top-level field id (or app-id) is missing from Flatpak manifest.".to_string(),
             );
-        }
-
-        flatpak_manifest.format = FlatpakManifestFormat::YAML;
-        if manifest_path.ends_with("json") {
-            flatpak_manifest.format = FlatpakManifestFormat::JSON;
         }
 
         Ok(flatpak_manifest)
@@ -1017,13 +1021,13 @@ mod tests {
     #[test]
     #[should_panic]
     pub fn test_parse_invalid_yaml() {
-        FlatpakManifest::parse("", "----------------------------").unwrap();
+        FlatpakManifest::parse("manifest.yaml", "----------------------------").unwrap();
     }
 
     #[test]
     pub fn test_parse_missing_fields() {
         assert!(FlatpakManifest::parse(
-            "",
+            "manifest.yaml",
             r###"
             runtime: org.gnome.Platform
             runtime-version: "3.36"
@@ -1037,7 +1041,7 @@ mod tests {
     #[test]
     pub fn test_parse() {
         match FlatpakManifest::parse(
-            "",
+            "manifest.yaml",
             r###"
             app-id: net.louib.fpm
             runtime: org.gnome.Platform
@@ -1068,7 +1072,7 @@ mod tests {
     #[test]
     pub fn test_parse_shared_modules() {
         match FlatpakManifest::parse(
-            "",
+            "manifest.yaml",
             r###"
             app-id: net.louib.fpm
             runtime: org.gnome.Platform
@@ -1101,7 +1105,7 @@ mod tests {
     #[test]
     pub fn test_parse_add_extensions() {
         match FlatpakManifest::parse(
-            "",
+            "manifest.yaml",
             r###"
             app-id: net.pcsx2.PCSX2
             runtime: org.freedesktop.Platform
@@ -1142,7 +1146,7 @@ mod tests {
     #[test]
     pub fn test_parse_string_source() {
         match FlatpakManifest::parse(
-            "",
+            "manifest.yaml",
             r###"
             app-id: net.louib.fpm
             runtime: org.gnome.Platform
@@ -1171,7 +1175,7 @@ mod tests {
     #[test]
     pub fn test_parse_source_without_type() {
         match FlatpakManifest::parse(
-            "",
+            "manifest.yaml",
             r###"
             app-id: net.louib.fpm
             runtime: org.gnome.Platform
@@ -1202,7 +1206,7 @@ mod tests {
     #[test]
     pub fn test_parse_build_options() {
         match FlatpakManifest::parse(
-            "",
+            "manifest.yaml",
             r###"
             app-id: net.louib.fpm
             runtime: org.gnome.Platform
@@ -1239,7 +1243,7 @@ mod tests {
     #[test]
     pub fn test_parse_script_source() {
         match FlatpakManifest::parse(
-            "",
+            "manifest.yaml",
             r###"
             app-id: net.louib.fpm
             runtime: org.gnome.Platform
@@ -1274,7 +1278,7 @@ mod tests {
     #[test]
     pub fn test_parse_json_with_comments() {
         match FlatpakManifest::parse(
-            "",
+            "manifest.json",
             r###"
             {
                 "app-id": "org.gnome.SoundJuicer",
