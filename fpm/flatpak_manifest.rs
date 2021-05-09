@@ -336,8 +336,20 @@ impl FlatpakManifest {
             flatpak_manifest.format = FlatpakManifestFormat::YAML;
         } else if manifest_path.to_lowercase().ends_with("json") {
             let mut json_content_without_comments = "".to_string();
+            let mut is_in_a_comment = false;
             for manifest_line in manifest_content.split('\n') {
                 if manifest_line.trim().starts_with("/*") && manifest_line.trim().ends_with("*/") {
+                    continue;
+                }
+                if manifest_line.trim().starts_with("/*") && !is_in_a_comment {
+                    is_in_a_comment = true;
+                    continue;
+                }
+                if manifest_line.trim().ends_with("*/") && is_in_a_comment {
+                    is_in_a_comment = false;
+                    continue;
+                }
+                if is_in_a_comment {
                     continue;
                 }
                 // TODO should we also filter out multi-line comments?
@@ -1434,6 +1446,63 @@ mod tests {
             Err(e) => panic!(e),
             Ok(manifest) => {
                 assert_eq!(manifest.app_id, "org.gnome.SoundJuicer");
+            }
+        }
+    }
+
+    #[test]
+    pub fn test_parse_json_with_multi_line_comments() {
+        match FlatpakManifest::parse(
+            "manifest.json",
+            r###"
+            {
+              "app-id": "org.gnome.Lollypop",
+              "runtime": "org.gnome.Platform",
+              "runtime-version": "40",
+              "sdk": "org.gnome.Sdk",
+              "command": "lollypop",
+              "finish-args": [
+                "--share=ipc",
+                "--own-name=org.mpris.MediaPlayer2.Lollypop",
+                "--metadata=X-DConf=migrate-path=/org/gnome/Lollypop/"
+              ],
+              /* FFmpeg-full and gst-plugins-ugly required for .wma support
+               * Due to possible legal stubbornness in the USA, it can't be downloaded automatically
+               */
+              "add-extensions": {
+                "org.freedesktop.Platform.ffmpeg-full": {
+                  "directory": "lib/ffmpeg",
+                  "version": "20.08",
+                  "add-ld-path": ".",
+                  "no-autodownload": true,
+                  "autodelete": false
+                }
+              },
+              "cleanup-commands": [
+                "mkdir -p /app/lib/ffmpeg"
+              ],
+              "modules": [
+                "pypi-dependencies.json",
+                {
+                  "name": "gst-plugins-ugly",
+                  "buildsystem": "meson",
+                  "cleanup": [
+                    "*.la",
+                    "/share/gtk-doc"
+                  ],
+                  "sources": [{
+                    "type": "archive",
+                    "url": "https://gstreamer.freedesktop.org/src/gst-plugins-ugly/gst-plugins-ugly-1.16.2.tar.xz",
+                    "sha256": "5500415b865e8b62775d4742cbb9f37146a50caecfc0e7a6fc0160d3c560fbca"
+                  }]
+                }
+              ]
+            }
+            "###,
+        ) {
+            Err(e) => panic!(e),
+            Ok(manifest) => {
+                assert_eq!(manifest.app_id, "org.gnome.Lollypop");
             }
         }
     }
