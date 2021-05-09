@@ -170,7 +170,7 @@ fn main() {
                 continue;
             }
             eprintln!("repo url is {}", github_repo_url);
-            mine_repository(&mut db, &github_repo_url);
+            // mine_repository(&mut db, &github_repo_url);
         }
 
         let github_repos = match search_github("flathub") {
@@ -182,7 +182,7 @@ fn main() {
                 continue;
             }
             eprintln!("repo url is {}", github_repo_url);
-            mine_repository(&mut db, &github_repo_url);
+            // mine_repository(&mut db, &github_repo_url);
         }
     }
 

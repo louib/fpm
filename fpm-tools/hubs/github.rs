@@ -52,7 +52,9 @@ pub struct GitHubError {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GitHubRepoSearchResponse {
-    pub repos: Vec<GitHubRepo>,
+    pub items: Vec<GitHubRepo>,
+    pub total_count: i64,
+    pub incomplete_results: bool,
 }
 
 pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
@@ -61,7 +63,7 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
     // Using a search query with the repository search feature of GitHub
     // will by default search in the title, description and README.
     let next_page_url = format!(
-        "https://api.github.com/search/repositories?type=all&per_page=100&q={}",
+        "https://api.github.com/search/repositories?type=all&per_page=100&q={}+in:readme",
         search_term,
     );
 
@@ -104,11 +106,11 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
         let response: GitHubRepoSearchResponse = match serde_yaml::from_str(&response_content) {
             Ok(p) => p,
             Err(e) => {
-                log::error!("Could not parse GitHub repo search response {}.", e);
+                log::error!("Could not parse GitHub repo search response {}: {}.", e, &response_content);
                 return projects;
             }
         };
-        for github_project in response.repos {
+        for github_project in response.items {
             if github_project.fork {
                 continue;
             }
