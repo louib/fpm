@@ -50,15 +50,17 @@ pub struct GitHubError {
     pub documentation_url: String,
 }
 
-pub fn search_flatpak_repos() -> Vec<fpm::projects::SoftwareProject> {
+pub fn search_repos(search_term: &str) -> Vec<fpm::projects::SoftwareProject> {
     // Using a search query with the repository search feature of GitHub
     // will by default search in the title, description and README.
+    let first_page_url = format!(
+        "https://api.github.com/search/repositories?type=all&per_page=100&q={}",
+        search_term,
+    );
     let mut paged_response = get_repos(fpm::utils::PagedRequest {
         domain: "".to_string(),
         token: None,
-        next_page_url: Some(
-            "https://api.github.com/search/repositories?type=all&per_page=100&q=flatpak".to_string(),
-        ),
+        next_page_url: Some(first_page_url),
     });
     let mut all_projects = vec![];
     let mut projects = paged_response.results;
