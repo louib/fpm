@@ -161,8 +161,29 @@ fn main() {
 
     if command_name == &"search-github-com".to_string() {
         let mut db = fpm::db::Database::get_database();
-        let github_repos = fpm_tools::hubs::github::search_repos("flatpak");
-        let github_repos = fpm_tools::hubs::github::search_repos("flathub");
+        let github_repos = match search_github("flatpak") {
+            Ok(r) => r,
+            Err(e) => panic!(e),
+        };
+        for github_repo_url in github_repos.split('\n') {
+            if github_repo_url.trim().is_empty() {
+                continue;
+            }
+            eprintln!("repo url is {}", github_repo_url);
+            mine_repository(&mut db, &github_repo_url);
+        }
+
+        let github_repos = match search_github("flathub") {
+            Ok(r) => r,
+            Err(e) => panic!(e),
+        };
+        for github_repo_url in github_repos.split('\n') {
+            if github_repo_url.trim().is_empty() {
+                continue;
+            }
+            eprintln!("repo url is {}", github_repo_url);
+            mine_repository(&mut db, &github_repo_url);
+        }
     }
 
     if command_name == &"import-projects-from-gitlab-com".to_string() {
@@ -205,9 +226,6 @@ pub fn search_github(search_term: &str) -> Result<String, String> {
     let mut github_repos_search_dump = "".to_string();
     for github_repo in &github_repos {
         let repo_url = github_repo.get_git_url();
-        if github_repo.fork {
-            continue;
-        }
         github_repos_search_dump += &format!("{}\n", repo_url);
     }
 
