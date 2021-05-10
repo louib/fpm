@@ -102,6 +102,10 @@ fn main() {
             if gitlab_repo_url.trim().is_empty() {
                 continue;
             }
+            // FIXME not sure why but this one take forever.
+            if gitlab_repo_url.contains("kefqse/origin") {
+                continue;
+            }
             eprintln!("repo url is {}", gitlab_repo_url);
             mine_repository(&mut db, &gitlab_repo_url);
         }
