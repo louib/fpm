@@ -343,7 +343,11 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
             continue;
         }
 
-        let file_path = file_path.to_str().unwrap();
+        let file_path = match file_path.to_str() {
+            Some(f) => f,
+            None => continue,
+        };
+
         if file_path.contains(".git/") {
             continue;
         }
