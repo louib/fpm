@@ -1022,9 +1022,7 @@ mod tests {
         assert!(!FlatpakManifest::file_path_matches(
             "/tmp/com.github.flathub.org.freedesktop.LinuxAudio.Plugins.WolfShaper/flathub.json"
         ));
-        assert!(!FlatpakManifest::file_path_matches(
-            "Firefox-62.0.3.update.json"
-        ));
+        assert!(!FlatpakManifest::file_path_matches("Firefox-62.0.3.update.json"));
         assert!(!FlatpakManifest::file_path_matches("/path/to/file.yaml"));
         assert!(!FlatpakManifest::file_path_matches("/path/to/file.json"));
         assert!(!FlatpakManifest::file_path_matches("/path/to/___432423fdsf.json"));
