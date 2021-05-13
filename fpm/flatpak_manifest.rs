@@ -364,10 +364,32 @@ impl FlatpakManifest {
             flatpak_manifest.format = FlatpakManifestFormat::JSON;
         }
 
-        // TODO I think there's other fields to validate here.
+        // From https://docs.flatpak.org/en/latest/manifests.html#basic-properties:
+        // Each manifest file should specify basic information about the application that is to be built,
+        // including the app-id, runtime, runtime-version, sdk and command parameters.
         if flatpak_manifest.app_id.is_empty() && flatpak_manifest.id.is_empty() {
             return Err(
                 "Required top-level field id (or app-id) is missing from Flatpak manifest.".to_string(),
+            );
+        }
+        if flatpak_manifest.runtime.is_empty() {
+            return Err(
+                "Required top-level field runtime is missing from Flatpak manifest.".to_string(),
+            );
+        }
+        if flatpak_manifest.runtime_version.is_empty() {
+            return Err(
+                "Required top-level field runtime-version is missing from Flatpak manifest.".to_string(),
+            );
+        }
+        if flatpak_manifest.sdk.is_empty() {
+            return Err(
+                "Required top-level field sdk is missing from Flatpak manifest.".to_string(),
+            );
+        }
+        if flatpak_manifest.command.is_empty() {
+            return Err(
+                "Required top-level field command is missing from Flatpak manifest.".to_string(),
             );
         }
 
