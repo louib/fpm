@@ -373,9 +373,7 @@ impl FlatpakManifest {
             );
         }
         if flatpak_manifest.runtime.is_empty() {
-            return Err(
-                "Required top-level field runtime is missing from Flatpak manifest.".to_string(),
-            );
+            return Err("Required top-level field runtime is missing from Flatpak manifest.".to_string());
         }
         if flatpak_manifest.runtime_version.is_empty() {
             return Err(
@@ -383,14 +381,10 @@ impl FlatpakManifest {
             );
         }
         if flatpak_manifest.sdk.is_empty() {
-            return Err(
-                "Required top-level field sdk is missing from Flatpak manifest.".to_string(),
-            );
+            return Err("Required top-level field sdk is missing from Flatpak manifest.".to_string());
         }
         if flatpak_manifest.command.is_empty() {
-            return Err(
-                "Required top-level field command is missing from Flatpak manifest.".to_string(),
-            );
+            return Err("Required top-level field command is missing from Flatpak manifest.".to_string());
         }
 
         Ok(flatpak_manifest)
