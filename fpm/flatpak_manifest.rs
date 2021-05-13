@@ -6,6 +6,7 @@ use std::path;
 use std::process::{Command, Stdio};
 use std::str;
 
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 
 const DEFAULT_FLATPAK_BUILDER_CACHE_DIR: &str = ".flatpak-builder";
@@ -294,33 +295,9 @@ impl FlatpakManifest {
     }
 
     pub fn file_path_matches(path: &str) -> bool {
-        let parts: Vec<&str> = path.split("/").collect();
-        if parts.len() == 0 {
-            return false;
-        }
-        let last_part = parts[parts.len() - 1].to_lowercase();
-        if !last_part.ends_with("yaml") && !last_part.ends_with("yml") && !last_part.ends_with("json") {
-            return false;
-        }
-        let mut dot_count = 0;
-        for c in last_part.chars() {
-            if c == '.' {
-                dot_count = dot_count + 1;
-                continue;
-            }
-            if c.is_alphabetic() || c.is_numeric() || c == '-' {
-                continue;
-            }
-            return false;
-        }
-        // The reverse DNS notation is used for the
-        // flatpak app IDs and the associated manifest
-        // files. This means at least 3 dots in the
-        // resulting name.
-        if dot_count < 3 {
-            return false;
-        }
-        return true;
+        // TODO this should be declared as static so that the regex is compiled only once.
+        let REVERSE_DNS_FILENAME_REGEX = Regex::new(r"[a-z][a-z][a-z]*\.[a-z][0-9a-zA-Z_\-]+\.[a-z][0-9a-zA-Z_\-]+(\.[a-z][0-9a-zA-Z_\-]+)*\.(json|yaml|yml)$").unwrap();
+        REVERSE_DNS_FILENAME_REGEX.is_match(&path.to_lowercase())
     }
 
     pub fn parse(manifest_path: &str, manifest_content: &str) -> Result<FlatpakManifest, String> {
@@ -1026,6 +1003,7 @@ mod tests {
     #[test]
     pub fn test_file_path_matches() {
         assert!(FlatpakManifest::file_path_matches("com.example.appName.yaml"));
+        assert!(FlatpakManifest::file_path_matches("COM.EXAMPLE.APPNAME.YAML"));
         assert!(FlatpakManifest::file_path_matches(
             "io.github.user.repo.Devel.yaml"
         ));
@@ -1043,6 +1021,9 @@ mod tests {
         ));
         assert!(!FlatpakManifest::file_path_matches(
             "/tmp/com.github.flathub.org.freedesktop.LinuxAudio.Plugins.WolfShaper/flathub.json"
+        ));
+        assert!(!FlatpakManifest::file_path_matches(
+            "Firefox-62.0.3.update.json"
         ));
         assert!(!FlatpakManifest::file_path_matches("/path/to/file.yaml"));
         assert!(!FlatpakManifest::file_path_matches("/path/to/file.json"));
