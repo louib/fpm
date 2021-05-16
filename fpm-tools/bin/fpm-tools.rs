@@ -163,6 +163,33 @@ fn main() {
         // TODO also get devel.trisquel.info ??
     }
 
+    if command_name == &"search-gitlab-com".to_string() {
+        let mut db = fpm::db::Database::get_database();
+        let github_repos = match search_gitlab("flatpak") {
+            Ok(r) => r,
+            Err(e) => panic!(e),
+        };
+        for github_repo_url in github_repos.split('\n') {
+            if github_repo_url.trim().is_empty() {
+                continue;
+            }
+            eprintln!("repo url is {}", github_repo_url);
+            // mine_repository(&mut db, &github_repo_url);
+        }
+
+        let github_repos = match search_gitlab("flathub") {
+            Ok(r) => r,
+            Err(e) => panic!(e),
+        };
+        for github_repo_url in github_repos.split('\n') {
+            if github_repo_url.trim().is_empty() {
+                continue;
+            }
+            eprintln!("repo url is {}", github_repo_url);
+            // mine_repository(&mut db, &github_repo_url);
+        }
+    }
+
     if command_name == &"search-github-com".to_string() {
         let mut db = fpm::db::Database::get_database();
         let github_repos = match search_github("flatpak") {
@@ -205,6 +232,12 @@ fn main() {
     }
 
     exit(exit_code);
+}
+
+/// Search for flatpak and flathub related repos on gitlab.com and
+/// return their URLs, one on each line.
+pub fn search_gitlab(search_term: &str) -> Result<String, String> {
+    Ok("".to_string())
 }
 
 /// Search for flatpak and flathub related repos on github.com and

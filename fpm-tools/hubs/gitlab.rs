@@ -46,9 +46,97 @@ pub struct GitLabParentProject {
     pub name: String,
 }
 
-// TODO search with https://gitlab.example.com/api/v4/search?scope=projects&search=flathub
-// TODO search with https://gitlab.example.com/api/v4/search?scope=projects&search=flatpak
-// https://docs.gitlab.com/ee/api/search.html
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GitLabError {
+    pub id: String,
+    pub name: String,
+    pub message: String,
+}
+
+pub fn search_repos(search_term: &str) -> Vec<GitLabProject> {
+    let mut projects: Vec<GitLabProject> = vec![];
+
+    // https://docs.gitlab.com/ee/api/search.html
+    let mut next_page_url = format!(
+        "https://gitlab.com/api/v4/search?scope=project&search={}",
+        search_term,
+    );
+
+    let mut headers = header::HeaderMap::new();
+    if let Ok(token) = env::var("FPM_GITLAB_TOKEN") {
+        let auth_header_value = format!("Bearer {}", &token);
+        headers.insert(
+            "Authorization",
+            header::HeaderValue::from_str(&auth_header_value.to_string()).unwrap(),
+        );
+    } else {
+        return projects;
+    }
+    let client = reqwest::blocking::Client::builder()
+        .default_headers(headers)
+        .build()
+        .unwrap();
+
+    log::info!("Search GitLab for term {}.", search_term);
+    while !next_page_url.is_empty() {
+        log::info!("Calling GitLab API at {}", &next_page_url);
+        // TODO make this really asynchronous with async/await.
+        let response = match client.get(&next_page_url).send() {
+            Ok(r) => r,
+            Err(e) => {
+                log::error!("Could not fetch GitLab url {}: {}.", next_page_url, e);
+                return projects;
+            }
+        };
+
+        if response.status().as_u16() == 204 {
+            return projects;
+        }
+
+        if response.status().as_u16() > 399 {
+            let error_object: GitLabError = match serde_yaml::from_str(&response.text().unwrap()) {
+                Ok(e) => e,
+                Err(e) => {
+                    log::error!("Could not parse GitLab error {}.", e);
+                    return projects;
+                }
+            };
+            log::error!("Error returned by the GitLab API: {}", error_object.message);
+            return projects;
+        }
+
+        let link_header = match &response.headers().get("link") {
+            Some(h) => h.to_str().unwrap(),
+            None => "",
+        };
+        next_page_url = match fpm::utils::get_next_page_url(link_header) {
+            Some(u) => u,
+            None => "".to_string(),
+        };
+
+        let response_content = response.text().unwrap();
+        let response: Vec<GitLabProject> = match serde_yaml::from_str(&response_content) {
+            Ok(p) => p,
+            Err(e) => {
+                log::error!(
+                    "Could not parse GitLab project search response {}: {}.",
+                    e,
+                    &response_content
+                );
+                return projects;
+            }
+        };
+
+        for gitlab_project in response {
+            if gitlab_project.forked_from_project.is_some() {
+                continue;
+            }
+            log::debug!("Adding GitLab repo {}.", gitlab_project.name);
+            projects.push(gitlab_project);
+        }
+    }
+    projects
+}
 
 pub fn get_all_repos(domain: &str, token_env_var_name: &str) -> Vec<GitLabProject> {
     log::info!("Getting all projects from GitLab instance at {}.", domain);
