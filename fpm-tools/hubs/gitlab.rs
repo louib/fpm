@@ -48,9 +48,19 @@ pub struct GitLabParentProject {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GitLabError {
-    pub id: String,
-    pub name: String,
-    pub message: String,
+    pub message: Option<String>,
+    pub error: Option<String>,
+}
+impl GitLabError {
+    pub fn get_error_message(&self) -> String {
+        if let Some(m) = &self.message {
+            return m.to_string();
+        }
+        if let Some(e) = &self.error {
+            return e.to_string();
+        }
+        "unknown error".to_string()
+    }
 }
 
 pub fn search_repos(search_term: &str) -> Vec<GitLabProject> {
@@ -58,7 +68,7 @@ pub fn search_repos(search_term: &str) -> Vec<GitLabProject> {
 
     // https://docs.gitlab.com/ee/api/search.html
     let mut next_page_url = format!(
-        "https://gitlab.com/api/v4/search?scope=project&search={}",
+        "https://gitlab.com/api/v4/search?scope=projects&search={}",
         search_term,
     );
 
@@ -95,14 +105,15 @@ pub fn search_repos(search_term: &str) -> Vec<GitLabProject> {
         }
 
         if response.status().as_u16() > 399 {
-            let error_object: GitLabError = match serde_yaml::from_str(&response.text().unwrap()) {
+            let response_content = response.text().unwrap();
+            let error_object: GitLabError = match serde_yaml::from_str(&response_content) {
                 Ok(e) => e,
                 Err(e) => {
-                    log::error!("Could not parse GitLab error {}.", e);
+                    log::error!("Could not parse GitLab error {}. {}", e, &response_content);
                     return projects;
                 }
             };
-            log::error!("Error returned by the GitLab API: {}", error_object.message);
+            log::error!("Error returned by the GitLab API: {}", error_object.get_error_message());
             return projects;
         }
 
