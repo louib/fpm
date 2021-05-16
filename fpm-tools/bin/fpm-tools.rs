@@ -259,12 +259,14 @@ pub fn search_gitlab(search_term: &str) -> Result<String, String> {
         gitlab_repos_search_dump += &format!("{}\n", repo_url);
     }
 
-    match fs::write(gitlab_repos_search_dump_path, &gitlab_repos_search_dump) {
-        Ok(_) => {},
-        Err(e) => {
-            log::warn!("Could not save the dump for GitLab search to {}: {}.", gitlab_repos_search_dump_path.display(), e);
-        },
-    };
+    if !gitlab_repos_search_dump.is_empty() {
+        match fs::write(gitlab_repos_search_dump_path, &gitlab_repos_search_dump) {
+            Ok(_) => {},
+            Err(e) => {
+                log::warn!("Could not save the dump for GitLab search to {}: {}.", gitlab_repos_search_dump_path.display(), e);
+            },
+        };
+    }
 
     Ok(gitlab_repos_search_dump)
 }
@@ -295,12 +297,14 @@ pub fn search_github(search_term: &str) -> Result<String, String> {
         github_repos_search_dump += &format!("{}\n", repo_url);
     }
 
-    match fs::write(github_repos_search_dump_path, &github_repos_search_dump) {
-        Ok(_) => {},
-        Err(e) => {
-            log::warn!("Could not save the dump for GitHub search to {}: {}.", github_repos_search_dump_path.display(), e);
-        },
-    };
+    if !github_repos_search_dump.is_empty() {
+        match fs::write(github_repos_search_dump_path, &github_repos_search_dump) {
+            Ok(_) => {},
+            Err(e) => {
+                log::warn!("Could not save the dump for GitHub search to {}: {}.", github_repos_search_dump_path.display(), e);
+            },
+        };
+    }
 
     Ok(github_repos_search_dump)
 }
@@ -331,12 +335,14 @@ pub fn get_gitlab_repos(gitlab_instance_url: &str, gitlab_instance_auth_token_na
         gitlab_repos_dump += &format!("{}\n", repo_url);
     }
 
-    match fs::write(gitlab_instance_repos_dump_path, &gitlab_repos_dump) {
-        Ok(_) => {},
-        Err(e) => {
-            log::warn!("Could not save the Flathub repos dump to {}: {}.", gitlab_instance_repos_dump_path.display(), e);
-        },
-    };
+    if !gitlab_repos_dump.is_empty() {
+        match fs::write(gitlab_instance_repos_dump_path, &gitlab_repos_dump) {
+            Ok(_) => {},
+            Err(e) => {
+                log::warn!("Could not save the Flathub repos dump to {}: {}.", gitlab_instance_repos_dump_path.display(), e);
+            },
+        };
+    }
 
     Ok(gitlab_repos_dump)
 }
@@ -373,12 +379,14 @@ pub fn get_flathub_repos() -> Result<String, String> {
         flathub_repos_dump += &format!("{}\n", repo_url);
     }
 
-    match fs::write(flathub_repos_dump_path, &flathub_repos_dump) {
-        Ok(_) => {},
-        Err(e) => {
-            log::warn!("Could not save the Flathub repos dump to {}: {}.", flathub_repos_dump_path.display(), e);
-        },
-    };
+    if !flathub_repos_dump.is_empty() {
+        match fs::write(flathub_repos_dump_path, &flathub_repos_dump) {
+            Ok(_) => {},
+            Err(e) => {
+                log::warn!("Could not save the Flathub repos dump to {}: {}.", flathub_repos_dump_path.display(), e);
+            },
+        };
+    }
 
     Ok(flathub_repos_dump)
 }
