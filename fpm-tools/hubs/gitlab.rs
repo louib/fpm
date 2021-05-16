@@ -113,7 +113,10 @@ pub fn search_repos(search_term: &str) -> Vec<GitLabProject> {
                     return projects;
                 }
             };
-            log::error!("Error returned by the GitLab API: {}", error_object.get_error_message());
+            log::error!(
+                "Error returned by the GitLab API: {}",
+                error_object.get_error_message()
+            );
             return projects;
         }
 
