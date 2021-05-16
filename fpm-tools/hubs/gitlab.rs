@@ -46,6 +46,10 @@ pub struct GitLabParentProject {
     pub name: String,
 }
 
+// TODO search with https://gitlab.example.com/api/v4/search?scope=projects&search=flathub
+// TODO search with https://gitlab.example.com/api/v4/search?scope=projects&search=flatpak
+// https://docs.gitlab.com/ee/api/search.html
+
 pub fn get_all_repos(domain: &str, token_env_var_name: &str) -> Vec<GitLabProject> {
     log::info!("Getting all projects from GitLab instance at {}.", domain);
     let mut repos: Vec<GitLabProject> = vec![];
