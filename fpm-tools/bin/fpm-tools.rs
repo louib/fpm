@@ -237,7 +237,36 @@ fn main() {
 /// Search for flatpak and flathub related repos on gitlab.com and
 /// return their URLs, one on each line.
 pub fn search_gitlab(search_term: &str) -> Result<String, String> {
-    Ok("".to_string())
+    let gitlab_repos_search_dump_path = format!("{}/gitlab_repo_search_{}.txt", fpm::db::Database::get_repos_db_path(), search_term);
+    let gitlab_repos_search_dump_path = path::Path::new(&gitlab_repos_search_dump_path);
+
+    // Reuse the dump if it exists.
+    if gitlab_repos_search_dump_path.is_file() {
+        log::info!("Dump of the GitLab search for `{}` exists, not fetching.", &search_term);
+        return match fs::read_to_string(gitlab_repos_search_dump_path) {
+            Ok(content) => Ok(content),
+            Err(e) => Err(e.to_string()),
+        };
+    }
+
+    log::info!("Searching for {} on GitLab.", &search_term);
+    let github_repos = fpm_tools::hubs::gitlab::search_repos(&search_term);
+    log::info!("Search for {} returned {} repos.", &search_term, github_repos.len());
+
+    let mut gitlab_repos_search_dump = "".to_string();
+    for github_repo in &github_repos {
+        let repo_url = &github_repo.http_url_to_repo;
+        gitlab_repos_search_dump += &format!("{}\n", repo_url);
+    }
+
+    match fs::write(gitlab_repos_search_dump_path, &gitlab_repos_search_dump) {
+        Ok(_) => {},
+        Err(e) => {
+            log::warn!("Could not save the dump for GitLab search to {}: {}.", gitlab_repos_search_dump_path.display(), e);
+        },
+    };
+
+    Ok(gitlab_repos_search_dump)
 }
 
 /// Search for flatpak and flathub related repos on github.com and

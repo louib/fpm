@@ -70,6 +70,7 @@ pub fn search_repos(search_term: &str) -> Vec<GitLabProject> {
             header::HeaderValue::from_str(&auth_header_value.to_string()).unwrap(),
         );
     } else {
+        log::warn!("No GitLab API token located at FPM_GITLAB_TOKEN. Aborting.");
         return projects;
     }
     let client = reqwest::blocking::Client::builder()
