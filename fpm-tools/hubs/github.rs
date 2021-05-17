@@ -65,8 +65,7 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
 
     let projects = search_repos_internal(&format!(
         "{}&q={}+in:readme fork:false -org:flathub created:2012-01-01..2017-01-01",
-        base_search_url,
-        search_term,
+        base_search_url, search_term,
     ));
     for project in projects {
         response.push(project);
@@ -74,8 +73,7 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
 
     let projects = search_repos_internal(&format!(
         "{}&q={}+in:readme fork:false -org:flathub created:2017-01-01..2019-01-01",
-        base_search_url,
-        search_term,
+        base_search_url, search_term,
     ));
     for project in projects {
         response.push(project);
@@ -83,8 +81,7 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
 
     let projects = search_repos_internal(&format!(
         "{}&q={}+in:readme fork:false -org:flathub created:2019-01-01..2020-01-01",
-        base_search_url,
-        search_term,
+        base_search_url, search_term,
     ));
     for project in projects {
         response.push(project);
@@ -92,8 +89,7 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
 
     let projects = search_repos_internal(&format!(
         "{}&q={}+in:readme fork:false -org:flathub created:2020-01-01..2021-01-01",
-        base_search_url,
-        search_term,
+        base_search_url, search_term,
     ));
     for project in projects {
         response.push(project);
@@ -101,8 +97,7 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
 
     let projects = search_repos_internal(&format!(
         "{}&q={}+in:readme fork:false -org:flathub created:>2021-01-01",
-        base_search_url,
-        search_term,
+        base_search_url, search_term,
     ));
     for project in projects {
         response.push(project);
@@ -110,16 +105,18 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
 
     let projects = search_repos_internal(&format!(
         "{}&q=topic:{} fork:false -org:flathub",
-        base_search_url,
-        search_term,
+        base_search_url, search_term,
     ));
     for project in projects {
         response.push(project);
     }
 
-    log::info!("A total of {} were returned when search GitHub for term {}.", response.len(), search_term);
+    log::info!(
+        "A total of {} were returned when search GitHub for term {}.",
+        response.len(),
+        search_term
+    );
     return response;
-
 }
 
 pub fn search_repos_internal(search_url: &str) -> Vec<GitHubRepo> {
@@ -176,12 +173,12 @@ pub fn search_repos_internal(search_url: &str) -> Vec<GitHubRepo> {
                 return projects;
             }
         };
-        log::info!(
-            "Number of results for search is {}",
-            response.total_count
-        );
+        log::info!("Number of results for search is {}", response.total_count);
         if response.total_count > 1000 {
-            log::error!("Number of results is > 1000 ({}). Please refine you search.", response.total_count);
+            log::error!(
+                "Number of results is > 1000 ({}). Please refine you search.",
+                response.total_count
+            );
             return projects;
         }
 
