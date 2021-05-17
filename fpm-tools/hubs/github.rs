@@ -63,6 +63,9 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
     log::info!("Search GitHub for term {}.", search_term);
     let base_search_url = "https://api.github.com/search/repositories?type=all&per_page=100";
 
+    // The GitHub search API limits the number of search results to 1000, so
+    // we need to split the search request to make sure we can access the search results.
+
     let projects = search_repos_internal(&format!(
         "{}&q={}+in:readme fork:false -org:flathub created:2012-01-01..2017-01-01",
         base_search_url, search_term,
