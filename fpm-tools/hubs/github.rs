@@ -58,25 +58,83 @@ pub struct GitHubRepoSearchResponse {
 }
 
 pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
-    let mut projects: Vec<GitHubRepo> = vec![];
-
-    // Using a search query with the repository search feature of GitHub
-    // will by default search in the title, description and README.
-    let mut next_page_url = format!(
-        "https://api.github.com/search/repositories?type=all&per_page=100&q={}+in:readme",
-        search_term,
-    );
-
-    let client = get_github_client();
+    let mut response: Vec<GitHubRepo> = vec![];
 
     log::info!("Search GitHub for term {}.", search_term);
+    let base_search_url = "https://api.github.com/search/repositories?type=all&per_page=100";
+
+    let projects = search_repos_internal(&format!(
+        "{}&q={}+in:readme fork:false -org:flathub created:2012-01-01..2017-01-01",
+        base_search_url,
+        search_term,
+    ));
+    for project in projects {
+        response.push(project);
+    }
+
+    let projects = search_repos_internal(&format!(
+        "{}&q={}+in:readme fork:false -org:flathub created:2017-01-01..2019-01-01",
+        base_search_url,
+        search_term,
+    ));
+    for project in projects {
+        response.push(project);
+    }
+
+    let projects = search_repos_internal(&format!(
+        "{}&q={}+in:readme fork:false -org:flathub created:2019-01-01..2020-01-01",
+        base_search_url,
+        search_term,
+    ));
+    for project in projects {
+        response.push(project);
+    }
+
+    let projects = search_repos_internal(&format!(
+        "{}&q={}+in:readme fork:false -org:flathub created:2020-01-01..2021-01-01",
+        base_search_url,
+        search_term,
+    ));
+    for project in projects {
+        response.push(project);
+    }
+
+    let projects = search_repos_internal(&format!(
+        "{}&q={}+in:readme fork:false -org:flathub created:>2021-01-01",
+        base_search_url,
+        search_term,
+    ));
+    for project in projects {
+        response.push(project);
+    }
+
+    let projects = search_repos_internal(&format!(
+        "{}&q=topic:{} fork:false -org:flathub",
+        base_search_url,
+        search_term,
+    ));
+    for project in projects {
+        response.push(project);
+    }
+
+    log::info!("A total of {} were returned when search GitHub for term {}.", response.len(), search_term);
+    return response;
+
+}
+
+pub fn search_repos_internal(search_url: &str) -> Vec<GitHubRepo> {
+    let mut projects: Vec<GitHubRepo> = vec![];
+
+    let client = get_github_client();
+    let mut next_page_url = search_url.to_string();
+
     while !next_page_url.is_empty() {
         log::info!("Calling GitHub API at {}", &next_page_url);
         // TODO make this really asynchronous with async/await.
         let response = match client.get(&next_page_url).send() {
             Ok(r) => r,
             Err(e) => {
-                log::error!("Could not fetch GitHub url {}: {}.", next_page_url, e);
+                log::error!("Could not fetch GitHub url {}: {}.", &next_page_url, e);
                 return projects;
             }
         };
@@ -119,10 +177,13 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
             }
         };
         log::info!(
-            "Total count for search term {} is {}",
-            &search_term,
+            "Number of results for search is {}",
             response.total_count
         );
+        if response.total_count > 1000 {
+            log::error!("Number of results is > 1000 ({}). Please refine you search.", response.total_count);
+            return projects;
+        }
 
         for github_project in response.items {
             if github_project.fork {
