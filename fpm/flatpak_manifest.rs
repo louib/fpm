@@ -6,6 +6,7 @@ use std::path;
 use std::process::{Command, Stdio};
 use std::str;
 
+use lazy_static::lazy_static;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
@@ -295,8 +296,11 @@ impl FlatpakManifest {
     }
 
     pub fn file_path_matches(path: &str) -> bool {
-        // TODO this should be declared as static so that the regex is compiled only once.
-        let REVERSE_DNS_FILENAME_REGEX = Regex::new(r"[a-z][a-z][a-z]*\.[a-z][0-9a-zA-Z_\-]+\.[a-z][0-9a-zA-Z_\-]+(\.[a-z][0-9a-zA-Z_\-]+)*\.(json|yaml|yml)$").unwrap();
+        lazy_static! {
+            static ref REVERSE_DNS_FILENAME_REGEX: Regex = Regex::new(
+                r"[a-z][a-z][a-z]*\.[a-z][0-9a-zA-Z_\-]+\.[a-z][0-9a-zA-Z_\-]+(\.[a-z][0-9a-zA-Z_\-]+)*\.(json|yaml|yml)$"
+            ).unwrap();
+        }
         REVERSE_DNS_FILENAME_REGEX.is_match(&path.to_lowercase())
     }
 

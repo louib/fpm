@@ -32,4 +32,6 @@ regex = "1.5.4"
 log = "0.4"
 simple-logging = "2.0.2"
 
+lazy_static = "1.4.0"
+
 uuid = { version = "0.4", features = ["serde", "v4"] }
