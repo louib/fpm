@@ -217,6 +217,11 @@ fn main() {
             if github_repo_url.trim().is_empty() {
                 continue;
             }
+            // This repository is really large and for some reason results in the
+            // process crashing.
+            if github_repo_url.contains("fastrizwaan/winepak") {
+                continue;
+            }
             eprintln!("repo url is {}", github_repo_url);
             mine_repository(&mut db, &github_repo_url);
         }
