@@ -1,4 +1,5 @@
 use std::env;
+use std::collections::HashSet;
 
 use futures::executor::block_on;
 use reqwest::header;
@@ -58,6 +59,7 @@ pub struct GitHubRepoSearchResponse {
 }
 
 pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
+    let mut repo_ids: HashSet<String> = HashSet::new();
     let mut response: Vec<GitHubRepo> = vec![];
 
     log::info!("Search GitHub for term {}.", search_term);
@@ -71,6 +73,10 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
         base_search_url, search_term,
     ));
     for project in projects {
+        if repo_ids.contains(&project.id) {
+            continue;
+        }
+        repo_ids.insert(project.id.to_string());
         response.push(project);
     }
 
@@ -79,6 +85,10 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
         base_search_url, search_term,
     ));
     for project in projects {
+        if repo_ids.contains(&project.id) {
+            continue;
+        }
+        repo_ids.insert(project.id.to_string());
         response.push(project);
     }
 
@@ -87,6 +97,10 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
         base_search_url, search_term,
     ));
     for project in projects {
+        if repo_ids.contains(&project.id) {
+            continue;
+        }
+        repo_ids.insert(project.id.to_string());
         response.push(project);
     }
 
@@ -95,6 +109,10 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
         base_search_url, search_term,
     ));
     for project in projects {
+        if repo_ids.contains(&project.id) {
+            continue;
+        }
+        repo_ids.insert(project.id.to_string());
         response.push(project);
     }
 
@@ -103,6 +121,10 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
         base_search_url, search_term,
     ));
     for project in projects {
+        if repo_ids.contains(&project.id) {
+            continue;
+        }
+        repo_ids.insert(project.id.to_string());
         response.push(project);
     }
 
@@ -111,6 +133,10 @@ pub fn search_repos(search_term: &str) -> Vec<GitHubRepo> {
         base_search_url, search_term,
     ));
     for project in projects {
+        if repo_ids.contains(&project.id) {
+            continue;
+        }
+        repo_ids.insert(project.id.to_string());
         response.push(project);
     }
 
