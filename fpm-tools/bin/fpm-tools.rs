@@ -397,6 +397,7 @@ pub fn get_flathub_repos() -> Result<String, String> {
 }
 
 pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
+    let mut repo_manifest_count = 0;
     let repo_dir = match fpm::utils::clone_git_repo(&repo_url) {
         Ok(d) => d,
         Err(e) => {
@@ -435,6 +436,7 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
             Some(m) => m,
             None => continue,
         };
+        repo_manifest_count += 1;
 
         let main_module_url = flatpak_manifest.get_main_module_url();
         let main_module_url = match main_module_url {
@@ -459,5 +461,11 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
                 db.add_module(module_description);
             }
         }
+    }
+
+    if repo_manifest_count == 0 {
+        log::info!("Repo at {} had no Flatpak manifest.", repo_url);
+    } else {
+        log::info!("Repo at {} had {} Flatpak manifests.", repo_url, repo_manifest_count);
     }
 }
