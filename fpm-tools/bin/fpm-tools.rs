@@ -202,7 +202,7 @@ fn main() {
             }
             // This repository is really large and for some reason results in the
             // process crashing.
-            if github_repo_url.contains("ostreedev/ostree") {
+            if github_repo_url.contains("/ostree") {
                 continue;
             }
             eprintln!("repo url is {}", github_repo_url);
