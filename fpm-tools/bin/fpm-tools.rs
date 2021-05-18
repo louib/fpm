@@ -437,6 +437,7 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
             None => continue,
         };
         repo_manifest_count += 1;
+        log::info!("Parsed a Flatpak manifest at {}", file_path.to_string());
 
         let main_module_url = flatpak_manifest.get_main_module_url();
         let main_module_url = match main_module_url {
