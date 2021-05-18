@@ -402,7 +402,10 @@ impl FlatpakManifest {
     }
 
     pub fn get_main_module_url(&self) -> Option<String> {
-        let main_module = self.modules.last().unwrap();
+        let main_module = match self.modules.last() {
+            Some(m) => m,
+            None => return None,
+        };
         let main_module: &FlatpakModuleDescription = match main_module {
             FlatpakModule::Path(_) => return None,
             FlatpakModule::Description(m) => m,
