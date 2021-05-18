@@ -1,5 +1,5 @@
-use std::env;
 use std::collections::HashSet;
+use std::env;
 
 use futures::executor::block_on;
 use reqwest::header;
