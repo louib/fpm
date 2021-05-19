@@ -13,12 +13,13 @@ fn main() {
     // TODO might need to use std::env::args_os instead, if
     // the args contain unicode.
     let args: Vec<String> = env::args().collect();
-
     if args.len() < 2 {
         panic!("Requires 1 argument: the list of sources to import from, or `all` for all the sources.");
     }
 
     let sources = &args[1];
+
+    let repos_urls: String = "".to_string();
 
     if sources.contains("github-flathub-org") {
         let mut db = fpm::db::Database::get_database();
@@ -43,10 +44,6 @@ fn main() {
         };
         for gitlab_repo_url in gitlab_repo_urls.split('\n') {
             if gitlab_repo_url.trim().is_empty() {
-                continue;
-            }
-            // FIXME not sure why but this one take forever.
-            if gitlab_repo_url.contains("kefqse/origin") {
                 continue;
             }
             eprintln!("repo url is {}", gitlab_repo_url);
@@ -163,11 +160,6 @@ fn main() {
             if github_repo_url.trim().is_empty() {
                 continue;
             }
-            // This repository is really large and for some reason results in the
-            // process crashing.
-            if github_repo_url.contains("/ostree") {
-                continue;
-            }
             eprintln!("repo url is {}", github_repo_url);
             mine_repository(&mut db, &github_repo_url);
         }
@@ -184,11 +176,6 @@ fn main() {
             if github_repo_url.trim().is_empty() {
                 continue;
             }
-            // This repository is really large and for some reason results in the
-            // process crashing.
-            if github_repo_url.contains("fastrizwaan/winepak") {
-                continue;
-            }
             eprintln!("repo url is {}", github_repo_url);
             mine_repository(&mut db, &github_repo_url);
         }
@@ -202,6 +189,34 @@ fn main() {
     if sources.contains("brew-recipes") {
         let mut db = fpm::db::Database::get_database();
         fpm_tools::hubs::brew::get_and_add_recipes(&mut db);
+    }
+
+    let mut db = fpm::db::Database::get_database();
+    // TODO de-deplicate the urls.
+    for repo_url in repos_urls.split('\n') {
+        if repo_url.trim().is_empty() {
+            continue;
+        }
+
+        // Found when searching for `flathub` on GitHub.com
+        // Too big to be processed.
+        if repo_url.contains("fastrizwaan/winepak") {
+            continue;
+        }
+
+        // Found when searching for `flatpak` on GitHub.com
+        // Too big to be processed.
+        if repo_url.contains("/ostree") {
+            continue;
+        }
+
+        // Found on Gnome's GitLab instance
+        // Too big to be processed.
+        if repo_url.contains("kefqse/origin") {
+            continue;
+        }
+
+        mine_repository(&mut db, &repo_url);
     }
 
     exit(0);
