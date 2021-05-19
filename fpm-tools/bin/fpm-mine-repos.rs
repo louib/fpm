@@ -19,100 +19,48 @@ fn main() {
 
     let sources = &args[1];
 
-    let repos_urls: String = "".to_string();
+    let mut repos_urls: String = "".to_string();
 
     if sources.contains("github-flathub-org") {
-        let mut db = fpm::db::Database::get_database();
-        let flathub_repos = match get_flathub_repos() {
+        repos_urls = match get_flathub_repos() {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-        for flathub_repo_url in flathub_repos.split('\n') {
-            if flathub_repo_url.trim().is_empty() {
-                continue;
-            }
-            mine_repository(&mut db, &flathub_repo_url);
-        }
     }
 
     if sources.contains("gnome-gitlab-instance") {
-        let mut db = fpm::db::Database::get_database();
-
-        let gitlab_repo_urls = match get_gitlab_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN") {
+        repos_urls = match get_gitlab_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-        for gitlab_repo_url in gitlab_repo_urls.split('\n') {
-            if gitlab_repo_url.trim().is_empty() {
-                continue;
-            }
-            eprintln!("repo url is {}", gitlab_repo_url);
-            mine_repository(&mut db, &gitlab_repo_url);
-        }
     }
 
     if sources.contains("purism-gitlab-instance") {
-        let mut db = fpm::db::Database::get_database();
-
-        let gitlab_repo_urls = match get_gitlab_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN") {
+        repos_urls = match get_gitlab_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-        for gitlab_repo_url in gitlab_repo_urls.split('\n') {
-            if gitlab_repo_url.trim().is_empty() {
-                continue;
-            }
-            eprintln!("repo url is {}", gitlab_repo_url);
-            mine_repository(&mut db, &gitlab_repo_url);
-        }
     }
 
     if sources.contains("debian-gitlab-instance") {
-        let mut db = fpm::db::Database::get_database();
-
-        let gitlab_repo_urls = match get_gitlab_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN") {
+        repos_urls = match get_gitlab_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-        for gitlab_repo_url in gitlab_repo_urls.split('\n') {
-            if gitlab_repo_url.trim().is_empty() {
-                continue;
-            }
-            eprintln!("repo url is {}", gitlab_repo_url);
-            mine_repository(&mut db, &gitlab_repo_url);
-        }
     }
 
     if sources.contains("xdg-gitlab-instance") {
-        let mut db = fpm::db::Database::get_database();
-
-        let gitlab_repo_urls = match get_gitlab_repos("gitlab.freedesktop.org", "FPM_XDG_GITLAB_TOKEN") {
+        repos_urls = match get_gitlab_repos("gitlab.freedesktop.org", "FPM_XDG_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-        for gitlab_repo_url in gitlab_repo_urls.split('\n') {
-            if gitlab_repo_url.trim().is_empty() {
-                continue;
-            }
-            eprintln!("repo url is {}", gitlab_repo_url);
-            mine_repository(&mut db, &gitlab_repo_url);
-        }
     }
 
     if sources.contains("kde-gitlab-instance") {
-        let mut db = fpm::db::Database::get_database();
-
-        let gitlab_repo_urls = match get_gitlab_repos("invent.kde.org", "FPM_KDE_GITLAB_TOKEN") {
+        repos_urls = match get_gitlab_repos("invent.kde.org", "FPM_KDE_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-        for gitlab_repo_url in gitlab_repo_urls.split('\n') {
-            if gitlab_repo_url.trim().is_empty() {
-                continue;
-            }
-            eprintln!("repo url is {}", gitlab_repo_url);
-            mine_repository(&mut db, &gitlab_repo_url);
-        }
     }
 
     // TODO also get code.videolan.org ??
@@ -120,65 +68,31 @@ fn main() {
     // TODO also get devel.trisquel.info ??
 
     if sources.contains("gitlab-search-flatpak") {
-        let mut db = fpm::db::Database::get_database();
-        let github_repos = match search_gitlab("flatpak") {
+        repos_urls = match search_gitlab("flatpak") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-        for github_repo_url in github_repos.split('\n') {
-            if github_repo_url.trim().is_empty() {
-                continue;
-            }
-            eprintln!("repo url is {}", github_repo_url);
-            // mine_repository(&mut db, &github_repo_url);
-        }
     }
 
     if sources.contains("gitlab-search-flathub") {
-        let mut db = fpm::db::Database::get_database();
-
-        let github_repos = match search_gitlab("flathub") {
+        repos_urls = match search_gitlab("flathub") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-        for github_repo_url in github_repos.split('\n') {
-            if github_repo_url.trim().is_empty() {
-                continue;
-            }
-            eprintln!("repo url is {}", github_repo_url);
-            // mine_repository(&mut db, &github_repo_url);
-        }
     }
 
     if sources.contains("github-search-flatpak") {
-        let mut db = fpm::db::Database::get_database();
-        let github_repos = match search_github("flatpak") {
+        repos_urls = match search_github("flatpak") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-        for github_repo_url in github_repos.split('\n') {
-            if github_repo_url.trim().is_empty() {
-                continue;
-            }
-            eprintln!("repo url is {}", github_repo_url);
-            mine_repository(&mut db, &github_repo_url);
-        }
     }
 
     if sources.contains("github-search-flathub") {
-        let mut db = fpm::db::Database::get_database();
-
-        let github_repos = match search_github("flathub") {
+        repos_urls = match search_github("flathub") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-        for github_repo_url in github_repos.split('\n') {
-            if github_repo_url.trim().is_empty() {
-                continue;
-            }
-            eprintln!("repo url is {}", github_repo_url);
-            mine_repository(&mut db, &github_repo_url);
-        }
     }
 
     if sources.contains("gitlab-com") {
@@ -216,6 +130,7 @@ fn main() {
             continue;
         }
 
+        eprintln!("repo url is {}", repo_url);
         mine_repository(&mut db, &repo_url);
     }
 
