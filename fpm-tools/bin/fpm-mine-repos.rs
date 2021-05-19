@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::path;
 use std::fs;
 use std::env;
@@ -106,6 +107,8 @@ fn main() {
     }
 
     let mut db = fpm::db::Database::get_database();
+    let mut mined_repos: HashSet<String> = HashSet::new();
+
     // TODO de-deplicate the urls.
     for repo_url in repos_urls.split('\n') {
         if repo_url.trim().is_empty() {
@@ -129,6 +132,12 @@ fn main() {
         if repo_url.contains("kefqse/origin") {
             continue;
         }
+
+        if mined_repos.contains(repo_url) {
+            log::info!("Repo {} was already mined", &repo_url);
+            continue;
+        }
+        mined_repos.insert(repo_url.to_string());
 
         eprintln!("repo url is {}", repo_url);
         mine_repository(&mut db, &repo_url);
