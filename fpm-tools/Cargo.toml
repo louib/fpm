@@ -14,8 +14,8 @@ keywords = [
 ]
 
 [[bin]]
-name = "fpm-tools"
-path = "bin/fpm-tools.rs"
+name = "fpm-mine-repos"
+path = "bin/fpm-mine-repos.rs"
 
 [[bin]]
 name = "fpm-import-shared-modules"
