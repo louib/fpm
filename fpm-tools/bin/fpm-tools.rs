@@ -122,7 +122,7 @@ fn main() {
     // TODO also get gitlab.haskell.org ??
     // TODO also get devel.trisquel.info ??
 
-    if sources == &"search-gitlab-com".to_string() {
+    if sources.contains("gitlab-search-flatpak") {
         let mut db = fpm::db::Database::get_database();
         let github_repos = match search_gitlab("flatpak") {
             Ok(r) => r,
@@ -135,6 +135,10 @@ fn main() {
             eprintln!("repo url is {}", github_repo_url);
             // mine_repository(&mut db, &github_repo_url);
         }
+    }
+
+    if sources.contains("gitlab-search-flathub") {
+        let mut db = fpm::db::Database::get_database();
 
         let github_repos = match search_gitlab("flathub") {
             Ok(r) => r,
@@ -149,7 +153,7 @@ fn main() {
         }
     }
 
-    if sources == &"search-github-com".to_string() {
+    if sources.contains("github-search-flatpak") {
         let mut db = fpm::db::Database::get_database();
         let github_repos = match search_github("flatpak") {
             Ok(r) => r,
@@ -167,6 +171,10 @@ fn main() {
             eprintln!("repo url is {}", github_repo_url);
             mine_repository(&mut db, &github_repo_url);
         }
+    }
+
+    if sources.contains("github-search-flathub") {
+        let mut db = fpm::db::Database::get_database();
 
         let github_repos = match search_github("flathub") {
             Ok(r) => r,
