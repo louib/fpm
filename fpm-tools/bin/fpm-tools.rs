@@ -6,6 +6,7 @@ use std::io::{self, BufRead, Write};
 
 use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule};
 
+
 fn main() {
     let mut exit_code = 0;
     fpm::logger::init();
@@ -21,7 +22,7 @@ fn main() {
 
     let command_name = &args[1];
 
-    if command_name == &"import-flathub-shared-modules".to_string() {
+    if command_name == &"github-flathub-shared-modules".to_string() {
         let mut modules: Vec<FlatpakModule> = vec![];
         let mut db = fpm::db::Database::get_database();
         let repo_path = match fpm::utils::clone_git_repo(
@@ -77,7 +78,7 @@ fn main() {
 
     }
 
-    if command_name == &"import-flathub-manifests".to_string() {
+    if command_name.contains("github-flathub-org") {
         let mut db = fpm::db::Database::get_database();
         let flathub_repos = match get_flathub_repos() {
             Ok(r) => r,
@@ -91,7 +92,7 @@ fn main() {
         }
     }
 
-    if command_name == &"import-self-hosted-gitlab-manifests".to_string() {
+    if command_name.contains("gnome-gitlab-instance") {
         let mut db = fpm::db::Database::get_database();
 
         let gitlab_repo_urls = match get_gitlab_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN") {
@@ -109,6 +110,10 @@ fn main() {
             eprintln!("repo url is {}", gitlab_repo_url);
             mine_repository(&mut db, &gitlab_repo_url);
         }
+    }
+
+    if command_name.contains("purism-gitlab-instance") {
+        let mut db = fpm::db::Database::get_database();
 
         let gitlab_repo_urls = match get_gitlab_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN") {
             Ok(r) => r,
@@ -121,6 +126,10 @@ fn main() {
             eprintln!("repo url is {}", gitlab_repo_url);
             mine_repository(&mut db, &gitlab_repo_url);
         }
+    }
+
+    if command_name.contains("debian-gitlab-instance") {
+        let mut db = fpm::db::Database::get_database();
 
         let gitlab_repo_urls = match get_gitlab_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN") {
             Ok(r) => r,
@@ -133,6 +142,10 @@ fn main() {
             eprintln!("repo url is {}", gitlab_repo_url);
             mine_repository(&mut db, &gitlab_repo_url);
         }
+    }
+
+    if command_name.contains("xdg-gitlab-instance") {
+        let mut db = fpm::db::Database::get_database();
 
         let gitlab_repo_urls = match get_gitlab_repos("gitlab.freedesktop.org", "FPM_XDG_GITLAB_TOKEN") {
             Ok(r) => r,
@@ -145,6 +158,10 @@ fn main() {
             eprintln!("repo url is {}", gitlab_repo_url);
             mine_repository(&mut db, &gitlab_repo_url);
         }
+    }
+
+    if command_name.contains("kde-gitlab-instance") {
+        let mut db = fpm::db::Database::get_database();
 
         let gitlab_repo_urls = match get_gitlab_repos("invent.kde.org", "FPM_KDE_GITLAB_TOKEN") {
             Ok(r) => r,
@@ -157,11 +174,11 @@ fn main() {
             eprintln!("repo url is {}", gitlab_repo_url);
             mine_repository(&mut db, &gitlab_repo_url);
         }
-
-        // TODO also get code.videolan.org ??
-        // TODO also get gitlab.haskell.org ??
-        // TODO also get devel.trisquel.info ??
     }
+
+    // TODO also get code.videolan.org ??
+    // TODO also get gitlab.haskell.org ??
+    // TODO also get devel.trisquel.info ??
 
     if command_name == &"search-gitlab-com".to_string() {
         let mut db = fpm::db::Database::get_database();
@@ -235,10 +252,6 @@ fn main() {
     if command_name == &"import-brew-recipes".to_string() {
         let mut db = fpm::db::Database::get_database();
         fpm_tools::hubs::brew::get_and_add_recipes(&mut db);
-    }
-
-    if command_name == &"extract-projects-from-modules" {
-        // TODO infer projects from the modules when possible.
     }
 
     exit(exit_code);
