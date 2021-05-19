@@ -8,7 +8,6 @@ use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule};
 
 
 fn main() {
-    let mut exit_code = 0;
     fpm::logger::init();
 
     // TODO might need to use std::env::args_os instead, if
@@ -16,69 +15,12 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        eprintln!("Require 1 argument.");
-        exit(1);
+        panic!("Requires 1 argument: the list of sources to import from, or `all` for all the sources.");
     }
 
-    let command_name = &args[1];
+    let sources = &args[1];
 
-    if command_name == &"github-flathub-shared-modules".to_string() {
-        let mut modules: Vec<FlatpakModule> = vec![];
-        let mut db = fpm::db::Database::get_database();
-        let repo_path = match fpm::utils::clone_git_repo(
-            &"https://github.com/flathub/shared-modules.git"
-        ) {
-            Ok(p) => p,
-            Err(e) => {
-                panic!("Could not clone flathub shared modules repo.");
-            }
-        };
-        let all_paths_in_repo = match fpm::utils::get_all_paths(path::Path::new(&repo_path)) {
-            Ok(p) => p,
-            Err(e) => {
-                panic!("Could not get paths in flathub shared modules repo.");
-            }
-        };
-
-        let mut flatpak_modules: Vec<FlatpakModule> = vec![];
-        for file_path in &all_paths_in_repo {
-            let file_path_str = file_path.to_str().unwrap();
-
-            let file_content = match fs::read_to_string(file_path) {
-                Ok(content) => content,
-                Err(e) => {
-                    log::debug!("Could not read file {}: {}.", file_path_str, e);
-                    continue;
-                }
-            };
-
-            log::debug!("Trying to parse Flatpak module at {}.", file_path_str);
-            let module: FlatpakModule = match serde_json::from_str(&file_content) {
-                Ok(m) => m,
-                Err(e) => {
-                    log::debug!("Could not parse file {}: {}.", file_path_str, e);
-                    continue;
-                }
-            };
-
-            println!("Parsed Flatpak module at {}.", file_path_str);
-            flatpak_modules.push(module);
-        }
-
-        println!("Importing {} Flatpak module.", &flatpak_modules.len());
-        for flatpak_module in flatpak_modules {
-            if let FlatpakModule::Description(module_description) = flatpak_module {
-                if module_description.sources.len() == 0 {
-                    continue;
-                }
-
-                db.add_module(module_description);
-            }
-        }
-
-    }
-
-    if command_name.contains("github-flathub-org") {
+    if sources.contains("github-flathub-org") {
         let mut db = fpm::db::Database::get_database();
         let flathub_repos = match get_flathub_repos() {
             Ok(r) => r,
@@ -92,7 +34,7 @@ fn main() {
         }
     }
 
-    if command_name.contains("gnome-gitlab-instance") {
+    if sources.contains("gnome-gitlab-instance") {
         let mut db = fpm::db::Database::get_database();
 
         let gitlab_repo_urls = match get_gitlab_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN") {
@@ -112,7 +54,7 @@ fn main() {
         }
     }
 
-    if command_name.contains("purism-gitlab-instance") {
+    if sources.contains("purism-gitlab-instance") {
         let mut db = fpm::db::Database::get_database();
 
         let gitlab_repo_urls = match get_gitlab_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN") {
@@ -128,7 +70,7 @@ fn main() {
         }
     }
 
-    if command_name.contains("debian-gitlab-instance") {
+    if sources.contains("debian-gitlab-instance") {
         let mut db = fpm::db::Database::get_database();
 
         let gitlab_repo_urls = match get_gitlab_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN") {
@@ -144,7 +86,7 @@ fn main() {
         }
     }
 
-    if command_name.contains("xdg-gitlab-instance") {
+    if sources.contains("xdg-gitlab-instance") {
         let mut db = fpm::db::Database::get_database();
 
         let gitlab_repo_urls = match get_gitlab_repos("gitlab.freedesktop.org", "FPM_XDG_GITLAB_TOKEN") {
@@ -160,7 +102,7 @@ fn main() {
         }
     }
 
-    if command_name.contains("kde-gitlab-instance") {
+    if sources.contains("kde-gitlab-instance") {
         let mut db = fpm::db::Database::get_database();
 
         let gitlab_repo_urls = match get_gitlab_repos("invent.kde.org", "FPM_KDE_GITLAB_TOKEN") {
@@ -180,7 +122,7 @@ fn main() {
     // TODO also get gitlab.haskell.org ??
     // TODO also get devel.trisquel.info ??
 
-    if command_name == &"search-gitlab-com".to_string() {
+    if sources == &"search-gitlab-com".to_string() {
         let mut db = fpm::db::Database::get_database();
         let github_repos = match search_gitlab("flatpak") {
             Ok(r) => r,
@@ -207,7 +149,7 @@ fn main() {
         }
     }
 
-    if command_name == &"search-github-com".to_string() {
+    if sources == &"search-github-com".to_string() {
         let mut db = fpm::db::Database::get_database();
         let github_repos = match search_github("flatpak") {
             Ok(r) => r,
@@ -244,17 +186,17 @@ fn main() {
         }
     }
 
-    if command_name == &"import-projects-from-gitlab-com".to_string() {
+    if sources.contains("gitlab-com") {
         let mut db = fpm::db::Database::get_database();
         fpm_tools::hubs::gitlab::get_all_repos("gitlab.com", "FPM_GITLAB_TOKEN");
     }
 
-    if command_name == &"import-brew-recipes".to_string() {
+    if sources.contains("brew-recipes") {
         let mut db = fpm::db::Database::get_database();
         fpm_tools::hubs::brew::get_and_add_recipes(&mut db);
     }
 
-    exit(exit_code);
+    exit(0);
 }
 
 /// Search for flatpak and flathub related repos on gitlab.com and

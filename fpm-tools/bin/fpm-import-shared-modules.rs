@@ -15,7 +15,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        panic!("Requires 1 argument: the list of source to import from, or `all` for all the sources.");
+        panic!("Requires 1 argument: the list of sources to import from, or `all` for all the sources.");
     }
 
     let sources = &args[1];
