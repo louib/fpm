@@ -452,6 +452,15 @@ pub enum FlatpakModule {
     Path(String),
     Description(FlatpakModuleDescription),
 }
+impl FlatpakModule {
+    pub fn get_all_repos_urls(&self) -> Vec<String> {
+        if let FlatpakModule::Description(module_description) = self {
+            return module_description.get_all_urls();
+        } else {
+            return vec![];
+        }
+    }
+}
 
 // Each module specifies a source that has to be separately built and installed.
 // It contains the build options and a list of sources to download and extract before

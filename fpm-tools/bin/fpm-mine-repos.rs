@@ -144,7 +144,7 @@ pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined
         mined_repos.insert(repo_url.to_string());
 
         eprintln!("repo url is {}", repo_url);
-        mine_repository(&mut db, &repo_url);
+        let mined_repos_urls = mine_repository(&mut db, &repo_url);
     }
 
 }
@@ -355,15 +355,16 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
             Some(u) => u,
             None => String::from(""),
         };
-        if main_module_url.ends_with(".git") && main_module_url.starts_with("https://") && main_module_url != repo_url {
-            // mine_repository(db, &main_module_url);
+        if main_module_url.ends_with(".git") && main_module_url.starts_with("https://") {
+            mined_repos_urls.push(main_module_url);
         }
         println!("MANIFEST MAX DEPTH {} {}", flatpak_manifest.get_max_depth(), file_path);
 
         for module in &flatpak_manifest.modules {
-            if let FlatpakModule::Description(module_description) = module {
-                for url in module_description.get_all_urls() {
-                    println!("MODULE URL {}", url);
+            for url in module.get_all_repos_urls() {
+                println!("MODULE URL {}", url);
+                if url.ends_with(".git") && url.starts_with("https://") {
+                    mined_repos_urls.push(url);
                 }
             }
         }
