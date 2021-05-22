@@ -417,6 +417,7 @@ impl FlatpakManifest {
             FlatpakSource::Dir(d) => return None,
             FlatpakSource::Patch(p) => return None,
             FlatpakSource::BZR(r) => &r.url,
+            FlatpakSource::Git(r) => &r.url,
             FlatpakSource::SVN(r) => &r.url,
             FlatpakSource::File(p) => return None,
             FlatpakSource::Shell(s) => return None,
@@ -709,6 +710,7 @@ pub enum FlatpakSource {
     Script(FlatpakScriptSource),
     ExtraData(FlatpakExtraDataSource),
     Patch(FlatpakPatchSource),
+    Git(FlatpakGitSource),
     BZR(FlatpakBZRSource),
     SVN(FlatpakSVNSource),
     File(FlatpakFileSource),
@@ -843,6 +845,47 @@ pub struct FlatpakBZRSource {
     // A specific revision to use in the branch
     #[serde(skip_serializing_if = "Option::is_none")]
     pub revision: Option<String>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize, Hash)]
+#[serde(rename_all = "kebab-case")]
+pub struct FlatpakGitSource {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
+
+    // The path to a local checkout of the git repository. Due to how git-clone works, this will be much faster than specifying a URL of file:///...
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
+
+    // URL of the git repository. This overrides path if both are specified. When using git via SSH, the correct syntax is ssh://user@domain/path/to/repo.git.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+
+    // The branch to use from the git repository
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub branch: Option<String>,
+
+    // The tag to use from the git repository
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tag: Option<String>,
+
+    // The commit to use from the git repository.
+    // If branch is also specified, then it is verified that the branch/tag is at this specific commit.
+    // This is a readable way to document that you're using a particular tag, but verify that it does not change.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub commit: Option<String>,
+
+    // Don't use transfer.fsckObjects=1 to mirror git repository. This may be needed for some (broken) repositories.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_fsckobjects: Option<bool>,
+
+    // Don't optimize by making a shallow clone when downloading the git repo.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_shallow_clone: Option<bool>,
+
+    // Don't checkout the git submodules when cloning the repository.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_submodules: Option<bool>,
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
