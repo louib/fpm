@@ -588,7 +588,30 @@ impl FlatpakModuleDescription {
     }
 
     pub fn parse(module_path: &str, module_content: &str) -> Result<FlatpakModuleDescription, String> {
-        return Err("".to_string());
+        let mut flatpak_module: FlatpakModuleDescription = FlatpakModuleDescription::default();
+
+        if module_path.to_lowercase().ends_with("yaml") || module_path.to_lowercase().ends_with("yml") {
+            flatpak_module = match serde_yaml::from_str(&module_content) {
+                Ok(m) => m,
+                Err(e) => {
+                    return Err(format!("Failed to parse the Flatpak manifest: {}.", e));
+                }
+            };
+        } else if module_path.to_lowercase().ends_with("json") {
+            let mut json_content_without_comments = crate::utils::remove_comments_from_json(module_content);
+            flatpak_module = match serde_json::from_str(&json_content_without_comments) {
+                Ok(m) => m,
+                Err(e) => {
+                    return Err(format!("Failed to parse the Flatpak manifest: {}.", e));
+                }
+            };
+        }
+
+        if flatpak_module.name.is_empty() {
+            return Err("Required top-level field name is missing from Flatpak module.".to_string());
+        }
+
+        Ok(flatpak_module)
     }
 
     pub fn file_path_matches(path: &str) -> bool {
