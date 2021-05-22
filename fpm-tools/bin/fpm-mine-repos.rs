@@ -114,6 +114,7 @@ fn main() {
 }
 
 pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined_repos: &mut HashSet<String>) {
+    let mut next_repos_urls_to_mine: Vec<String> = vec![];
     for repo_url in repos_urls {
         if repo_url.trim().is_empty() {
             continue;
@@ -145,6 +146,17 @@ pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined
 
         eprintln!("repo url is {}", repo_url);
         let mined_repos_urls = mine_repository(&mut db, &repo_url);
+
+        for mined_repo_url in mined_repos_urls {
+            if mined_repos.contains(&mined_repo_url) {
+                continue;
+            }
+            next_repos_urls_to_mine.push(mined_repo_url);
+        }
+    }
+
+    if !next_repos_urls_to_mine.is_empty() {
+        log::warn!("There are {} other repositories to mine!!!", next_repos_urls_to_mine.len());
     }
 
 }
