@@ -7,7 +7,6 @@ use std::io::{self, BufRead, Write};
 
 use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule};
 
-
 fn main() {
     fpm::logger::init();
 
@@ -143,6 +142,42 @@ fn main() {
     }
 
     exit(0);
+}
+
+pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined_repos: &mut HashSet<String>) {
+    for repo_url in repos_urls {
+        if repo_url.trim().is_empty() {
+            continue;
+        }
+
+        // Found when searching for `flathub` on GitHub.com
+        // Too big to be processed.
+        if repo_url.contains("fastrizwaan/winepak") {
+            continue;
+        }
+
+        // Found when searching for `flatpak` on GitHub.com
+        // Too big to be processed.
+        if repo_url.contains("/ostree") {
+            continue;
+        }
+
+        // Found on Gnome's GitLab instance
+        // Too big to be processed.
+        if repo_url.contains("kefqse/origin") {
+            continue;
+        }
+
+        if mined_repos.contains(repo_url) {
+            log::info!("Repo {} was already mined", &repo_url);
+            continue;
+        }
+        mined_repos.insert(repo_url.to_string());
+
+        eprintln!("repo url is {}", repo_url);
+        mine_repository(&mut db, &repo_url);
+    }
+
 }
 
 /// Search for flatpak and flathub related repos on gitlab.com and
@@ -302,13 +337,14 @@ pub fn get_flathub_repos() -> Result<String, String> {
     Ok(flathub_repos_dump)
 }
 
-pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
+pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String> {
+    let mut mined_repos_urls: Vec<String> = vec![];
     let mut repo_manifest_count = 0;
     let repo_dir = match fpm::utils::clone_git_repo(&repo_url) {
         Ok(d) => d,
         Err(e) => {
             eprintln!("Could not clone repo {}: {}", &repo_url, e);
-            return;
+            return mined_repos_urls;
         },
     };
 
@@ -317,7 +353,7 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
         Ok(paths) => paths,
         Err(message) => {
             log::error!("Could not get the file paths for {} :sad: {}", repo_dir, message);
-            return;
+            return mined_repos_urls;
         }
     };
     for file_path in &repo_file_paths {
@@ -375,4 +411,5 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) {
     } else {
         log::info!("Repo at {} had {} Flatpak manifests.", repo_url, repo_manifest_count);
     }
+    return mined_repos_urls;
 }
