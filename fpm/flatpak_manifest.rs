@@ -584,7 +584,33 @@ pub struct FlatpakModuleDescription {
 }
 impl FlatpakModuleDescription {
     pub fn load_from_file(path: String) -> Option<FlatpakModuleDescription> {
-        return None;
+        let file_path = path::Path::new(&path);
+        if !file_path.is_file() {
+            log::error!("{} is not a file.", path);
+            return None;
+        }
+
+        if FlatpakModuleDescription::file_path_matches(&file_path.to_str().unwrap()) {
+            let module_content = match fs::read_to_string(file_path) {
+                Ok(content) => content,
+                Err(e) => {
+                    log::error!("Could not read manifest file {}: {}.", path, e);
+                    return None;
+                }
+            };
+            log::info!("Parsing Flatpak module file {}", &path);
+            let mut module = match FlatpakModuleDescription::parse(&path, &module_content) {
+                Ok(m) => m,
+                Err(e) => {
+                    log::warn!("Failed to parse Flatpak module at {}: {}", path, e);
+                    return None;
+                }
+            };
+            return Some(module);
+        } else {
+            log::debug!("{} is not a Flatpak module.", path);
+            return None;
+        }
     }
 
     pub fn parse(module_path: &str, module_content: &str) -> Result<FlatpakModuleDescription, String> {
