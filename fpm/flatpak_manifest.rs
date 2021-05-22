@@ -413,6 +413,7 @@ impl FlatpakManifest {
             FlatpakSource::Path(_) => return None,
             FlatpakSource::Description(s) => &s.url,
             FlatpakSource::Script(s) => return None,
+            FlatpakSource::Archive(a) => &a.url,
             FlatpakSource::ExtraData(ed) => &ed.url,
             FlatpakSource::Dir(d) => return None,
             FlatpakSource::Patch(p) => return None,
@@ -706,6 +707,7 @@ pub const DEFAULT_SOURCE_TYPE: &str = "archive";
 #[serde(untagged)]
 pub enum FlatpakSource {
     Path(String),
+    Archive(FlatpakArchiveSource),
     Description(FlatpakSourceDescription),
     Script(FlatpakScriptSource),
     ExtraData(FlatpakExtraDataSource),
@@ -886,6 +888,49 @@ pub struct FlatpakGitSource {
     // Don't checkout the git submodules when cloning the repository.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_submodules: Option<bool>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize, Hash)]
+#[serde(rename_all = "kebab-case")]
+pub struct FlatpakArchiveSource {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
+
+    // The path of the archive
+    pub path: Option<String>,
+
+    // The URL of a remote archive that will be downloaded. This overrides path if both are specified.
+    pub url: Option<String>,
+
+    // A list of alternative urls that are used if the main url fails.
+    pub mirror_urls: Vec<String>,
+
+    // Whether to initialise the repository as a git repository.
+    pub git_init: Option<bool>,
+
+    // The type of archive if it cannot be guessed from the path.
+    // Possible values are "rpm", "tar", "tar-gzip", "tar-compress", "tar-bzip2", "tar-lzip", "tar-lzma", "tar-lzop", "tar-xz", "zip" and "7z".
+    pub archive_type: Option<String>,
+
+    // The md5 checksum of the file, verified after download
+    // Note that md5 is no longer considered a safe checksum, we recommend you use at least sha256.
+    pub md5: Option<String>,
+
+    // The sha1 checksum of the file, verified after download
+    // Note that sha1 is no longer considered a safe checksum, we recommend you use at least sha256.
+    pub sha1: Option<String>,
+
+    // The sha256 checksum of the file, verified after download
+    pub sha256: Option<String>,
+
+    // The sha512 checksum of the file, verified after download
+    pub sha512: Option<String>,
+
+    // The number of initial pathname components to strip during extraction. Defaults to 1.
+    pub strip_components: Option<i64>,
+
+    // Filename to for the downloaded file, defaults to the basename of url.
+    pub dest_filename: Option<String>,
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
