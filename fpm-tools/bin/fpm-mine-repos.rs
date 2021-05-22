@@ -115,6 +115,18 @@ fn main() {
 
 pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined_repos: &mut HashSet<String>) {
     let mut next_repos_urls_to_mine: Vec<String> = vec![];
+
+    // Marking all the repos for this discovery round as mined, so that
+    // we don't add them for discovery in the next round.
+    for repo_url in &repos_urls {
+        let repo_url = repo_url.to_string();
+        if mined_repos.contains(&repo_url) {
+            log::info!("Repo {} was already mined", &repo_url);
+            continue;
+        }
+        mined_repos.insert(repo_url);
+    }
+
     for repo_url in repos_urls {
         if repo_url.trim().is_empty() {
             continue;
@@ -137,12 +149,6 @@ pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined
         if repo_url.contains("kefqse/origin") {
             continue;
         }
-
-        if mined_repos.contains(repo_url) {
-            log::info!("Repo {} was already mined", &repo_url);
-            continue;
-        }
-        mined_repos.insert(repo_url.to_string());
 
         eprintln!("repo url is {}", repo_url);
         let mined_repos_urls = mine_repository(&mut db, &repo_url);
