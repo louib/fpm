@@ -109,7 +109,6 @@ fn main() {
     let mut db = fpm::db::Database::get_database();
     let mut mined_repos: HashSet<String> = HashSet::new();
 
-    // TODO de-deplicate the urls.
     for repo_url in repos_urls.split('\n') {
         if repo_url.trim().is_empty() {
             continue;
