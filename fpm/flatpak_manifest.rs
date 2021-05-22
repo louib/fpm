@@ -414,6 +414,7 @@ impl FlatpakManifest {
             FlatpakSource::Description(s) => &s.url,
             FlatpakSource::Script(s) => return None,
             FlatpakSource::ExtraData(ed) => &ed.url,
+            FlatpakSource::Dir(d) => return None,
             FlatpakSource::Patch(p) => return None,
             FlatpakSource::File(p) => return None,
             FlatpakSource::Shell(s) => return None,
@@ -707,6 +708,7 @@ pub enum FlatpakSource {
     ExtraData(FlatpakExtraDataSource),
     Patch(FlatpakPatchSource),
     File(FlatpakFileSource),
+    Dir(FlatpakDirSource),
     Shell(FlatpakShellSource),
 }
 
@@ -881,6 +883,22 @@ pub struct FlatpakFileSource {
     // Filename to use inside the source dir, default to the basename of path.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dest_filename: Option<String>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize, Hash)]
+#[serde(rename_all = "kebab-case")]
+pub struct FlatpakDirSource {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
+
+    // The path of a local directory whose content will be copied into the source dir.
+    // Note that directory sources don't currently support caching, so they will be rebuilt each time.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
+
+    // Source files to ignore in the directory.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub skip: Vec<String>,
 }
 
 // Extension define extension points in the app/runtime that can be implemented by extensions,
