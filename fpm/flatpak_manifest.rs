@@ -725,10 +725,24 @@ pub enum FlatpakSource {
 }
 impl FlatpakSource {
     pub fn get_url(&self) -> Option<String> {
-        // TODO handle the other sources.
         // TODO handle multiple urls with mirror-url.
         if let FlatpakSource::Archive(a) = self {
             if let Some(url) = &a.url {
+                return Some(url.to_string());
+            }
+        }
+        if let FlatpakSource::SVN(r) = self {
+            if let Some(url) = &r.url {
+                return Some(url.to_string());
+            }
+        }
+        if let FlatpakSource::BZR(r) = self {
+            if let Some(url) = &r.url {
+                return Some(url.to_string());
+            }
+        }
+        if let FlatpakSource::Git(r) = self {
+            if let Some(url) = &r.url {
                 return Some(url.to_string());
             }
         }
