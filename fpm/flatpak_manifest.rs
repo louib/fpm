@@ -411,7 +411,6 @@ impl FlatpakManifest {
 
         let main_module_source_url: &Option<String> = match main_module_source {
             FlatpakSource::Path(_) => return None,
-            FlatpakSource::Description(s) => &s.url,
             FlatpakSource::Script(s) => return None,
             FlatpakSource::Archive(a) => &a.url,
             FlatpakSource::ExtraData(ed) => &ed.url,
@@ -665,10 +664,9 @@ impl FlatpakModuleDescription {
             }
         }
         for source in &self.sources {
-            if let FlatpakSource::Description(source_description) = source {
-                if let Some(url) = &source_description.url {
-                    all_urls.push(url.to_string());
-                }
+            if let Some(url) = source.get_url() {
+                all_urls.push(url);
+
             }
         }
         all_urls
@@ -702,13 +700,19 @@ pub const ALLOWED_SOURCE_TYPES: [&'static str; 10] = [
 
 pub const DEFAULT_SOURCE_TYPE: &str = "archive";
 
+// The sources are a list pointer to the source code that needs to be extracted into
+// the build directory before the build starts.
+// They can be of several types, distinguished by the type property.
+//
+// Additionally, the sources list can contain a plain string, which is interpreted as the name
+// of a separate json or yaml file that is read and inserted at this
+// point. The file can contain a single source, or an array of sources.
 #[derive(Debug, Deserialize, Serialize, Hash)]
 #[serde(rename_all = "kebab-case")]
 #[serde(untagged)]
 pub enum FlatpakSource {
     Path(String),
     Archive(FlatpakArchiveSource),
-    Description(FlatpakSourceDescription),
     Script(FlatpakScriptSource),
     ExtraData(FlatpakExtraDataSource),
     Patch(FlatpakPatchSource),
@@ -719,48 +723,16 @@ pub enum FlatpakSource {
     Dir(FlatpakDirSource),
     Shell(FlatpakShellSource),
 }
-
-// The sources are a list pointer to the source code that needs to be extracted into
-// the build directory before the build starts.
-// They can be of several types, distinguished by the type property.
-//
-// Additionally, the sources list can contain a plain string, which is interpreted as the name
-// of a separate json or yaml file that is read and inserted at this
-// point. The file can contain a single source, or an array of sources.
-// TODO there are actually much more fields in the source descriptions, depending
-// on the type of source used. See the man page for details.
-#[derive(Debug, Default, Deserialize, Serialize, Hash)]
-#[serde(rename_all = "kebab-case")]
-pub struct FlatpakSourceDescription {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub url: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub path: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tag: Option<String>,
-
-    // The name of the branch to checkout.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub branch: Option<String>,
-
-    // The commit to use from the git repository.
-    // If branch is also specified, then it is verified that the branch/tag is at this specific commit.
-    // This is a readable way to document that you're using a particular tag, but verify
-    // that it does not change.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub commit: Option<String>,
-}
-impl FlatpakSourceDescription {
-    pub fn get_type(&self) -> String {
-        if let Some(source_type) = &self.r#type {
-            return source_type.to_string();
+impl FlatpakSource {
+    pub fn get_url(&self) -> Option<String> {
+        // TODO handle the other sources.
+        // TODO handle multiple urls with mirror-url.
+        if let FlatpakSource::Archive(a) = self {
+            if let Some(url) = &a.url {
+                return Some(url.to_string());
+            }
         }
-        return DEFAULT_SOURCE_TYPE.to_string();
+        return None;
     }
 }
 
