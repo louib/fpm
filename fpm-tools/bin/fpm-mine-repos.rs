@@ -157,6 +157,13 @@ pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined
 
     if !next_repos_urls_to_mine.is_empty() {
         log::warn!("There are {} other repositories to mine!!!", next_repos_urls_to_mine.len());
+        // TODO find a one-liner for that.
+        let mut next_repos_urls_to_mine_str = Vec::<&str>::new();
+        for url in &next_repos_urls_to_mine {
+            next_repos_urls_to_mine_str.push(url);
+        }
+
+        mine_repositories(next_repos_urls_to_mine_str, db, mined_repos);
     }
 
 }
