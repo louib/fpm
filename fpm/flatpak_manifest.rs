@@ -413,6 +413,7 @@ impl FlatpakManifest {
             FlatpakSource::Path(_) => return None,
             FlatpakSource::Description(s) => &s.url,
             FlatpakSource::Script(s) => return None,
+            FlatpakSource::ExtraData(ed) => &ed.url,
             FlatpakSource::Shell(s) => return None,
         };
 
@@ -701,6 +702,7 @@ pub enum FlatpakSource {
     Path(String),
     Description(FlatpakSourceDescription),
     Script(FlatpakScriptSource),
+    ExtraData(FlatpakExtraDataSource),
     Shell(FlatpakShellSource),
 }
 
@@ -774,6 +776,33 @@ pub struct FlatpakShellSource {
     // An array of shell commands that will be run during source extraction.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub commands: Vec<String>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize, Hash)]
+#[serde(rename_all = "kebab-case")]
+pub struct FlatpakExtraDataSource {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
+
+    // The name to use for the downloaded extra data
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub filename: Option<String>,
+
+    // The url to the extra data.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+
+    // The sha256 of the extra data.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sha256: Option<String>,
+
+    // The size of the extra data in bytes.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub size: Option<i64>,
+
+    // The extra installed size this adds to the app (optional).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub installed_size: Option<String>,
 }
 
 // Extension define extension points in the app/runtime that can be implemented by extensions,
