@@ -666,7 +666,6 @@ impl FlatpakModuleDescription {
         for source in &self.sources {
             if let Some(url) = source.get_url() {
                 all_urls.push(url);
-
             }
         }
         all_urls
