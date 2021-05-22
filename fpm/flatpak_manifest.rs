@@ -415,6 +415,7 @@ impl FlatpakManifest {
             FlatpakSource::Script(s) => return None,
             FlatpakSource::ExtraData(ed) => &ed.url,
             FlatpakSource::Patch(p) => return None,
+            FlatpakSource::File(p) => return None,
             FlatpakSource::Shell(s) => return None,
         };
 
@@ -705,6 +706,7 @@ pub enum FlatpakSource {
     Script(FlatpakScriptSource),
     ExtraData(FlatpakExtraDataSource),
     Patch(FlatpakPatchSource),
+    File(FlatpakFileSource),
     Shell(FlatpakShellSource),
 }
 
@@ -837,6 +839,48 @@ pub struct FlatpakPatchSource {
     // Extra options to pass to the patch command.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub options: Vec<String>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize, Hash)]
+#[serde(rename_all = "kebab-case")]
+pub struct FlatpakFileSource {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
+
+    // The path of a local file that will be copied into the source dir
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
+
+    // The URL of a remote file that will be downloaded and copied into the source dir.
+    // This overrides path if both are specified.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+
+    // A list of alternative urls that are used if the main url fails.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub mirror_urls: Vec<String>,
+
+    // The md5 checksum of the file, verified after download. This is optional for local files.
+    // Note that md5 is no longer considered a safe checksum, we recommend you use at least sha256.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub md5: Option<String>,
+
+    // The sha1 checksum of the file, verified after download. This is optional for local files.
+    // Note that sha1 is no longer considered a safe checksum, we recommend you use at least sha256.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sha1: Option<String>,
+
+    // The sha256 checksum of the file, verified after download. This is optional for local files.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sha256: Option<String>,
+
+    // The sha512 checksum of the file, verified after download. This is optional for local files.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sha512: Option<String>,
+
+    // Filename to use inside the source dir, default to the basename of path.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dest_filename: Option<String>,
 }
 
 // Extension define extension points in the app/runtime that can be implemented by extensions,
