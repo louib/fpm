@@ -295,6 +295,16 @@ impl FlatpakManifest {
         }
     }
 
+    pub fn file_extension_matches(path: &str) -> bool {
+        if path.to_lowercase().ends_with("yml") || path.to_lowercase().ends_with("yaml") {
+            return true;
+        }
+        if path.to_lowercase().ends_with("json") {
+            return true;
+        }
+        return false;
+    }
+
     pub fn file_path_matches(path: &str) -> bool {
         lazy_static! {
             static ref REVERSE_DNS_FILENAME_REGEX: Regex = Regex::new(
@@ -316,26 +326,7 @@ impl FlatpakManifest {
             };
             flatpak_manifest.format = FlatpakManifestFormat::YAML;
         } else if manifest_path.to_lowercase().ends_with("json") {
-            let mut json_content_without_comments = "".to_string();
-            let mut is_in_a_comment = false;
-            for manifest_line in manifest_content.split('\n') {
-                if manifest_line.trim().starts_with("/*") && manifest_line.trim().ends_with("*/") {
-                    continue;
-                }
-                if manifest_line.trim().starts_with("/*") && !is_in_a_comment {
-                    is_in_a_comment = true;
-                    continue;
-                }
-                if manifest_line.trim().ends_with("*/") && is_in_a_comment {
-                    is_in_a_comment = false;
-                    continue;
-                }
-                if is_in_a_comment {
-                    continue;
-                }
-                // TODO should we also filter out comments at the end of the lines?
-                json_content_without_comments += manifest_line;
-            }
+            let mut json_content_without_comments = crate::utils::remove_comments_from_json(manifest_content);
             flatpak_manifest = match serde_json::from_str(&json_content_without_comments) {
                 Ok(m) => m,
                 Err(e) => {
@@ -592,6 +583,18 @@ pub struct FlatpakModuleDescription {
     pub modules: Vec<FlatpakModule>,
 }
 impl FlatpakModuleDescription {
+    pub fn load_from_file(path: String) -> Option<FlatpakModuleDescription> {
+        return None;
+    }
+
+    pub fn parse(module_path: &str, module_content: &str) -> Result<FlatpakModuleDescription, String> {
+        return Err("".to_string())
+    }
+
+    pub fn file_path_matches(path: &str) -> bool {
+        return FlatpakManifest::file_extension_matches(path);
+    }
+
     pub fn get_hash(&self) -> u64 {
         let mut s = DefaultHasher::new();
         self.hash(&mut s);
