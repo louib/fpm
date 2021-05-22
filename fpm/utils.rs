@@ -25,7 +25,7 @@ pub fn clone_git_repo(repo_url: &str) -> Result<String, String> {
     }
 
     println!("Cloning repo {}", repo_url);
-    let mut output = Command::new("git")
+    let output = Command::new("git")
         .arg("clone")
         .arg(repo_url)
         .arg(&repo_dir)
@@ -33,7 +33,7 @@ pub fn clone_git_repo(repo_url: &str) -> Result<String, String> {
         .spawn()
         .unwrap();
 
-    let mut output = match output.wait_with_output() {
+    let output = match output.wait_with_output() {
         Ok(o) => o,
         Err(e) => return Err(e.to_string()),
     };
@@ -49,7 +49,7 @@ pub fn fetch_file(file_url: String) -> Result<String, String> {
     let file_name = file_name_parts.last().unwrap();
 
     println!("Getting file at {}", file_url);
-    let mut output = Command::new("wget")
+    let output = Command::new("wget")
         .arg(file_url.to_string())
         .arg("-P /tmp/")
         .stdout(Stdio::piped())
@@ -58,7 +58,7 @@ pub fn fetch_file(file_url: String) -> Result<String, String> {
 
     let local_file_path = "/tmp/".to_owned() + &file_name.to_owned();
 
-    let mut output = match output.wait_with_output() {
+    let output = match output.wait_with_output() {
         Ok(o) => o,
         Err(e) => return Err(e.to_string()),
     };
@@ -75,7 +75,7 @@ pub fn get_git_repo_root_hashes(repo_path: &str) -> Result<Vec<String>, String> 
     // can also be found in multiple projects in the case of a fork.
     println!("Getting initial commit for repo at {}", repo_path);
 
-    let mut output = Command::new("git")
+    let output = Command::new("git")
         .arg(format!("--git-dir={}/.git", repo_path).to_owned())
         .arg("rev-list")
         .arg("--max-parents=0".to_owned())
@@ -84,7 +84,7 @@ pub fn get_git_repo_root_hashes(repo_path: &str) -> Result<Vec<String>, String> 
         .spawn()
         .unwrap();
 
-    let mut output = match output.wait_with_output() {
+    let output = match output.wait_with_output() {
         Ok(o) => o,
         Err(e) => return Err(e.to_string()),
     };

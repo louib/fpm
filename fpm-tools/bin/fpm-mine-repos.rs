@@ -3,7 +3,7 @@ use std::path;
 use std::fs;
 use std::env;
 use std::process::exit;
-use std::io::{self, BufRead, Write};
+use std::io::{Write};
 
 use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule};
 
@@ -96,7 +96,6 @@ fn main() {
     }
 
     if sources.contains("gitlab-com") {
-        let mut db = fpm::db::Database::get_database();
         fpm_tools::hubs::gitlab::get_all_repos("gitlab.com", "FPM_GITLAB_TOKEN");
     }
 

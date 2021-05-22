@@ -223,7 +223,7 @@ pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse
 
     log::info!("Getting GitLab projects page at {}.", current_url);
     // TODO make this really asynchronous with async/await.
-    let mut response = match client.get(&current_url).send() {
+    let response = match client.get(&current_url).send() {
         Ok(r) => r,
         Err(e) => {
             log::error!("Could not fetch GitLab url {}: {}.", current_url, e);
