@@ -414,6 +414,7 @@ impl FlatpakManifest {
             FlatpakSource::Description(s) => &s.url,
             FlatpakSource::Script(s) => return None,
             FlatpakSource::ExtraData(ed) => &ed.url,
+            FlatpakSource::Patch(p) => return None,
             FlatpakSource::Shell(s) => return None,
         };
 
@@ -703,6 +704,7 @@ pub enum FlatpakSource {
     Description(FlatpakSourceDescription),
     Script(FlatpakScriptSource),
     ExtraData(FlatpakExtraDataSource),
+    Patch(FlatpakPatchSource),
     Shell(FlatpakShellSource),
 }
 
@@ -803,6 +805,38 @@ pub struct FlatpakExtraDataSource {
     // The extra installed size this adds to the app (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub installed_size: Option<String>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize, Hash)]
+#[serde(rename_all = "kebab-case")]
+pub struct FlatpakPatchSource {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
+
+    // The path of a patch file that will be applied in the source dir
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
+
+    // An list of paths to a patch files that will be applied in the source dir, in order
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub paths: Vec<String>,
+
+    // The value of the -p argument to patch, defaults to 1.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub strip_components: Option<i64>,
+
+    // Whether to use "git apply" rather than "patch" to apply the patch, required when the patch file contains binary diffs.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub use_git: Option<bool>,
+
+    // Whether to use "git am" rather than "patch" to apply the patch, required when the patch file contains binary diffs.
+    // You cannot use this at the same time as use-git.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub use_git_am: Option<bool>,
+
+    // Extra options to pass to the patch command.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub options: Vec<String>,
 }
 
 // Extension define extension points in the app/runtime that can be implemented by extensions,
