@@ -588,7 +588,7 @@ impl FlatpakModuleDescription {
     }
 
     pub fn parse(module_path: &str, module_content: &str) -> Result<FlatpakModuleDescription, String> {
-        return Err("".to_string())
+        return Err("".to_string());
     }
 
     pub fn file_path_matches(path: &str) -> bool {
