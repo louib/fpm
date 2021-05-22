@@ -108,38 +108,7 @@ fn main() {
     let mut db = fpm::db::Database::get_database();
     let mut mined_repos: HashSet<String> = HashSet::new();
 
-    for repo_url in repos_urls.split('\n') {
-        if repo_url.trim().is_empty() {
-            continue;
-        }
-
-        // Found when searching for `flathub` on GitHub.com
-        // Too big to be processed.
-        if repo_url.contains("fastrizwaan/winepak") {
-            continue;
-        }
-
-        // Found when searching for `flatpak` on GitHub.com
-        // Too big to be processed.
-        if repo_url.contains("/ostree") {
-            continue;
-        }
-
-        // Found on Gnome's GitLab instance
-        // Too big to be processed.
-        if repo_url.contains("kefqse/origin") {
-            continue;
-        }
-
-        if mined_repos.contains(repo_url) {
-            log::info!("Repo {} was already mined", &repo_url);
-            continue;
-        }
-        mined_repos.insert(repo_url.to_string());
-
-        eprintln!("repo url is {}", repo_url);
-        mine_repository(&mut db, &repo_url);
-    }
+    mine_repositories(repos_urls.split('\n').collect(), db, &mut mined_repos);
 
     exit(0);
 }
