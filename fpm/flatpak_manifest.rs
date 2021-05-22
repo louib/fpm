@@ -416,6 +416,8 @@ impl FlatpakManifest {
             FlatpakSource::ExtraData(ed) => &ed.url,
             FlatpakSource::Dir(d) => return None,
             FlatpakSource::Patch(p) => return None,
+            FlatpakSource::BZR(r) => &r.url,
+            FlatpakSource::SVN(r) => &r.url,
             FlatpakSource::File(p) => return None,
             FlatpakSource::Shell(s) => return None,
         };
@@ -707,6 +709,8 @@ pub enum FlatpakSource {
     Script(FlatpakScriptSource),
     ExtraData(FlatpakExtraDataSource),
     Patch(FlatpakPatchSource),
+    BZR(FlatpakBZRSource),
+    SVN(FlatpakSVNSource),
     File(FlatpakFileSource),
     Dir(FlatpakDirSource),
     Shell(FlatpakShellSource),
@@ -809,6 +813,36 @@ pub struct FlatpakExtraDataSource {
     // The extra installed size this adds to the app (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub installed_size: Option<String>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize, Hash)]
+#[serde(rename_all = "kebab-case")]
+pub struct FlatpakSVNSource {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
+
+    // URL of the svn repository, including branch/tag part
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+
+    // A specific revision number to use
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub revision: Option<String>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize, Hash)]
+#[serde(rename_all = "kebab-case")]
+pub struct FlatpakBZRSource {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
+
+    // URL of the bzr repository
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+
+    // A specific revision to use in the branch
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub revision: Option<String>,
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
