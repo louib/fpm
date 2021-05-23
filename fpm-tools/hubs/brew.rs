@@ -26,7 +26,7 @@ impl HomebrewRecipe {
         // We filter out http:// urls for now, but could try to convert to https in the future.
         if self.urls.stable.url.ends_with(".git") && self.urls.stable.url.starts_with("https") {
             project.id = fpm::utils::repo_url_to_reverse_dns(&self.urls.stable.url);
-            project.vcs_urls.push(self.urls.stable.url);
+            project.vcs_urls.insert(self.urls.stable.url);
         }
         project
     }

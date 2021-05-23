@@ -33,7 +33,7 @@ impl GitHubRepo {
         project.name = self.name;
         project.default_branch = self.default_branch;
         project.description = self.description;
-        project.vcs_urls.push(git_url);
+        project.vcs_urls.insert(git_url);
         project
     }
     pub fn get_git_url(&self) -> String {
@@ -193,7 +193,7 @@ pub fn search_repos_internal(search_url: &str) -> Vec<GitHubRepo> {
     projects
 }
 
-pub fn get_org_repos(org_name: &str) -> Vec<fpm::projects::SoftwareProject> {
+pub fn get_org_repos(org_name: &str) -> Vec<GitHubRepo> {
     let mut paged_response = get_repos(fpm::utils::PagedRequest {
         domain: "".to_string(),
         token: None,
@@ -224,46 +224,17 @@ pub fn get_org_repos(org_name: &str) -> Vec<fpm::projects::SoftwareProject> {
     all_projects
 }
 
-pub fn get_and_add_repos(db: &mut fpm::db::Database) {
-    log::info!("Getting all projects from github.com");
-    let mut request = fpm::utils::PagedRequest {
-        domain: "".to_string(),
-        token: None,
-        next_page_url: None,
-    };
-    let mut paged_response = get_repos(request);
-
-    let mut projects = paged_response.results;
-    while projects.len() > 0 {
-        for project in projects {
-            log::info!("Adding project {}.", &project.name);
-            db.add_project(project);
-        }
-
-        if paged_response.next_page_url.is_none() {
-            break;
-        }
-
-        paged_response = get_repos(fpm::utils::PagedRequest {
-            domain: "".to_string(),
-            token: paged_response.token,
-            next_page_url: paged_response.next_page_url,
-        });
-        projects = paged_response.results;
-    }
-}
-
 pub fn get_repos(
     request: fpm::utils::PagedRequest,
-) -> fpm::utils::PagedResponse<fpm::projects::SoftwareProject> {
+) -> fpm::utils::PagedResponse<GitHubRepo> {
     // By default, we get all the repos.
     let mut current_url = format!("https://api.github.com/repositories?type=all&per_page=2");
     if let Some(url) = request.next_page_url {
         current_url = url;
     }
 
-    let mut projects: Vec<fpm::projects::SoftwareProject> = vec![];
-    let default_response = fpm::utils::PagedResponse::<fpm::projects::SoftwareProject> {
+    let mut projects: Vec<GitHubRepo> = vec![];
+    let default_response = fpm::utils::PagedResponse::<GitHubRepo> {
         results: vec![],
         token: None,
         next_page_url: None,
@@ -316,10 +287,10 @@ pub fn get_repos(
             continue;
         }
         log::debug!("Adding GitHub repo {}.", github_project.name);
-        projects.push(github_project.to_software_project());
+        projects.push(github_project);
     }
 
-    fpm::utils::PagedResponse::<fpm::projects::SoftwareProject> {
+    fpm::utils::PagedResponse::<GitHubRepo> {
         results: projects,
         token: None,
         next_page_url: next_page_url,

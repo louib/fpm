@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Default)]
@@ -13,22 +15,19 @@ pub struct SoftwareProject {
 
     pub description: String,
 
-    // TODO should be a HashSet instead
-    pub web_urls: Vec<String>,
+    pub web_urls: HashSet<String>,
 
-    // TODO should be a HashSet instead
-    pub vcs_urls: Vec<String>,
+    pub vcs_urls: HashSet<String>,
 
     // A list of the paths of known flatpak app manifests found
     // in the project's repository.
-    pub flatpak_app_manifests: Vec<String>,
+    pub flatpak_app_manifests: HashSet<String>,
 
     // A list of the paths of known flatpak module definition manifests found
     // in the project's repository.
-    pub flatpak_module_manifests: Vec<String>,
+    pub flatpak_module_manifests: HashSet<String>,
 
-    // TODO should be a HashSet instead
-    pub maintainers: Vec<String>,
+    pub maintainers: HashSet<String>,
 
     pub default_branch: Option<String>,
 
@@ -40,7 +39,7 @@ pub struct SoftwareProject {
 impl SoftwareProject {
     pub fn merge(&mut self, other_project: &SoftwareProject) {
         for maintainer in &other_project.maintainers {
-            self.maintainers.push(maintainer.to_string());
+            self.maintainers.insert(maintainer.to_string());
         }
     }
 }

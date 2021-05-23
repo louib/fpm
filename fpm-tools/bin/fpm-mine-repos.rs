@@ -307,7 +307,7 @@ pub fn get_flathub_repos() -> Result<String, String> {
 
     let mut flathub_repos_dump = "".to_string();
     for flathub_repo in &flathub_repos {
-        let repo_url = &flathub_repo.vcs_urls[0];
+        let repo_url = &flathub_repo.get_git_url();
         // For some reason, the valvesoftware.Steam.CompatibilityTool.Proton
         // project causes an infinite loop when we try to clone it...
         // FIXME this should be handled in the mining phase.
