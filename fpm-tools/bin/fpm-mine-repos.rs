@@ -5,7 +5,7 @@ use std::env;
 use std::process::exit;
 use std::io::{Write};
 
-use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule};
+use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
 
 fn main() {
     fpm::logger::init();
@@ -371,41 +371,47 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
             continue;
         }
 
-        let flatpak_manifest = match FlatpakManifest::load_from_file(file_path.to_string()) {
-            Some(m) => m,
-            None => continue,
-        };
+        if let Some(flatpak_manifest) = FlatpakManifest::load_from_file(file_path.to_string()) {
+            let flatpak_manifest_path = file_path.replace(&repo_dir, "");
+            software_project.flatpak_app_manifests.insert(flatpak_manifest_path);
 
-        let flatpak_manifest_path = file_path.replace(&repo_dir, "");
-        software_project.flatpak_app_manifests.insert(flatpak_manifest_path);
+            repo_manifest_count += 1;
+            log::info!("Parsed a Flatpak manifest at {}", file_path.to_string());
 
-        repo_manifest_count += 1;
-        log::info!("Parsed a Flatpak manifest at {}", file_path.to_string());
+            let main_module_url = flatpak_manifest.get_main_module_url();
+            let main_module_url = match main_module_url {
+                Some(u) => u,
+                None => String::from(""),
+            };
+            if main_module_url.ends_with(".git") && main_module_url.starts_with("https://") {
+                mined_repos_urls.push(main_module_url);
+            }
+            println!("MANIFEST MAX DEPTH {} {}", flatpak_manifest.get_max_depth(), file_path);
 
-        let main_module_url = flatpak_manifest.get_main_module_url();
-        let main_module_url = match main_module_url {
-            Some(u) => u,
-            None => String::from(""),
-        };
-        if main_module_url.ends_with(".git") && main_module_url.starts_with("https://") {
-            mined_repos_urls.push(main_module_url);
-        }
-        println!("MANIFEST MAX DEPTH {} {}", flatpak_manifest.get_max_depth(), file_path);
-
-        for module in &flatpak_manifest.modules {
-            for url in module.get_all_repos_urls() {
-                println!("MODULE URL {}", url);
-                if url.ends_with(".git") && url.starts_with("https://") {
-                    mined_repos_urls.push(url);
+            for module in &flatpak_manifest.modules {
+                for url in module.get_all_repos_urls() {
+                    println!("MODULE URL {}", url);
+                    if url.ends_with(".git") && url.starts_with("https://") {
+                        mined_repos_urls.push(url);
+                    }
                 }
             }
+
+            for module in flatpak_manifest.modules {
+                if let FlatpakModule::Description(module_description) = module {
+                    db.add_module(module_description);
+                }
+            }
+
         }
 
-        for module in flatpak_manifest.modules {
-            if let FlatpakModule::Description(module_description) = module {
-                db.add_module(module_description);
-            }
+        if let Some(flatpak_module) = FlatpakModuleDescription::load_from_file(file_path.to_string()) {
+            let flatpak_module_path = file_path.replace(&repo_dir, "");
+            software_project.flatpak_module_manifests.insert(flatpak_module_path);
+
+            db.add_module(flatpak_module);
         }
+
     }
 
     if software_project.supports_flatpak() {
