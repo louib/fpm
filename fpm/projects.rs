@@ -38,9 +38,22 @@ pub struct SoftwareProject {
 }
 impl SoftwareProject {
     pub fn merge(&mut self, other_project: &SoftwareProject) {
+        for web_url in &other_project.web_urls {
+            self.web_urls.insert(web_url.to_string());
+        }
+        for vcs_url in &other_project.vcs_urls {
+            self.vcs_urls.insert(vcs_url.to_string());
+        }
         for maintainer in &other_project.maintainers {
             self.maintainers.insert(maintainer.to_string());
         }
+        for app_manifest in &other_project.flatpak_app_manifests {
+            self.flatpak_app_manifests.insert(app_manifest.to_string());
+        }
+        for module_manifest in &other_project.flatpak_module_manifests {
+            self.flatpak_module_manifests.insert(module_manifest.to_string());
+        }
+        // TODO validate that the root hashes are the same!
     }
 
     pub fn supports_flatpak(&self) -> bool {
