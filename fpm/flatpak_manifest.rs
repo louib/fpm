@@ -652,6 +652,9 @@ impl FlatpakModuleDescription {
         if flatpak_module.name.is_empty() {
             return Err("Required top-level field name is missing from Flatpak module.".to_string());
         }
+        if flatpak_module.sources.is_empty() {
+            return Err("Required sources were not found in Flatpak module.".to_string());
+        }
 
         Ok(flatpak_module)
     }
