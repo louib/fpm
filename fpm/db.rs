@@ -212,8 +212,7 @@ impl Database {
         log::info!("Adding project at {}", project_path);
         let mut new_project_fs_path = path::Path::new(&project_path);
         if new_project_fs_path.exists() {
-            // FIXME we should update the project if it already exists!
-            return;
+            return self.update_project(&project);
         }
         match fs::write(new_project_fs_path, serde_yaml::to_string(&project).unwrap()) {
             Ok(content) => content,

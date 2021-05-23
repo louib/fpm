@@ -332,6 +332,7 @@ pub fn get_flathub_repos() -> Result<String, String> {
 
 pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String> {
     let mut software_project = fpm::projects::SoftwareProject::default();
+    software_project.id = fpm::utils::repo_url_to_reverse_dns(repo_url);
 
     let mut mined_repos_urls: Vec<String> = vec![];
     let mut repo_manifest_count = 0;
