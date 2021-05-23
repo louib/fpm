@@ -42,4 +42,8 @@ impl SoftwareProject {
             self.maintainers.insert(maintainer.to_string());
         }
     }
+
+    pub fn supports_flatpak(&self) -> bool {
+        return !self.flatpak_app_manifests.is_empty() || !self.flatpak_module_manifests.is_empty();
+    }
 }

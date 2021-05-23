@@ -331,6 +331,8 @@ pub fn get_flathub_repos() -> Result<String, String> {
 }
 
 pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String> {
+    let mut software_project = fpm::projects::SoftwareProject::default();
+
     let mut mined_repos_urls: Vec<String> = vec![];
     let mut repo_manifest_count = 0;
     let repo_dir = match fpm::utils::clone_git_repo(&repo_url) {
@@ -371,6 +373,10 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
             Some(m) => m,
             None => continue,
         };
+
+        let flatpak_manifest_path = file_path.replace(&repo_dir, "");
+        software_project.flatpak_app_manifests.insert(flatpak_manifest_path);
+
         repo_manifest_count += 1;
         log::info!("Parsed a Flatpak manifest at {}", file_path.to_string());
 
@@ -398,6 +404,10 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
                 db.add_module(module_description);
             }
         }
+    }
+
+    if software_project.supports_flatpak() {
+        // TODO insert the project in the db if it supports Flatpak!!
     }
 
     if repo_manifest_count == 0 {
