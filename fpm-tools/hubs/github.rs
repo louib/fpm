@@ -34,9 +34,6 @@ impl GitHubRepo {
         project.default_branch = self.default_branch;
         project.description = self.description;
         project.vcs_urls.push(git_url);
-        if let Some(topics) = self.topics {
-            project.keywords = topics;
-        }
         project
     }
     pub fn get_git_url(&self) -> String {
