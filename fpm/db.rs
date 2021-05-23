@@ -12,7 +12,6 @@ pub const PROJECTS_DB_SUBDIR: &str = "/projects";
 pub const REPOS_DB_SUBDIR: &str = "/repositories";
 
 pub struct Database {
-    pub projects: Vec<SoftwareProject>,
     pub modules: Vec<FlatpakModuleDescription>,
     pub indexed_projects: BTreeMap<String, SoftwareProject>,
 }
@@ -33,7 +32,6 @@ impl Database {
         }
         // FIXME error handle the init.
         Database {
-            projects: Database::get_all_projects(),
             modules: Database::get_all_modules(),
             indexed_projects: indexed_projects,
         }
@@ -224,12 +222,12 @@ impl Database {
                 );
             }
         };
-        self.projects.push(project);
+        self.indexed_projects.insert(project.id.clone(), project);
     }
 
     pub fn search_projects(&self, search_term: &str) -> Vec<&SoftwareProject> {
         let mut projects: Vec<&SoftwareProject> = vec![];
-        for project in &self.projects {
+        for (project_id, project) in &self.indexed_projects {
             if project.name.contains(&search_term) {
                 projects.push(&project);
             }
