@@ -224,9 +224,7 @@ pub fn get_org_repos(org_name: &str) -> Vec<GitHubRepo> {
     all_projects
 }
 
-pub fn get_repos(
-    request: fpm::utils::PagedRequest,
-) -> fpm::utils::PagedResponse<GitHubRepo> {
+pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse<GitHubRepo> {
     // By default, we get all the repos.
     let mut current_url = format!("https://api.github.com/repositories?type=all&per_page=2");
     if let Some(url) = request.next_page_url {
