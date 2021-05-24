@@ -26,16 +26,6 @@ pub struct GitHubRepo {
     pub default_branch: Option<String>,
 }
 impl GitHubRepo {
-    pub fn to_software_project(self) -> fpm::projects::SoftwareProject {
-        let mut project = fpm::projects::SoftwareProject::default();
-        let git_url = format!("https://github.com/{}.git", self.full_name);
-        project.id = fpm::utils::repo_url_to_reverse_dns(&git_url);
-        project.name = self.name;
-        project.default_branch = self.default_branch;
-        project.description = self.description;
-        project.vcs_urls.insert(git_url);
-        project
-    }
     pub fn get_git_url(&self) -> String {
         format!("https://github.com/{}.git", self.full_name)
     }

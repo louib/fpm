@@ -13,22 +13,26 @@ pub struct SoftwareProject {
     // Common name of the software project.
     pub name: String,
 
-    pub description: String,
+    // Description of the software project.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 
+    #[serde(skip_serializing_if = "HashSet::is_empty")]
     pub web_urls: HashSet<String>,
 
     pub vcs_urls: HashSet<String>,
 
     // A list of the paths of known flatpak app manifests found
     // in the project's repository.
+    #[serde(skip_serializing_if = "HashSet::is_empty")]
     pub flatpak_app_manifests: HashSet<String>,
 
     // A list of the paths of known flatpak module definition manifests found
     // in the project's repository.
+    #[serde(skip_serializing_if = "HashSet::is_empty")]
     pub flatpak_module_manifests: HashSet<String>,
 
-    pub maintainers: HashSet<String>,
-
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub default_branch: Option<String>,
 
     // The root git commit hashes associated with the project. This is used
@@ -43,9 +47,6 @@ impl SoftwareProject {
         }
         for vcs_url in &other_project.vcs_urls {
             self.vcs_urls.insert(vcs_url.to_string());
-        }
-        for maintainer in &other_project.maintainers {
-            self.maintainers.insert(maintainer.to_string());
         }
         for app_manifest in &other_project.flatpak_app_manifests {
             self.flatpak_app_manifests.insert(app_manifest.to_string());
