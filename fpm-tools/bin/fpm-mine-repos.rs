@@ -3,7 +3,6 @@ use std::path;
 use std::fs;
 use std::env;
 use std::process::exit;
-use std::io::{Write};
 
 use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
 
@@ -104,7 +103,7 @@ fn main() {
         fpm_tools::hubs::brew::get_and_add_recipes(&mut db);
     }
 
-    let mut db = fpm::db::Database::get_database();
+    let db = fpm::db::Database::get_database();
     let mut mined_repos: HashSet<String> = HashSet::new();
 
     mine_repositories(repos_urls.split('\n').collect(), db, &mut mined_repos);

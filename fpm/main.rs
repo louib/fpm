@@ -8,7 +8,7 @@ use std::collections::HashMap;
 #[macro_use]
 extern crate clap;
 
-use clap::{App, Arg, ArgMatches, SubCommand};
+use clap::{App, ArgMatches};
 use std::process::exit;
 
 const APP_VERSION: &str = "0.0.11";
@@ -26,8 +26,6 @@ fn main() {
         exit(0);
     }
 
-    let command_name = matches.subcommand_name().unwrap_or("");
-    let mut flags: HashMap<String, bool> = HashMap::new();
     // let mut options: HashMap<String, bool> = HashMap::new();
     let mut arguments: HashMap<String, String> = HashMap::new();
 

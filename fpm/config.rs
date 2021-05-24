@@ -77,7 +77,7 @@ pub fn read_config() -> Result<WorkspaceConfig, String> {
 }
 
 pub fn load_manifest_from_config() -> Option<crate::flatpak_manifest::FlatpakManifest> {
-    let mut config = match read_or_init_config() {
+    let config = match read_or_init_config() {
         Ok(c) => c,
         Err(e) => {
             eprintln!("Could not load or init config: {}", e);

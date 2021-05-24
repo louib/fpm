@@ -1,5 +1,3 @@
-use reqwest::header;
-
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -72,9 +70,9 @@ pub fn get_projects(formulae_url: &str) -> Vec<fpm::projects::SoftwareProject> {
     let client = reqwest::blocking::Client::builder().build().unwrap();
 
     // TODO make this really asynchronous with async/await.
-    let mut response = match client.get(formulae_url).send() {
+    let response = match client.get(formulae_url).send() {
         Ok(r) => r,
-        Err(e) => return vec![],
+        Err(_e) => return vec![],
     };
 
     let brew_recipes: Vec<HomebrewRecipe> = match serde_json::from_str(&response.text().unwrap()) {

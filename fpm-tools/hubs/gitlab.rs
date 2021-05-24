@@ -251,7 +251,7 @@ pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse
         }
     };
     for gitlab_project in gitlab_projects {
-        if let Some(parent_project) = gitlab_project.forked_from_project {
+        if gitlab_project.forked_from_project.is_some() {
             log::debug!("Skipping forked project {}.", &gitlab_project.name);
             continue;
         }

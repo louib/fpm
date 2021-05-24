@@ -243,7 +243,7 @@ pub fn repo_url_to_reverse_dns(repo_url: &str) -> String {
     let domain = repo_url_parts.next().unwrap();
     let mut reversed_domain: String = "".to_string();
 
-    let mut domain_parts = domain.split(".");
+    let domain_parts = domain.split(".");
     for domain_part in domain_parts {
         if reversed_domain.len() == 0 {
             reversed_domain = domain_part.to_string();

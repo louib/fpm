@@ -17,10 +17,6 @@ keywords = [
 name = "fpm-mine-repos"
 path = "bin/fpm-mine-repos.rs"
 
-[[bin]]
-name = "fpm-import-shared-modules"
-path = "bin/fpm-import-shared-modules.rs"
-
 [lib]
 path = "lib.rs"
 

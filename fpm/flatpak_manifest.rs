@@ -326,7 +326,7 @@ impl FlatpakManifest {
             };
             flatpak_manifest.format = FlatpakManifestFormat::YAML;
         } else if manifest_path.to_lowercase().ends_with("json") {
-            let mut json_content_without_comments = crate::utils::remove_comments_from_json(manifest_content);
+            let json_content_without_comments = crate::utils::remove_comments_from_json(manifest_content);
             flatpak_manifest = match serde_json::from_str(&json_content_without_comments) {
                 Ok(m) => m,
                 Err(e) => {
@@ -640,7 +640,7 @@ impl FlatpakModuleDescription {
                 }
             };
         } else if module_path.to_lowercase().ends_with("json") {
-            let mut json_content_without_comments = crate::utils::remove_comments_from_json(module_content);
+            let json_content_without_comments = crate::utils::remove_comments_from_json(module_content);
             flatpak_module = match serde_json::from_str(&json_content_without_comments) {
                 Ok(m) => m,
                 Err(e) => {

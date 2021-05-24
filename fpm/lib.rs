@@ -12,7 +12,6 @@ mod version;
 pub use flatpak_manifest::{FlatpakModule, FlatpakModuleDescription};
 pub use projects::SoftwareProject;
 
-use std::env;
 use std::fs;
 use std::path;
 
@@ -42,7 +41,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
 
         let manifest_dump = match flatpak_manifest.dump() {
             Ok(d) => d,
-            Err(e) => return 1,
+            Err(_e) => return 1,
         };
 
         match fs::write(path::Path::new(manifest_file_path), manifest_dump) {
@@ -142,9 +141,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             // TODO Test that if it starts with the cache directories listed above,
             // you skip the file.
 
-            if let Some(manifest) =
-                crate::flatpak_manifest::FlatpakManifest::load_from_file(file_path_str.to_string())
-            {
+            if crate::flatpak_manifest::FlatpakManifest::load_from_file(file_path_str.to_string()).is_some() {
                 println!("{}", file_path_str);
                 found_manifest = true;
             }
@@ -239,7 +236,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
 
         if !config.workspaces.contains_key(&current_workspace) {
             panic!("Workspace {} not found in config!.", current_workspace);
-            return 1;
         }
 
         let manifest_file_path = config.workspaces.get(&current_workspace).unwrap();

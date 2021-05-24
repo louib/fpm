@@ -7,6 +7,7 @@ impl DebianPackagesHub {
         repo_name: &str,
         repo_sources_url: &str,
     ) -> Vec<fpm::flatpak_manifest::FlatpakModule> {
+        log::info!("Getting debian repos from {} at {}", repo_name, repo_sources_url);
         vec![]
     }
 }

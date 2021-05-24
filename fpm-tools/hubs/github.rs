@@ -1,6 +1,5 @@
 use std::env;
 
-use futures::executor::block_on;
 use reqwest::header;
 use serde::{Deserialize, Serialize};
 
