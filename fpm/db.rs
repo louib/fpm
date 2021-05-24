@@ -64,7 +64,7 @@ impl Database {
         let projects_path = path::Path::new(&projects_path);
         let all_projects_paths = match crate::utils::get_all_paths(projects_path) {
             Ok(paths) => paths,
-            Err(e) => {
+            Err(_) => {
                 return vec![];
             }
         };
@@ -184,7 +184,6 @@ impl Database {
         let mut project_fs_path = path::Path::new(&new_project_path);
         if !project_fs_path.exists() {
             panic!("Project {} does not exist", project.id);
-            return;
         }
         log::info!("Updating project at {}", new_project_path);
 
