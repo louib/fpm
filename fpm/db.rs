@@ -140,7 +140,7 @@ impl Database {
     pub fn search_modules(&self, search_term: &str) -> Vec<&FlatpakModuleDescription> {
         let mut modules: Vec<&FlatpakModuleDescription> = vec![];
         for module in &self.modules {
-            if module.name.contains(&search_term) {
+            if module.name.to_lowercase().contains(&search_term.to_lowercase()) {
                 modules.push(&module);
             }
         }
