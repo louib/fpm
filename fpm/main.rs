@@ -11,7 +11,7 @@ extern crate clap;
 use clap::{App, ArgMatches};
 use std::process::exit;
 
-const APP_VERSION: &str = "0.0.11";
+const APP_VERSION: &str = "0.0.1";
 
 fn main() {
     let yaml = load_yaml!("fpm.yml");
