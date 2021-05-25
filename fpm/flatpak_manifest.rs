@@ -401,32 +401,7 @@ impl FlatpakManifest {
             FlatpakModule::Path(_) => return None,
             FlatpakModule::Description(m) => m,
         };
-        if main_module.sources.len() < 1 {
-            return None;
-        }
-
-        // Here we assume that the first source is the actual project, and
-        // anything after is a patch or an additional file.
-        let main_module_source = main_module.sources.first().unwrap();
-
-        let main_module_source_url: &Option<String> = match main_module_source {
-            FlatpakSource::Path(_) => return None,
-            FlatpakSource::Script(s) => return None,
-            FlatpakSource::Archive(a) => &a.url,
-            FlatpakSource::ExtraData(ed) => &ed.url,
-            FlatpakSource::Dir(d) => return None,
-            FlatpakSource::Patch(p) => return None,
-            FlatpakSource::BZR(r) => &r.url,
-            FlatpakSource::Git(r) => &r.url,
-            FlatpakSource::SVN(r) => &r.url,
-            FlatpakSource::File(p) => return None,
-            FlatpakSource::Shell(s) => return None,
-        };
-
-        match &main_module_source_url {
-            Some(s) => Some(s.to_string()),
-            None => None,
-        }
+        return main_module.get_main_url();
     }
 
     pub fn get_max_depth(&self) -> i32 {
@@ -668,6 +643,7 @@ impl FlatpakModuleDescription {
         self.hash(&mut s);
         s.finish()
     }
+
     pub fn get_all_urls(&self) -> Vec<String> {
         let mut all_urls = vec![];
         for module in &self.modules {
@@ -682,6 +658,7 @@ impl FlatpakModuleDescription {
         }
         all_urls
     }
+
     pub fn get_max_depth(&self) -> i32 {
         let mut max_depth: i32 = 0;
         for module in &self.modules {
@@ -693,6 +670,35 @@ impl FlatpakModuleDescription {
             }
         }
         return max_depth + 1;
+    }
+
+    pub fn get_main_url(&self) -> Option<String> {
+        if self.sources.len() < 1 {
+            return None;
+        }
+
+        // Here we assume that the first source is the actual project, and
+        // anything after is a patch or an additional file.
+        let main_module_source = self.sources.first().unwrap();
+
+        let main_module_source_url: &Option<String> = match main_module_source {
+            FlatpakSource::Path(_) => return None,
+            FlatpakSource::Script(s) => return None,
+            FlatpakSource::Archive(a) => &a.url,
+            FlatpakSource::ExtraData(ed) => &ed.url,
+            FlatpakSource::Dir(d) => return None,
+            FlatpakSource::Patch(p) => return None,
+            FlatpakSource::BZR(r) => &r.url,
+            FlatpakSource::Git(r) => &r.url,
+            FlatpakSource::SVN(r) => &r.url,
+            FlatpakSource::File(p) => return None,
+            FlatpakSource::Shell(s) => return None,
+        };
+
+        match &main_module_source_url {
+            Some(s) => Some(s.to_string()),
+            None => None,
+        }
     }
 }
 

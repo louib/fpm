@@ -60,4 +60,11 @@ impl SoftwareProject {
     pub fn supports_flatpak(&self) -> bool {
         return !self.flatpak_app_manifests.is_empty() || !self.flatpak_module_manifests.is_empty();
     }
+
+    pub fn get_main_vcs_url(&self) -> String {
+        for vcs_url in &self.vcs_urls {
+            return vcs_url.to_string();
+        }
+        panic!();
+    }
 }
