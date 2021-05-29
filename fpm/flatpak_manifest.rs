@@ -685,7 +685,7 @@ impl FlatpakModuleDescription {
             FlatpakSource::Path(_) => return None,
             FlatpakSource::Script(s) => return None,
             FlatpakSource::Archive(a) => &a.url,
-            FlatpakSource::ExtraData(ed) => &ed.url,
+            FlatpakSource::ExtraData(ed) => return None,
             FlatpakSource::Dir(d) => return None,
             FlatpakSource::Patch(p) => return None,
             FlatpakSource::BZR(r) => &r.url,
@@ -813,24 +813,21 @@ pub struct FlatpakShellSource {
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub struct FlatpakExtraDataSource {
-    #[serde(skip_serializing_if = "String::is_empty")]
-    pub r#type: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub r#type: Option<String>,
 
     // The name to use for the downloaded extra data
     #[serde(skip_serializing_if = "Option::is_none")]
     pub filename: Option<String>,
 
     // The url to the extra data.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub url: Option<String>,
+    pub url: String,
 
     // The sha256 of the extra data.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub sha256: Option<String>,
+    pub sha256: String,
 
     // The size of the extra data in bytes.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub size: Option<i64>,
+    pub size: i64,
 
     // The extra installed size this adds to the app (optional).
     #[serde(skip_serializing_if = "Option::is_none")]
