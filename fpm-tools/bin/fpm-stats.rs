@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::collections::BTreeMap;
 use std::path;
 use std::fs;
 use std::env;
@@ -8,6 +9,9 @@ use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescrip
 
 fn main() {
     let db = fpm::db::Database::get_database();
+
+    let mut sources_count: BTreeMap<String, i64> = BTreeMap::new();
+    let mut sources_total_count: i64 = 0;
 
     for (project_id, project) in &db.indexed_projects {
         let repo_url = project.get_main_vcs_url();
@@ -41,6 +45,7 @@ fn main() {
                 continue;
             }
 
+
             if let Some(flatpak_manifest) = FlatpakManifest::load_from_file(file_path.to_string()) {
                 println!("MANIFEST MAX DEPTH {} {}", flatpak_manifest.get_max_depth(), file_path);
 
@@ -48,6 +53,17 @@ fn main() {
                     for url in module.get_all_repos_urls() {
                         println!("MODULE URL {}", url);
                     }
+
+                    if let FlatpakModule::Description(d) = module {
+                        for source in &d.sources {
+                            let source_type = format!("{:?}", source);
+                            let new_count = sources_count.get(&source_type).unwrap_or(&0) + 1;
+                            sources_count.insert(source_type, new_count);
+                            sources_total_count += 1;
+                        }
+                    }
+
+
                 }
 
             }
@@ -58,6 +74,10 @@ fn main() {
 
         }
 
+    }
+
+    for (source_type, source_count) in sources_count {
+        println!("{}: {}%", source_type, source_count / sources_total_count);
     }
 
     fpm::logger::init();
