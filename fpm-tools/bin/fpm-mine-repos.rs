@@ -378,16 +378,6 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
             repo_manifest_count += 1;
             log::info!("Parsed a Flatpak manifest at {}", file_path.to_string());
 
-            let main_module_url = flatpak_manifest.get_main_module_url();
-            let main_module_url = match main_module_url {
-                Some(u) => u,
-                None => String::from(""),
-            };
-            if main_module_url.ends_with(".git") && main_module_url.starts_with("https://") {
-                mined_repos_urls.push(main_module_url);
-            }
-            println!("MANIFEST MAX DEPTH {} {}", flatpak_manifest.get_max_depth(), file_path);
-
             for module in &flatpak_manifest.modules {
                 for url in module.get_all_repos_urls() {
                     println!("MODULE URL {}", url);
