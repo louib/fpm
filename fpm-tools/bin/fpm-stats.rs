@@ -77,7 +77,7 @@ fn main() {
     }
 
     for (source_type, source_count) in sources_count {
-        println!("{}: {}%", source_type, source_count / sources_total_count);
+        println!("{}: {} ({}/{})%", source_type, source_count / sources_total_count, source_count, sources_total_count);
     }
 
     fpm::logger::init();
