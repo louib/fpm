@@ -813,8 +813,8 @@ pub struct FlatpakShellSource {
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub struct FlatpakExtraDataSource {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<String>,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub r#type: String,
 
     // The name to use for the downloaded extra data
     #[serde(skip_serializing_if = "Option::is_none")]
