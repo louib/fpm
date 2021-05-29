@@ -17,6 +17,10 @@ keywords = [
 name = "fpm-mine-repos"
 path = "bin/fpm-mine-repos.rs"
 
+[[bin]]
+name = "fpm-stats"
+path = "bin/fpm-stats.rs"
+
 [lib]
 path = "lib.rs"
 
