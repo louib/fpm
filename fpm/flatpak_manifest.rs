@@ -765,6 +765,21 @@ impl FlatpakSource {
         }
         return None;
     }
+    pub fn get_type(&self) -> String {
+        return match self {
+            FlatpakSource::Path(_) => "path".to_string(),
+            FlatpakSource::Archive(_) => "archive".to_string(),
+            FlatpakSource::Script(_) => "script".to_string(),
+            FlatpakSource::ExtraData(_) => "extra-data".to_string(),
+            FlatpakSource::Patch(_) => "patch".to_string(),
+            FlatpakSource::Git(_) => "git".to_string(),
+            FlatpakSource::BZR(_) => "bzr".to_string(),
+            FlatpakSource::SVN(_) => "svn".to_string(),
+            FlatpakSource::File(_) => "file".to_string(),
+            FlatpakSource::Dir(_) => "dir".to_string(),
+            FlatpakSource::Shell(_) => "shell".to_string(),
+        };
+    }
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]

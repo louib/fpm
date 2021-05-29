@@ -5,7 +5,7 @@ use std::fs;
 use std::env;
 use std::process::exit;
 
-use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
+use fpm::flatpak_manifest::{FlatpakManifest, FlatpakSource, FlatpakModule, FlatpakModuleDescription};
 
 fn main() {
     let db = fpm::db::Database::get_database();
@@ -56,7 +56,7 @@ fn main() {
 
                     if let FlatpakModule::Description(d) = module {
                         for source in &d.sources {
-                            let source_type = format!("{:?}", source);
+                            let source_type = source.get_type();
                             let new_count = sources_count.get(&source_type).unwrap_or(&0) + 1;
                             sources_count.insert(source_type, new_count);
                             sources_total_count += 1;
