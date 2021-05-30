@@ -21,6 +21,7 @@ fn main() {
     let mut manifests_count: i64 = 0;
     let mut extension_manifests_count: i64 = 0;
     let mut extensions_count: BTreeMap<String, i64> = BTreeMap::new();
+    let mut no_extensions_count: i64 = 0;
     let mut patched_modules_count: i64 = 0;
 
     for (project_id, project) in &db.indexed_projects {
@@ -66,6 +67,9 @@ fn main() {
                 for extension_name in &flatpak_manifest.sdk_extensions {
                     let new_count = extensions_count.get(extension_name).unwrap_or(&0) + 1;
                     extensions_count.insert(extension_name.to_string(), new_count);
+                }
+                if flatpak_manifest.sdk_extensions.len() == 0 {
+                    no_extensions_count += 1;
                 }
 
                 let manifest_depth = flatpak_manifest.get_max_depth();
@@ -129,6 +133,7 @@ fn main() {
     for (extension_name, count) in extensions_count {
         println!("Extension {}: {} ({}/{})%", extension_name, (count as f64 / manifests_count as f64) * 100.0, count, manifests_count);
     }
+    println!("Manifests with no SDK extensions: {} ({}/{})%", (no_extensions_count as f64 / manifests_count as f64) * 100.0, no_extensions_count, manifests_count);
     println!("\n");
 
     println!("Modules:");
