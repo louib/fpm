@@ -23,6 +23,9 @@ fn main() {
     let mut extensions_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut no_extensions_count: i64 = 0;
     let mut patched_modules_count: i64 = 0;
+    let mut modules_urls_count: i64 = 0;
+    let mut modules_mirror_urls_count: i64 = 0;
+    let mut modules_urls_protocols: BTreeMap<String, i64> = BTreeMap::new();
 
     for (project_id, project) in &db.indexed_projects {
         let repo_url = project.get_main_vcs_url();
@@ -85,7 +88,28 @@ fn main() {
                     // We're only counting inlined module descriptions for now.
                     modules_count += 1;
                     for url in module.get_all_repos_urls() {
-                        println!("MODULE URL {}", url);
+                        modules_urls_count += 1;
+                        // TODO there is clearly a better way to do this...
+                        if url.starts_with("http://") {
+                            let new_modules_protocol_count = modules_urls_protocols.get("http").unwrap_or(&0) + 1;
+                            modules_urls_protocols.insert("http".to_string(), new_modules_protocol_count);
+                        } else if url.starts_with("https://") {
+                            let new_modules_protocol_count = modules_urls_protocols.get("https").unwrap_or(&0) + 1;
+                            modules_urls_protocols.insert("https".to_string(), new_modules_protocol_count);
+                        } else if url.starts_with("git://") {
+                            let new_modules_protocol_count = modules_urls_protocols.get("git").unwrap_or(&0) + 1;
+                            modules_urls_protocols.insert("git".to_string(), new_modules_protocol_count);
+                        } else if url.starts_with("ftp://") {
+                            let new_modules_protocol_count = modules_urls_protocols.get("ftp").unwrap_or(&0) + 1;
+                            modules_urls_protocols.insert("ftp".to_string(), new_modules_protocol_count);
+                        } else if url.starts_with("file://") {
+                            let new_modules_protocol_count = modules_urls_protocols.get("file").unwrap_or(&0) + 1;
+                            modules_urls_protocols.insert("file".to_string(), new_modules_protocol_count);
+                        } else {
+                            let new_modules_protocol_count = modules_urls_protocols.get("other").unwrap_or(&0) + 1;
+                            modules_urls_protocols.insert("other".to_string(), new_modules_protocol_count);
+                            println!("UKNOWN URL PROTOCOL {}", url);
+                        }
                     }
 
                     if module.is_patched() {
@@ -132,31 +156,37 @@ fn main() {
     }
     println!("Manifests:");
     for (depth, depth_count) in manifests_max_depth {
-        println!("Depth {}: {} ({}/{})%", depth, (depth_count as f64 / manifests_count as f64) * 100.0, depth_count, manifests_count);
+        println!("Depth {}: {}% ({}/{})", depth, (depth_count as f64 / manifests_count as f64) * 100.0, depth_count, manifests_count);
     }
     println!("Number of extension manifests: {}.", extension_manifests_count);
     for (extension_name, count) in extensions_count {
-        println!("Extension {}: {} ({}/{})%", extension_name, (count as f64 / manifests_count as f64) * 100.0, count, manifests_count);
+        println!("Extension {}: {}% ({}/{})", extension_name, (count as f64 / manifests_count as f64) * 100.0, count, manifests_count);
     }
-    println!("Manifests with no SDK extensions: {} ({}/{})%", (no_extensions_count as f64 / manifests_count as f64) * 100.0, no_extensions_count, manifests_count);
+    println!("Manifests with no SDK extensions: {}% ({}/{})", (no_extensions_count as f64 / manifests_count as f64) * 100.0, no_extensions_count, manifests_count);
     println!("\n");
 
     println!("Modules:");
-    println!("Patched modules: {} ({}/{})%", (patched_modules_count as f64 / modules_count as f64) * 100.0, patched_modules_count, modules_count);
+    println!("Patched modules: {}% ({}/{})", (patched_modules_count as f64 / modules_count as f64) * 100.0, patched_modules_count, modules_count);
     for (source_count, count) in modules_sources_count {
-        println!("Modules with {} source(s): {} ({}/{})%", source_count, (count as f64 / modules_count as f64) * 100.0, count, sources_total_count);
+        println!("Modules with {} source(s): {}% ({}/{})", source_count, (count as f64 / modules_count as f64) * 100.0, count, sources_total_count);
     }
     for (buildsystem, buildsystem_count) in modules_buildsystems_count {
-        println!("Modules with buildsystem {}: {} ({}/{})%", buildsystem, (buildsystem_count as f64 / modules_count as f64) * 100.0, buildsystem_count, modules_count);
+        println!("Modules with buildsystem {}: {}% ({}/{})", buildsystem, (buildsystem_count as f64 / modules_count as f64) * 100.0, buildsystem_count, modules_count);
     }
     println!("\n");
 
     println!("Sources:");
     for (source_type, source_count) in sources_count {
-        println!("{}: {} ({}/{})%", source_type, (source_count as f64 / sources_total_count as f64) * 100.0, source_count, sources_total_count);
+        println!("{}: {}% ({}/{})", source_type, (source_count as f64 / sources_total_count as f64) * 100.0, source_count, sources_total_count);
     }
     println!("Sources with invalid type: {}.", invalid_sources_count);
     println!("Sources with empty type: {}.", empty_sources_count);
+
+    println!("\n");
+    println!("URLs:");
+    for (protocol_name, count) in modules_urls_protocols {
+        println!("URLs with protocol {}:// {}% ({}/{})", protocol_name, (count as f64 / modules_urls_count as f64) * 100.0, count, modules_urls_count);
+    }
 
     fpm::logger::init();
 }
