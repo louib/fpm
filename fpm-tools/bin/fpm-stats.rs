@@ -96,8 +96,13 @@ fn main() {
                     let new_sources_count = modules_sources_count.get(&module_sources_count).unwrap_or(&0) + 1;
                     modules_sources_count.insert(module_sources_count, new_sources_count);
 
-                    let new_buildsystem_count = modules_buildsystems_count.get(&module_description.buildsystem).unwrap_or(&0) + 1;
-                    modules_buildsystems_count.insert(module_description.buildsystem.to_string(), new_buildsystem_count);
+                    if let Some(buildsystem) = module_description.get_buildsystem() {
+                        let new_buildsystem_count = modules_buildsystems_count.get(&buildsystem).unwrap_or(&0) + 1;
+                        modules_buildsystems_count.insert(buildsystem.to_string(), new_buildsystem_count);
+                    } else {
+                        let new_buildsystem_count = modules_buildsystems_count.get("unspecified").unwrap_or(&0) + 1;
+                        modules_buildsystems_count.insert("unspecified".to_string(), new_buildsystem_count);
+                    }
 
                     for source in &module_description.sources {
                         sources_total_count += 1;

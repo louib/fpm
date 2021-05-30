@@ -608,6 +608,16 @@ pub struct FlatpakModuleDescription {
     pub modules: Vec<FlatpakModule>,
 }
 impl FlatpakModuleDescription {
+    pub fn get_buildsystem(&self) -> Option<String> {
+        if !self.buildsystem.is_empty() {
+            return Some(self.buildsystem.to_string());
+        }
+        if let Some(cmake) = self.cmake {
+            return if cmake { Some("cmake".to_string()) } else { None };
+        }
+        return None;
+    }
+
     pub fn load_from_file(path: String) -> Option<FlatpakModuleDescription> {
         let file_path = path::Path::new(&path);
         if !file_path.is_file() {
