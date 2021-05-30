@@ -12,6 +12,8 @@ fn main() {
 
     let mut sources_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut sources_total_count: i64 = 0;
+    let mut modules_count: i64 = 0;
+    let mut patched_modules_count: i64 = 0;
 
     for (project_id, project) in &db.indexed_projects {
         let repo_url = project.get_main_vcs_url();
@@ -50,8 +52,13 @@ fn main() {
                 println!("MANIFEST MAX DEPTH {} {}", flatpak_manifest.get_max_depth(), file_path);
 
                 for module in &flatpak_manifest.modules {
+                    modules_count += 1;
                     for url in module.get_all_repos_urls() {
                         println!("MODULE URL {}", url);
+                    }
+
+                    if module.is_patched() {
+                        patched_modules_count += 1;
                     }
 
                     if let FlatpakModule::Description(d) = module {
@@ -69,15 +76,20 @@ fn main() {
             }
 
             if let Some(flatpak_module) = FlatpakModuleDescription::load_from_file(file_path.to_string()) {
+                modules_count += 1;
 
             }
 
         }
     }
 
+    println!("Source types:");
     for (source_type, source_count) in sources_count {
         println!("{}: {} ({}/{})%", source_type, (source_count as f64 / sources_total_count as f64) * 100.0, source_count, sources_total_count);
     }
+
+    println!("Modules:");
+    println!("Patched modules: {} ({}/{})%", (patched_modules_count as f64 / modules_count as f64) * 100.0, patched_modules_count, modules_count);
 
     fpm::logger::init();
 }
