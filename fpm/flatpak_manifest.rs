@@ -435,6 +435,16 @@ impl FlatpakModule {
             return vec![];
         }
     }
+    pub fn is_patched(&self) -> bool {
+        match self {
+            FlatpakModule::Path(_) => return false,
+            FlatpakModule::Description(d) => {
+                for source in &d.sources {
+                }
+            },
+        }
+        return false;
+    }
 }
 
 // Each module specifies a source that has to be separately built and installed.
