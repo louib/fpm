@@ -740,15 +740,15 @@ impl FlatpakSource {
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub struct FlatpakSourceDescription {
-    #[serde(skip_serializing_if = "Option::is_none")]
     // Defines the type of the source description. This field is optional.
     // TODO is there a default or can the source type be infered?
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub r#type: Option<String>,
 
     // An array of shell commands.
     // types: script, shell
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub commands: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub commands: Option<Vec<String>>,
 
     // Filename to use inside the source dir.
     // types: script, archive, file
@@ -767,16 +767,19 @@ pub struct FlatpakSourceDescription {
 
     // A list of alternative urls that are used if the main url fails.
     // types: archive, file
-    pub mirror_urls: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mirror_urls: Option<Vec<String>>,
 
     // The md5 checksum of the file, verified after download
     // Note that md5 is no longer considered a safe checksum, we recommend you use at least sha256.
     // types: archive, file
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub md5: Option<String>,
 
     // The sha1 checksum of the file, verified after download
     // Note that sha1 is no longer considered a safe checksum, we recommend you use at least sha256.
     // types: archive, file
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub sha1: Option<String>,
 
     // The sha256 of the resource.
@@ -786,14 +789,17 @@ pub struct FlatpakSourceDescription {
 
     // The sha512 checksum of the file, verified after download
     // types: archive, file
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub sha512: Option<String>,
 
     // The size of the extra data in bytes.
     // types: extra-data
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub size: Option<i64>,
 
     // Whether to initialise the repository as a git repository.
     // types: archive
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub git_init: Option<bool>,
 
     // The extra installed size this adds to the app (optional).
@@ -814,6 +820,7 @@ pub struct FlatpakSourceDescription {
     // The type of archive if it cannot be guessed from the path.
     // Possible values are "rpm", "tar", "tar-gzip", "tar-compress", "tar-bzip2", "tar-lzip", "tar-lzma", "tar-lzop", "tar-xz", "zip" and "7z".
     // types: archive
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub archive_type: Option<String>,
 
     // The commit to use from the git repository.
@@ -830,8 +837,8 @@ pub struct FlatpakSourceDescription {
 
     // An list of paths to a patch files that will be applied in the source dir, in order
     // types: patch
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub paths: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub paths: Option<Vec<String>>,
 
     // Whether to use "git apply" rather than "patch" to apply the patch, required when the patch file contains binary diffs.
     // types: patch
@@ -846,8 +853,8 @@ pub struct FlatpakSourceDescription {
 
     // Extra options to pass to the patch command.
     // types: patch
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub options: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<Vec<String>>,
 
     // Don't use transfer.fsckObjects=1 to mirror git repository. This may be needed for some (broken) repositories.
     // types: git
@@ -866,27 +873,28 @@ pub struct FlatpakSourceDescription {
 
     // The number of initial pathname components to strip.
     // types: archive, patch
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub strip_components: Option<i64>,
 
     // Source files to ignore in the directory.
     // types: dir
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub skip: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub skip: Option<Vec<String>>,
 
     // If non-empty, only build the module on the arches listed.
     // types: all
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub only_arches: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub only_arches: Option<Vec<String>>,
 
     // Don't build on any of the arches listed.
     // types: all
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub skip_arches: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub skip_arches: Option<Vec<String>>,
 
     // Directory inside the source dir where this source will be extracted.
     // types: all
-    #[serde(skip_serializing_if = "String::is_empty")]
-    pub dest: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dest: Option<String>,
 }
 
 // Extension define extension points in the app/runtime that can be implemented by extensions,
