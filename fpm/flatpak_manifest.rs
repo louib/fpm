@@ -683,13 +683,7 @@ impl FlatpakModuleDescription {
 
         let main_module_source_url: &Option<String> = match main_module_source {
             FlatpakSource::Path(_) => return None,
-            FlatpakSource::Archive(a) => &a.url,
-            FlatpakSource::ExtraData(ed) => return None,
-            FlatpakSource::Dir(d) => return None,
             FlatpakSource::Patch(p) => return None,
-            FlatpakSource::BZR(r) => &r.url,
-            FlatpakSource::Git(r) => &r.url,
-            FlatpakSource::SVN(r) => &r.url,
             FlatpakSource::File(p) => return None,
         };
 
@@ -727,51 +721,19 @@ pub const DEFAULT_SOURCE_TYPE: &str = "archive";
 #[serde(untagged)]
 pub enum FlatpakSource {
     Path(String),
-    Archive(FlatpakArchiveSource),
-    ExtraData(FlatpakExtraDataSource),
     Patch(FlatpakPatchSource),
-    Git(FlatpakGitSource),
-    BZR(FlatpakBZRSource),
-    SVN(FlatpakSVNSource),
     File(FlatpakFileSource),
-    Dir(FlatpakDirSource),
 }
 impl FlatpakSource {
     pub fn get_url(&self) -> Option<String> {
         // TODO handle multiple urls with mirror-url.
-        if let FlatpakSource::Archive(a) = self {
-            if let Some(url) = &a.url {
-                return Some(url.to_string());
-            }
-        }
-        if let FlatpakSource::SVN(r) = self {
-            if let Some(url) = &r.url {
-                return Some(url.to_string());
-            }
-        }
-        if let FlatpakSource::BZR(r) = self {
-            if let Some(url) = &r.url {
-                return Some(url.to_string());
-            }
-        }
-        if let FlatpakSource::Git(r) = self {
-            if let Some(url) = &r.url {
-                return Some(url.to_string());
-            }
-        }
         return None;
     }
     pub fn get_type(&self) -> String {
         return match self {
             FlatpakSource::Path(_) => "path".to_string(),
-            FlatpakSource::Archive(_) => "archive".to_string(),
-            FlatpakSource::ExtraData(_) => "extra-data".to_string(),
             FlatpakSource::Patch(_) => "patch".to_string(),
-            FlatpakSource::Git(_) => "git".to_string(),
-            FlatpakSource::BZR(_) => "bzr".to_string(),
-            FlatpakSource::SVN(_) => "svn".to_string(),
             FlatpakSource::File(_) => "file".to_string(),
-            FlatpakSource::Dir(_) => "dir".to_string(),
         };
     }
 }
@@ -789,10 +751,107 @@ pub struct FlatpakSourceDescription {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub commands: Vec<String>,
 
-    // Filename to use inside the source dir, default to autogen.sh.
-    // types: script
+    // Filename to use inside the source dir.
+    // types: script, archive
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dest_filename: Option<String>,
+
+    // The name to use for the downloaded extra data
+    // types: extra-data
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub filename: Option<String>,
+
+    // The url to the resource.
+    // types: extra-data, svn, bzr, git, archive
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+
+    // A list of alternative urls that are used if the main url fails.
+    // types: archive
+    pub mirror_urls: Vec<String>,
+
+    // The md5 checksum of the file, verified after download
+    // Note that md5 is no longer considered a safe checksum, we recommend you use at least sha256.
+    // types: archive
+    pub md5: Option<String>,
+
+    // The sha1 checksum of the file, verified after download
+    // Note that sha1 is no longer considered a safe checksum, we recommend you use at least sha256.
+    // types: archive
+    pub sha1: Option<String>,
+
+    // The sha256 of the resource.
+    // types: extra-data
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sha256: Option<String>,
+
+    // The sha512 checksum of the file, verified after download
+    // types: archive
+    pub sha512: Option<String>,
+
+    // The size of the extra data in bytes.
+    // types: extra-data
+    pub size: Option<i64>,
+
+    // Whether to initialise the repository as a git repository.
+    // types: archive
+    pub git_init: Option<bool>,
+
+    // The extra installed size this adds to the app (optional).
+    // types: extra-data
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub installed_size: Option<String>,
+
+    // A specific revision number to use
+    // types: svn, bzr
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub revision: Option<String>,
+
+    // The branch to use from the git repository
+    // types: git
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub branch: Option<String>,
+
+    // The type of archive if it cannot be guessed from the path.
+    // Possible values are "rpm", "tar", "tar-gzip", "tar-compress", "tar-bzip2", "tar-lzip", "tar-lzma", "tar-lzop", "tar-xz", "zip" and "7z".
+    // types: archive
+    pub archive_type: Option<String>,
+
+    // The commit to use from the git repository.
+    // If branch is also specified, then it is verified that the branch/tag is at this specific commit.
+    // This is a readable way to document that you're using a particular tag, but verify that it does not change.
+    // types: git
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub commit: Option<String>,
+
+    // The path to associated with the resource.
+    // types: git, archive, dir
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub path: Option<String>,
+
+    // Don't use transfer.fsckObjects=1 to mirror git repository. This may be needed for some (broken) repositories.
+    // types: git
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_fsckobjects: Option<bool>,
+
+    // Don't optimize by making a shallow clone when downloading the git repo.
+    // types: git
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_shallow_clone: Option<bool>,
+
+    // Don't checkout the git submodules when cloning the repository.
+    // types: git
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub disable_submodules: Option<bool>,
+
+    // The number of initial pathname components to strip during extraction. Defaults to 1.
+    // types: archive
+    pub strip_components: Option<i64>,
+
+    // Source files to ignore in the directory.
+    // types: dir
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub skip: Vec<String>,
 
     // If non-empty, only build the module on the arches listed.
     // types: all
@@ -808,144 +867,6 @@ pub struct FlatpakSourceDescription {
     // types: all
     #[serde(skip_serializing_if = "String::is_empty")]
     pub dest: String,
-}
-
-#[derive(Debug, Default, Deserialize, Serialize, Hash)]
-#[serde(rename_all = "kebab-case")]
-pub struct FlatpakExtraDataSource {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<String>,
-
-    // The name to use for the downloaded extra data
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub filename: Option<String>,
-
-    // The url to the extra data.
-    pub url: String,
-
-    // The sha256 of the extra data.
-    pub sha256: String,
-
-    // The size of the extra data in bytes.
-    pub size: i64,
-
-    // The extra installed size this adds to the app (optional).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub installed_size: Option<String>,
-}
-
-#[derive(Debug, Default, Deserialize, Serialize, Hash)]
-#[serde(rename_all = "kebab-case")]
-pub struct FlatpakSVNSource {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<String>,
-
-    // URL of the svn repository, including branch/tag part
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub url: Option<String>,
-
-    // A specific revision number to use
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub revision: Option<String>,
-}
-
-#[derive(Debug, Default, Deserialize, Serialize, Hash)]
-#[serde(rename_all = "kebab-case")]
-pub struct FlatpakBZRSource {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<String>,
-
-    // URL of the bzr repository
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub url: Option<String>,
-
-    // A specific revision to use in the branch
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub revision: Option<String>,
-}
-
-#[derive(Debug, Default, Deserialize, Serialize, Hash)]
-#[serde(rename_all = "kebab-case")]
-pub struct FlatpakGitSource {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<String>,
-
-    // The path to a local checkout of the git repository. Due to how git-clone works, this will be much faster than specifying a URL of file:///...
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub path: Option<String>,
-
-    // URL of the git repository. This overrides path if both are specified. When using git via SSH, the correct syntax is ssh://user@domain/path/to/repo.git.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub url: Option<String>,
-
-    // The branch to use from the git repository
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub branch: Option<String>,
-
-    // The tag to use from the git repository
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tag: Option<String>,
-
-    // The commit to use from the git repository.
-    // If branch is also specified, then it is verified that the branch/tag is at this specific commit.
-    // This is a readable way to document that you're using a particular tag, but verify that it does not change.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub commit: Option<String>,
-
-    // Don't use transfer.fsckObjects=1 to mirror git repository. This may be needed for some (broken) repositories.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub disable_fsckobjects: Option<bool>,
-
-    // Don't optimize by making a shallow clone when downloading the git repo.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub disable_shallow_clone: Option<bool>,
-
-    // Don't checkout the git submodules when cloning the repository.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub disable_submodules: Option<bool>,
-}
-
-#[derive(Debug, Default, Deserialize, Serialize, Hash)]
-#[serde(rename_all = "kebab-case")]
-pub struct FlatpakArchiveSource {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<String>,
-
-    // The path of the archive
-    pub path: Option<String>,
-
-    // The URL of a remote archive that will be downloaded. This overrides path if both are specified.
-    pub url: Option<String>,
-
-    // A list of alternative urls that are used if the main url fails.
-    pub mirror_urls: Vec<String>,
-
-    // Whether to initialise the repository as a git repository.
-    pub git_init: Option<bool>,
-
-    // The type of archive if it cannot be guessed from the path.
-    // Possible values are "rpm", "tar", "tar-gzip", "tar-compress", "tar-bzip2", "tar-lzip", "tar-lzma", "tar-lzop", "tar-xz", "zip" and "7z".
-    pub archive_type: Option<String>,
-
-    // The md5 checksum of the file, verified after download
-    // Note that md5 is no longer considered a safe checksum, we recommend you use at least sha256.
-    pub md5: Option<String>,
-
-    // The sha1 checksum of the file, verified after download
-    // Note that sha1 is no longer considered a safe checksum, we recommend you use at least sha256.
-    pub sha1: Option<String>,
-
-    // The sha256 checksum of the file, verified after download
-    pub sha256: Option<String>,
-
-    // The sha512 checksum of the file, verified after download
-    pub sha512: Option<String>,
-
-    // The number of initial pathname components to strip during extraction. Defaults to 1.
-    pub strip_components: Option<i64>,
-
-    // Filename to for the downloaded file, defaults to the basename of url.
-    pub dest_filename: Option<String>,
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
@@ -1020,22 +941,6 @@ pub struct FlatpakFileSource {
     // Filename to use inside the source dir, default to the basename of path.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dest_filename: Option<String>,
-}
-
-#[derive(Debug, Default, Deserialize, Serialize, Hash)]
-#[serde(rename_all = "kebab-case")]
-pub struct FlatpakDirSource {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<String>,
-
-    // The path of a local directory whose content will be copied into the source dir.
-    // Note that directory sources don't currently support caching, so they will be rebuilt each time.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub path: Option<String>,
-
-    // Source files to ignore in the directory.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub skip: Vec<String>,
 }
 
 // Extension define extension points in the app/runtime that can be implemented by extensions,
