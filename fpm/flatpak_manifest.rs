@@ -732,7 +732,7 @@ impl FlatpakSource {
                     return t.to_string();
                 }
                 return DEFAULT_SOURCE_TYPE.to_string();
-            },
+            }
         };
     }
 }
