@@ -440,6 +440,13 @@ impl FlatpakModule {
             FlatpakModule::Path(_) => return false,
             FlatpakModule::Description(d) => {
                 for source in &d.sources {
+                    if let FlatpakSource::Description(sd) = source {
+                        if let Some(t) = &sd.r#type {
+                            if t == "patch" {
+                                return true;
+                            }
+                        }
+                    }
                 }
             },
         }

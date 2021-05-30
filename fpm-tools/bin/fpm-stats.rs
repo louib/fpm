@@ -73,7 +73,6 @@ fn main() {
             }
 
         }
-
     }
 
     for (source_type, source_count) in sources_count {
