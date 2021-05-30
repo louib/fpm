@@ -683,7 +683,6 @@ impl FlatpakModuleDescription {
 
         let main_module_source_url: &Option<String> = match main_module_source {
             FlatpakSource::Path(_) => return None,
-            FlatpakSource::Patch(p) => return None,
             FlatpakSource::File(p) => return None,
         };
 
@@ -721,7 +720,6 @@ pub const DEFAULT_SOURCE_TYPE: &str = "archive";
 #[serde(untagged)]
 pub enum FlatpakSource {
     Path(String),
-    Patch(FlatpakPatchSource),
     File(FlatpakFileSource),
 }
 impl FlatpakSource {
@@ -732,7 +730,6 @@ impl FlatpakSource {
     pub fn get_type(&self) -> String {
         return match self {
             FlatpakSource::Path(_) => "path".to_string(),
-            FlatpakSource::Patch(_) => "patch".to_string(),
             FlatpakSource::File(_) => "file".to_string(),
         };
     }
@@ -825,9 +822,30 @@ pub struct FlatpakSourceDescription {
     pub commit: Option<String>,
 
     // The path to associated with the resource.
-    // types: git, archive, dir
+    // types: git, archive, dir, patch
     #[serde(skip_serializing_if = "Option::is_none")]
     pub path: Option<String>,
+
+    // An list of paths to a patch files that will be applied in the source dir, in order
+    // types: patch
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub paths: Vec<String>,
+
+    // Whether to use "git apply" rather than "patch" to apply the patch, required when the patch file contains binary diffs.
+    // types: patch
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub use_git: Option<bool>,
+
+    // Whether to use "git am" rather than "patch" to apply the patch, required when the patch file contains binary diffs.
+    // You cannot use this at the same time as use-git.
+    // types: patch
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub use_git_am: Option<bool>,
+
+    // Extra options to pass to the patch command.
+    // types: patch
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub options: Vec<String>,
 
     // Don't use transfer.fsckObjects=1 to mirror git repository. This may be needed for some (broken) repositories.
     // types: git
@@ -844,8 +862,8 @@ pub struct FlatpakSourceDescription {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disable_submodules: Option<bool>,
 
-    // The number of initial pathname components to strip during extraction. Defaults to 1.
-    // types: archive
+    // The number of initial pathname components to strip.
+    // types: archive, patch
     pub strip_components: Option<i64>,
 
     // Source files to ignore in the directory.
@@ -867,38 +885,6 @@ pub struct FlatpakSourceDescription {
     // types: all
     #[serde(skip_serializing_if = "String::is_empty")]
     pub dest: String,
-}
-
-#[derive(Debug, Default, Deserialize, Serialize, Hash)]
-#[serde(rename_all = "kebab-case")]
-pub struct FlatpakPatchSource {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<String>,
-
-    // The path of a patch file that will be applied in the source dir
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub path: Option<String>,
-
-    // An list of paths to a patch files that will be applied in the source dir, in order
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub paths: Vec<String>,
-
-    // The value of the -p argument to patch, defaults to 1.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub strip_components: Option<i64>,
-
-    // Whether to use "git apply" rather than "patch" to apply the patch, required when the patch file contains binary diffs.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub use_git: Option<bool>,
-
-    // Whether to use "git am" rather than "patch" to apply the patch, required when the patch file contains binary diffs.
-    // You cannot use this at the same time as use-git.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub use_git_am: Option<bool>,
-
-    // Extra options to pass to the patch command.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub options: Vec<String>,
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
