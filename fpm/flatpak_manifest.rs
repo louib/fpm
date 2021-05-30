@@ -683,7 +683,6 @@ impl FlatpakModuleDescription {
 
         let main_module_source_url: &Option<String> = match main_module_source {
             FlatpakSource::Path(_) => return None,
-            FlatpakSource::Script(s) => return None,
             FlatpakSource::Archive(a) => &a.url,
             FlatpakSource::ExtraData(ed) => return None,
             FlatpakSource::Dir(d) => return None,
@@ -692,7 +691,6 @@ impl FlatpakModuleDescription {
             FlatpakSource::Git(r) => &r.url,
             FlatpakSource::SVN(r) => &r.url,
             FlatpakSource::File(p) => return None,
-            FlatpakSource::Shell(s) => return None,
         };
 
         match &main_module_source_url {
@@ -730,7 +728,6 @@ pub const DEFAULT_SOURCE_TYPE: &str = "archive";
 pub enum FlatpakSource {
     Path(String),
     Archive(FlatpakArchiveSource),
-    Script(FlatpakScriptSource),
     ExtraData(FlatpakExtraDataSource),
     Patch(FlatpakPatchSource),
     Git(FlatpakGitSource),
@@ -738,7 +735,6 @@ pub enum FlatpakSource {
     SVN(FlatpakSVNSource),
     File(FlatpakFileSource),
     Dir(FlatpakDirSource),
-    Shell(FlatpakShellSource),
 }
 impl FlatpakSource {
     pub fn get_url(&self) -> Option<String> {
@@ -769,7 +765,6 @@ impl FlatpakSource {
         return match self {
             FlatpakSource::Path(_) => "path".to_string(),
             FlatpakSource::Archive(_) => "archive".to_string(),
-            FlatpakSource::Script(_) => "script".to_string(),
             FlatpakSource::ExtraData(_) => "extra-data".to_string(),
             FlatpakSource::Patch(_) => "patch".to_string(),
             FlatpakSource::Git(_) => "git".to_string(),
@@ -777,37 +772,42 @@ impl FlatpakSource {
             FlatpakSource::SVN(_) => "svn".to_string(),
             FlatpakSource::File(_) => "file".to_string(),
             FlatpakSource::Dir(_) => "dir".to_string(),
-            FlatpakSource::Shell(_) => "shell".to_string(),
         };
     }
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
 #[serde(rename_all = "kebab-case")]
-// This is a way to create a shell (/bin/sh) script from an inline set of commands.
-pub struct FlatpakScriptSource {
+pub struct FlatpakSourceDescription {
     #[serde(skip_serializing_if = "Option::is_none")]
+    // Defines the type of the source description. This field is optional.
+    // TODO is there a default or can the source type be infered?
     pub r#type: Option<String>,
 
-    // An array of shell commands that will be put in a shellscript file
+    // An array of shell commands.
+    // types: script, shell
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub commands: Vec<String>,
 
     // Filename to use inside the source dir, default to autogen.sh.
+    // types: script
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dest_filename: Option<String>,
-}
 
-#[derive(Debug, Default, Deserialize, Serialize, Hash)]
-#[serde(rename_all = "kebab-case")]
-// This is a way to create/modify the sources by running shell commands.
-pub struct FlatpakShellSource {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<String>,
-
-    // An array of shell commands that will be run during source extraction.
+    // If non-empty, only build the module on the arches listed.
+    // types: all
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub commands: Vec<String>,
+    pub only_arches: Vec<String>,
+
+    // Don't build on any of the arches listed.
+    // types: all
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub skip_arches: Vec<String>,
+
+    // Directory inside the source dir where this source will be extracted.
+    // types: all
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub dest: String,
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
