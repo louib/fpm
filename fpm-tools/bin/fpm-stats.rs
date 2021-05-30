@@ -63,9 +63,9 @@ fn main() {
 
                     if let FlatpakModule::Description(d) = module {
                         for source in &d.sources {
-                            let source_type = source.get_type();
-                            let new_count = sources_count.get(&source_type).unwrap_or(&0) + 1;
-                            sources_count.insert(source_type, new_count);
+                            let source_type_name = source.get_type_name();
+                            let new_count = sources_count.get(&source_type_name).unwrap_or(&0) + 1;
+                            sources_count.insert(source_type_name, new_count);
                             sources_total_count += 1;
                         }
                     }

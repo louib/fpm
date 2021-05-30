@@ -707,18 +707,20 @@ impl FlatpakModuleDescription {
     }
 }
 
-pub const ALLOWED_SOURCE_TYPES: [&'static str; 10] = [
-    "archive",
-    "git",
-    "bzr",
-    "svn",
-    "dir",
-    "file",
-    "script",
-    "shell",
-    "patch",
-    "extra-data",
-];
+lazy_static! {
+    static ref SOURCE_TYPES: Vec<String> = vec![
+        "archive".to_string(),
+        "git".to_string(),
+        "bzr".to_string(),
+        "svn".to_string(),
+        "dir".to_string(),
+        "file".to_string(),
+        "script".to_string(),
+        "shell".to_string(),
+        "patch".to_string(),
+        "extra-data".to_string(),
+    ];
+}
 
 pub const DEFAULT_SOURCE_TYPE: &str = "archive";
 
@@ -741,7 +743,7 @@ impl FlatpakSource {
         // TODO handle multiple urls with mirror-url.
         return None;
     }
-    pub fn get_type(&self) -> String {
+    pub fn get_type_name(&self) -> String {
         return match self {
             FlatpakSource::Path(_) => "path".to_string(),
             FlatpakSource::Description(d) => {
@@ -750,6 +752,17 @@ impl FlatpakSource {
                 }
                 return DEFAULT_SOURCE_TYPE.to_string();
             }
+        };
+    }
+    pub fn type_is_valid(&self) -> bool {
+        return match self {
+            FlatpakSource::Path(_) => true,
+            FlatpakSource::Description(d) => {
+                if let Some(t) = &d.r#type {
+                    return SOURCE_TYPES.contains(&t);
+                }
+                return false;
+            },
         };
     }
 }
