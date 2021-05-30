@@ -448,7 +448,7 @@ impl FlatpakModule {
                         }
                     }
                 }
-            },
+            }
         }
         return false;
     }
