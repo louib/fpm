@@ -435,6 +435,12 @@ impl FlatpakModule {
             return vec![];
         }
     }
+    pub fn get_sources_count(&self) -> usize {
+        return match self {
+            FlatpakModule::Path(_) => return 1,
+            FlatpakModule::Description(d) => d.sources.len(),
+        }
+    }
     pub fn is_patched(&self) -> bool {
         match self {
             FlatpakModule::Path(_) => return false,
