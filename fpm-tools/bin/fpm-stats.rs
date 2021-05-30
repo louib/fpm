@@ -18,6 +18,7 @@ fn main() {
     let mut modules_sources_count: BTreeMap<i32, i64> = BTreeMap::new();
     let mut manifests_max_depth: BTreeMap<i32, i64> = BTreeMap::new();
     let mut manifests_count: i64 = 0;
+    let mut extension_manifests_count: i64 = 0;
     let mut patched_modules_count: i64 = 0;
 
     for (project_id, project) in &db.indexed_projects {
@@ -55,6 +56,10 @@ fn main() {
 
             if let Some(flatpak_manifest) = FlatpakManifest::load_from_file(file_path.to_string()) {
                 manifests_count += 1;
+
+                if flatpak_manifest.is_extension() {
+                    extension_manifests_count += 1;
+                }
 
                 let manifest_depth = flatpak_manifest.get_max_depth();
                 let new_count = manifests_max_depth.get(&manifest_depth).unwrap_or(&0) + 1;
@@ -108,6 +113,7 @@ fn main() {
     for (depth, depth_count) in manifests_max_depth {
         println!("Depth {}: {} ({}/{})%", depth, (depth_count as f64 / manifests_count as f64) * 100.0, depth_count, manifests_count);
     }
+    println!("Number of extension manifests: {}.", extension_manifests_count);
     println!("\n");
 
     println!("Modules:");

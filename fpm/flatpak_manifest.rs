@@ -416,6 +416,12 @@ impl FlatpakManifest {
         }
         return max_depth;
     }
+    pub fn is_extension(&self) -> bool {
+        if let Some(e) = self.build_extension {
+            return e;
+        }
+        false
+    }
 }
 
 // Each module item can be either a path to a module description file,
