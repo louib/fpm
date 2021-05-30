@@ -445,7 +445,7 @@ impl FlatpakModule {
         return match self {
             FlatpakModule::Path(_) => return 1,
             FlatpakModule::Description(d) => d.sources.len(),
-        }
+        };
     }
     pub fn is_patched(&self) -> bool {
         match self {
