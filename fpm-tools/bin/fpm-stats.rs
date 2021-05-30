@@ -139,7 +139,10 @@ fn main() {
     println!("Modules:");
     println!("Patched modules: {} ({}/{})%", (patched_modules_count as f64 / modules_count as f64) * 100.0, patched_modules_count, modules_count);
     for (source_count, count) in modules_sources_count {
-        println!("Module with {} source(s): {} ({}/{})%", source_count, (count as f64 / modules_count as f64) * 100.0, count, sources_total_count);
+        println!("Modules with {} source(s): {} ({}/{})%", source_count, (count as f64 / modules_count as f64) * 100.0, count, sources_total_count);
+    }
+    for (buildsystem, buildsystem_count) in modules_buildsystems_count {
+        println!("Modules with buildsystem {}: {} ({}/{})%", buildsystem, (buildsystem_count as f64 / modules_count as f64) * 100.0, buildsystem_count, modules_count);
     }
     println!("\n");
 
