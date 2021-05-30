@@ -669,7 +669,7 @@ impl FlatpakModuleDescription {
             }
         }
         for source in &self.sources {
-            if let Some(url) = source.get_url() {
+            for url in source.get_all_urls() {
                 all_urls.push(url);
             }
         }
@@ -740,8 +740,23 @@ pub enum FlatpakSource {
 }
 impl FlatpakSource {
     pub fn get_url(&self) -> Option<String> {
-        // TODO handle multiple urls with mirror-url.
-        return None;
+        None
+    }
+    pub fn get_all_urls(&self) -> Vec<String> {
+        let mut response: Vec<String> = vec![];
+        let source_description = match self {
+            FlatpakSource::Path(_) => return response,
+            FlatpakSource::Description(sd) => sd,
+        };
+        if let Some(url) = &source_description.url {
+            response.push(url.to_string());
+        }
+        if let Some(urls) = &source_description.mirror_urls {
+            for url in urls {
+                response.push(url.to_string());
+            }
+        }
+        return response;
     }
     pub fn get_type_name(&self) -> String {
         return match self {
