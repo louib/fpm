@@ -681,10 +681,7 @@ impl FlatpakModuleDescription {
         // anything after is a patch or an additional file.
         let main_module_source = self.sources.first().unwrap();
 
-        let main_module_source_url: &Option<String> = match main_module_source {
-            FlatpakSource::Path(_) => return None,
-            FlatpakSource::File(p) => return None,
-        };
+        let main_module_source_url: Option<String> = main_module_source.get_url();
 
         match &main_module_source_url {
             Some(s) => Some(s.to_string()),
@@ -720,7 +717,7 @@ pub const DEFAULT_SOURCE_TYPE: &str = "archive";
 #[serde(untagged)]
 pub enum FlatpakSource {
     Path(String),
-    File(FlatpakFileSource),
+    Description(FlatpakSourceDescription),
 }
 impl FlatpakSource {
     pub fn get_url(&self) -> Option<String> {
@@ -730,7 +727,12 @@ impl FlatpakSource {
     pub fn get_type(&self) -> String {
         return match self {
             FlatpakSource::Path(_) => "path".to_string(),
-            FlatpakSource::File(_) => "file".to_string(),
+            FlatpakSource::Description(d) => {
+                if let Some(t) = &d.r#type {
+                    return t.to_string();
+                }
+                return DEFAULT_SOURCE_TYPE.to_string();
+            },
         };
     }
 }
@@ -749,7 +751,7 @@ pub struct FlatpakSourceDescription {
     pub commands: Vec<String>,
 
     // Filename to use inside the source dir.
-    // types: script, archive
+    // types: script, archive, file
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dest_filename: Option<String>,
 
@@ -759,31 +761,31 @@ pub struct FlatpakSourceDescription {
     pub filename: Option<String>,
 
     // The url to the resource.
-    // types: extra-data, svn, bzr, git, archive
+    // types: extra-data, svn, bzr, git, archive, file
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<String>,
 
     // A list of alternative urls that are used if the main url fails.
-    // types: archive
+    // types: archive, file
     pub mirror_urls: Vec<String>,
 
     // The md5 checksum of the file, verified after download
     // Note that md5 is no longer considered a safe checksum, we recommend you use at least sha256.
-    // types: archive
+    // types: archive, file
     pub md5: Option<String>,
 
     // The sha1 checksum of the file, verified after download
     // Note that sha1 is no longer considered a safe checksum, we recommend you use at least sha256.
-    // types: archive
+    // types: archive, file
     pub sha1: Option<String>,
 
     // The sha256 of the resource.
-    // types: extra-data
+    // types: extra-data, archive, file
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sha256: Option<String>,
 
     // The sha512 checksum of the file, verified after download
-    // types: archive
+    // types: archive, file
     pub sha512: Option<String>,
 
     // The size of the extra data in bytes.
@@ -822,7 +824,7 @@ pub struct FlatpakSourceDescription {
     pub commit: Option<String>,
 
     // The path to associated with the resource.
-    // types: git, archive, dir, patch
+    // types: git, archive, dir, patch, file
     #[serde(skip_serializing_if = "Option::is_none")]
     pub path: Option<String>,
 
@@ -885,48 +887,6 @@ pub struct FlatpakSourceDescription {
     // types: all
     #[serde(skip_serializing_if = "String::is_empty")]
     pub dest: String,
-}
-
-#[derive(Debug, Default, Deserialize, Serialize, Hash)]
-#[serde(rename_all = "kebab-case")]
-pub struct FlatpakFileSource {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<String>,
-
-    // The path of a local file that will be copied into the source dir
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub path: Option<String>,
-
-    // The URL of a remote file that will be downloaded and copied into the source dir.
-    // This overrides path if both are specified.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub url: Option<String>,
-
-    // A list of alternative urls that are used if the main url fails.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub mirror_urls: Vec<String>,
-
-    // The md5 checksum of the file, verified after download. This is optional for local files.
-    // Note that md5 is no longer considered a safe checksum, we recommend you use at least sha256.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub md5: Option<String>,
-
-    // The sha1 checksum of the file, verified after download. This is optional for local files.
-    // Note that sha1 is no longer considered a safe checksum, we recommend you use at least sha256.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub sha1: Option<String>,
-
-    // The sha256 checksum of the file, verified after download. This is optional for local files.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub sha256: Option<String>,
-
-    // The sha512 checksum of the file, verified after download. This is optional for local files.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub sha512: Option<String>,
-
-    // Filename to use inside the source dir, default to the basename of path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub dest_filename: Option<String>,
 }
 
 // Extension define extension points in the app/runtime that can be implemented by extensions,
