@@ -16,6 +16,7 @@ fn main() {
     let mut empty_sources_count: i64 = 0;
     let mut modules_count: i64 = 0;
     let mut modules_sources_count: BTreeMap<i32, i64> = BTreeMap::new();
+    let mut modules_buildsystems_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut manifests_max_depth: BTreeMap<i32, i64> = BTreeMap::new();
     let mut manifests_count: i64 = 0;
     let mut extension_manifests_count: i64 = 0;
@@ -72,6 +73,12 @@ fn main() {
                 manifests_max_depth.insert(manifest_depth, new_count);
 
                 for module in &flatpak_manifest.modules {
+                    let module_description = match &module {
+                        FlatpakModule::Path(_) => continue,
+                        FlatpakModule::Description(d) => d,
+                    };
+
+                    // We're only counting inlined module descriptions for now.
                     modules_count += 1;
                     for url in module.get_all_repos_urls() {
                         println!("MODULE URL {}", url);
@@ -85,25 +92,24 @@ fn main() {
                     let new_sources_count = modules_sources_count.get(&module_sources_count).unwrap_or(&0) + 1;
                     modules_sources_count.insert(module_sources_count, new_sources_count);
 
-                    if let FlatpakModule::Description(d) = module {
-                        for source in &d.sources {
-                            sources_total_count += 1;
+                    let new_buildsystem_count = modules_buildsystems_count.get(&module_description.buildsystem).unwrap_or(&0) + 1;
+                    modules_buildsystems_count.insert(module_description.buildsystem.to_string(), new_buildsystem_count);
 
-                            let source_type_name = source.get_type_name();
-                            let new_count = sources_count.get(&source_type_name).unwrap_or(&0) + 1;
-                            sources_count.insert(source_type_name, new_count);
+                    for source in &module_description.sources {
+                        sources_total_count += 1;
 
-                            if !source.type_is_valid() {
-                                invalid_sources_count += 1;
-                            }
+                        let source_type_name = source.get_type_name();
+                        let new_count = sources_count.get(&source_type_name).unwrap_or(&0) + 1;
+                        sources_count.insert(source_type_name, new_count);
 
-                            if source.type_is_empty() {
-                                empty_sources_count += 1;
-                            }
+                        if !source.type_is_valid() {
+                            invalid_sources_count += 1;
+                        }
+
+                        if source.type_is_empty() {
+                            empty_sources_count += 1;
                         }
                     }
-
-
                 }
 
             }
