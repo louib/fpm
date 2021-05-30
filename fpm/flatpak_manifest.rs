@@ -177,8 +177,8 @@ pub struct FlatpakManifest {
     pub build_options: Option<FlatpakBuildOptions>,
 
     // The name of the command that the flatpak should run on execution.
-    #[serde(skip_serializing_if = "String::is_empty")]
-    pub command: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub command: Option<String>,
 
     // Add these tags to the metadata file.
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -265,6 +265,12 @@ pub struct FlatpakManifest {
     pub modules: Vec<FlatpakModule>,
 }
 impl FlatpakManifest {
+    pub fn get_id(&self) -> String {
+        if !self.app_id.is_empty() {
+            return self.app_id.to_string();
+        }
+        return self.id.to_string();
+    }
     pub fn load_from_file(path: String) -> Option<FlatpakManifest> {
         let file_path = path::Path::new(&path);
         if !file_path.is_file() {
@@ -339,6 +345,8 @@ impl FlatpakManifest {
         // From https://docs.flatpak.org/en/latest/manifests.html#basic-properties:
         // Each manifest file should specify basic information about the application that is to be built,
         // including the app-id, runtime, runtime-version, sdk and command parameters.
+        // That being said, the `command` field is not required by manifests that declare an
+        // extension to be build, using the `build-extension` field.
         if flatpak_manifest.app_id.is_empty() && flatpak_manifest.id.is_empty() {
             return Err(
                 "Required top-level field id (or app-id) is missing from Flatpak manifest.".to_string(),
@@ -354,9 +362,6 @@ impl FlatpakManifest {
         }
         if flatpak_manifest.sdk.is_empty() {
             return Err("Required top-level field sdk is missing from Flatpak manifest.".to_string());
-        }
-        if flatpak_manifest.command.is_empty() {
-            return Err("Required top-level field command is missing from Flatpak manifest.".to_string());
         }
 
         Ok(flatpak_manifest)
@@ -1741,6 +1746,37 @@ mod tests {
             Err(e) => panic!(e),
             Ok(manifest) => {
                 assert_eq!(manifest.app_id, "org.gnome.Lollypop");
+            }
+        }
+    }
+
+    #[test]
+    pub fn test_parse_extension() {
+        match FlatpakManifest::parse(
+            "manifest.json",
+            r###"
+            {
+                "id": "org.freedesktop.Platform.Icontheme.Paper",
+                "branch": "1.0",
+                "runtime": "org.freedesktop.Sdk",
+                "build-extension": true,
+                "sdk": "org.freedesktop.Sdk",
+                "runtime-version": "1.6",
+                "sdk-extensions": [],
+                "separate-locales": false,
+                "cleanup": [ "/share/info", "/share/man" ],
+                "appstream-compose": false,
+                "build-options" : {
+                    "prefix": "/usr/share/runtime"
+                },
+                "modules": []
+            }
+            "###,
+        ) {
+            Err(e) => panic!(e),
+            Ok(manifest) => {
+                assert_eq!(manifest.id, "org.freedesktop.Platform.Icontheme.Paper");
+                assert_eq!(manifest.get_id(), "org.freedesktop.Platform.Icontheme.Paper");
             }
         }
     }
