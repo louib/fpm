@@ -405,7 +405,7 @@ impl FlatpakManifest {
     }
 
     pub fn get_max_depth(&self) -> i32 {
-        let mut max_depth: i32 = 0;
+        let mut max_depth: i32 = 1;
         for module in &self.modules {
             if let FlatpakModule::Description(module_description) = module {
                 let module_depth = module_description.get_max_depth();
