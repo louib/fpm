@@ -13,6 +13,7 @@ fn main() {
     let mut sources_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut sources_total_count: i64 = 0;
     let mut invalid_sources_count: i64 = 0;
+    let mut empty_sources_count: i64 = 0;
     let mut modules_count: i64 = 0;
     let mut patched_modules_count: i64 = 0;
 
@@ -72,6 +73,10 @@ fn main() {
                             if !source.type_is_valid() {
                                 invalid_sources_count += 1;
                             }
+
+                            if source.type_is_empty() {
+                                empty_sources_count += 1;
+                            }
                         }
                     }
 
@@ -96,6 +101,7 @@ fn main() {
         println!("{}: {} ({}/{})%", source_type, (source_count as f64 / sources_total_count as f64) * 100.0, source_count, sources_total_count);
     }
     println!("Sources with invalid type: {}.", invalid_sources_count);
+    println!("Sources with empty type: {}.", empty_sources_count);
 
     fpm::logger::init();
 }

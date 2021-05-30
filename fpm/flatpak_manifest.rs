@@ -765,6 +765,12 @@ impl FlatpakSource {
             }
         };
     }
+    pub fn type_is_empty(&self) -> bool {
+        return match self {
+            FlatpakSource::Path(_) => false,
+            FlatpakSource::Description(d) => d.r#type.is_none(),
+        };
+    }
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]
