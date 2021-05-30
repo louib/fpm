@@ -12,6 +12,7 @@ fn main() {
 
     let mut sources_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut sources_total_count: i64 = 0;
+    let mut invalid_sources_count: i64 = 0;
     let mut modules_count: i64 = 0;
     let mut patched_modules_count: i64 = 0;
 
@@ -67,6 +68,10 @@ fn main() {
                             let new_count = sources_count.get(&source_type_name).unwrap_or(&0) + 1;
                             sources_count.insert(source_type_name, new_count);
                             sources_total_count += 1;
+
+                            if !source.type_is_valid() {
+                                invalid_sources_count += 1;
+                            }
                         }
                     }
 
@@ -82,14 +87,15 @@ fn main() {
 
         }
     }
+    println!("Modules:");
+    println!("Patched modules: {} ({}/{})%", (patched_modules_count as f64 / modules_count as f64) * 100.0, patched_modules_count, modules_count);
+    println!("\n");
 
-    println!("Source types:");
+    println!("Sources:");
     for (source_type, source_count) in sources_count {
         println!("{}: {} ({}/{})%", source_type, (source_count as f64 / sources_total_count as f64) * 100.0, source_count, sources_total_count);
     }
-
-    println!("Modules:");
-    println!("Patched modules: {} ({}/{})%", (patched_modules_count as f64 / modules_count as f64) * 100.0, patched_modules_count, modules_count);
+    println!("Sources with invalid type: {}.", invalid_sources_count);
 
     fpm::logger::init();
 }
