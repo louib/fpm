@@ -762,7 +762,7 @@ impl FlatpakSource {
                     return SOURCE_TYPES.contains(&t);
                 }
                 return false;
-            },
+            }
         };
     }
 }
