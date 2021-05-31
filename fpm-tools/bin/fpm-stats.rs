@@ -118,6 +118,10 @@ fn main() {
                         }
                     }
 
+                    for url in module.get_repos_mirror_urls() {
+                        modules_mirror_urls_count += 1;
+                    }
+
                     if module.is_patched() {
                         patched_modules_count += 1;
                     }
@@ -193,6 +197,7 @@ fn main() {
     for (protocol_name, count) in modules_urls_protocols {
         println!("URLs with protocol {}: {}% ({}/{})", protocol_name, (count as f64 / modules_urls_count as f64) * 100.0, count, modules_urls_count);
     }
+    println!("URLs used as mirrors: {}% ({}/{})", (modules_mirror_urls_count as f64 / modules_urls_count as f64) * 100.0, modules_mirror_urls_count, modules_urls_count);
 
     fpm::logger::init();
 }

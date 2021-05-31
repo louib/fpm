@@ -446,6 +446,12 @@ impl FlatpakModule {
             return vec![];
         }
     }
+    pub fn get_repos_mirror_urls(&self) -> Vec<String> {
+        if let FlatpakModule::Description(module_description) = self {
+            return module_description.get_all_mirror_urls();
+        }
+        return vec![];
+    }
     pub fn get_sources_count(&self) -> usize {
         return match self {
             FlatpakModule::Path(_) => return 1,
@@ -608,6 +614,20 @@ pub struct FlatpakModuleDescription {
     pub modules: Vec<FlatpakModule>,
 }
 impl FlatpakModuleDescription {
+    pub fn get_all_mirror_urls(&self) -> Vec<String> {
+        let mut all_urls = vec![];
+        for module in &self.modules {
+            if let FlatpakModule::Description(module_description) = module {
+                all_urls.append(&mut module_description.get_all_urls());
+            }
+        }
+        for source in &self.sources {
+            for url in source.get_all_mirror_urls() {
+                all_urls.push(url.to_string());
+            }
+        }
+        all_urls
+    }
     pub fn get_buildsystem(&self) -> Option<String> {
         if !self.buildsystem.is_empty() {
             return Some(self.buildsystem.to_string());
@@ -769,6 +789,21 @@ impl FlatpakSource {
     pub fn get_url(&self) -> Option<String> {
         None
     }
+    pub fn get_all_mirror_urls(&self) -> Vec<String> {
+        let mut response: Vec<String> = vec![];
+
+        let source_description = match self {
+            FlatpakSource::Path(_) => return response,
+            FlatpakSource::Description(sd) => sd,
+        };
+        if let Some(urls) = &source_description.mirror_urls {
+            for url in urls {
+                response.push(url.to_string());
+            }
+        }
+        return response;
+    }
+
     pub fn get_all_urls(&self) -> Vec<String> {
         let mut response: Vec<String> = vec![];
         let source_description = match self {
