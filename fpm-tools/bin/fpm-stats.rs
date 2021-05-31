@@ -28,6 +28,7 @@ fn main() {
     let mut modules_urls_protocols: BTreeMap<String, i64> = BTreeMap::new();
 
     for (project_id, project) in &db.indexed_projects {
+        log::info!("Processing project {}...", project_id);
         let repo_url = project.get_main_vcs_url();
 
         let repo_dir = match fpm::utils::clone_git_repo(&repo_url) {
