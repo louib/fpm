@@ -848,6 +848,14 @@ impl FlatpakSource {
             FlatpakSource::Description(d) => d.r#type.is_none(),
         };
     }
+    pub fn supports_mirror_urls(&self) -> bool {
+        let type_name = self.get_type_name();
+        // FIXME why are mirror urls not supported for types git, svn and bzr.
+        if type_name == "archive" || type_name == "file" {
+            return true;
+        }
+        return false;
+    }
 }
 
 #[derive(Debug, Default, Deserialize, Serialize, Hash)]

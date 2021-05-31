@@ -12,6 +12,8 @@ fn main() {
 
     let mut sources_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut sources_total_count: i64 = 0;
+    let mut sources_mirror_urls_supported_count: i64 = 0;
+    let mut sources_mirror_urls_available_count: i64 = 0;
     let mut invalid_sources_count: i64 = 0;
     let mut empty_sources_count: i64 = 0;
     let mut modules_count: i64 = 0;
@@ -142,6 +144,13 @@ fn main() {
                     for source in &module_description.sources {
                         sources_total_count += 1;
 
+                        if source.supports_mirror_urls() {
+                            sources_mirror_urls_supported_count += 1;
+                        }
+                        if source.get_all_mirror_urls().len() != 0 {
+                            sources_mirror_urls_available_count += 1;
+                        }
+
                         let source_type_name = source.get_type_name();
                         let new_count = sources_count.get(&source_type_name).unwrap_or(&0) + 1;
                         sources_count.insert(source_type_name, new_count);
@@ -190,6 +199,7 @@ fn main() {
     for (source_type, source_count) in sources_count {
         println!("{}: {}% ({}/{})", source_type, (source_count as f64 / sources_total_count as f64) * 100.0, source_count, sources_total_count);
     }
+    println!("Sources with mirror urls: {}% ({}/{})", (sources_mirror_urls_supported_count as f64 / sources_mirror_urls_available_count as f64) * 100.0, sources_mirror_urls_supported_count, sources_mirror_urls_available_count);
     println!("Sources with invalid type: {}.", invalid_sources_count);
     println!("Sources with empty type: {}.", empty_sources_count);
 
