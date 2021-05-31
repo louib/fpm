@@ -88,9 +88,12 @@ fn main() {
                     // We're only counting inlined module descriptions for now.
                     modules_count += 1;
                     for url in module.get_all_repos_urls() {
+                        let url = url.trim();
                         modules_urls_count += 1;
-                        // TODO there is clearly a better way to do this...
-                        if url.starts_with("http://") {
+                        if url == "." || url == ".." || url.starts_with("./") || url.starts_with("../") {
+                            let new_modules_protocol_count = modules_urls_protocols.get("relative fs path").unwrap_or(&0) + 1;
+                            modules_urls_protocols.insert("relative fs path".to_string(), new_modules_protocol_count);
+                        } else if url.starts_with("http://") {
                             let new_modules_protocol_count = modules_urls_protocols.get("http").unwrap_or(&0) + 1;
                             modules_urls_protocols.insert("http".to_string(), new_modules_protocol_count);
                         } else if url.starts_with("https://") {
@@ -102,6 +105,9 @@ fn main() {
                         } else if url.starts_with("ftp://") {
                             let new_modules_protocol_count = modules_urls_protocols.get("ftp").unwrap_or(&0) + 1;
                             modules_urls_protocols.insert("ftp".to_string(), new_modules_protocol_count);
+                        } else if url.starts_with("svn://") {
+                            let new_modules_protocol_count = modules_urls_protocols.get("svn").unwrap_or(&0) + 1;
+                            modules_urls_protocols.insert("svn".to_string(), new_modules_protocol_count);
                         } else if url.starts_with("file://") {
                             let new_modules_protocol_count = modules_urls_protocols.get("file").unwrap_or(&0) + 1;
                             modules_urls_protocols.insert("file".to_string(), new_modules_protocol_count);
