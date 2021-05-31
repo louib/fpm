@@ -199,7 +199,7 @@ fn main() {
     for (source_type, source_count) in sources_count {
         println!("{}: {}% ({}/{})", source_type, (source_count as f64 / sources_total_count as f64) * 100.0, source_count, sources_total_count);
     }
-    println!("Sources with mirror urls: {}% ({}/{})", (sources_mirror_urls_supported_count as f64 / sources_mirror_urls_available_count as f64) * 100.0, sources_mirror_urls_supported_count, sources_mirror_urls_available_count);
+    println!("Sources with mirror urls: {}% ({}/{})", (sources_mirror_urls_available_count as f64 / sources_mirror_urls_supported_count as f64) * 100.0, sources_mirror_urls_available_count, sources_mirror_urls_supported_count);
     println!("Sources with invalid type: {}.", invalid_sources_count);
     println!("Sources with empty type: {}.", empty_sources_count);
 
