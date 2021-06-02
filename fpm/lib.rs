@@ -140,6 +140,16 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         }
 
         // make without argument runs the only manifest if there is only one
+        let manifest_path = candidate_flatpak_manifests.first().unwrap();
+
+        if let Some(flatpak_manifest) = crate::flatpak_manifest::FlatpakManifest::load_from_file(manifest_path.to_string()) {
+            crate::flatpak_manifest::run_build(manifest_path);
+
+        } else {
+            log::error!("Could not parse Flatpak manifest at {}.", manifest_path);
+            return 1;
+        };
+
     }
 
     if command_name == "run" {}

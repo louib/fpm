@@ -1268,7 +1268,28 @@ pub fn is_setup() -> bool {
     return true;
 }
 
-pub fn run_build() -> Result<String, String> {
+pub fn run_build(manifest_path: &str) -> Result<String, String> {
+    let flatpak_build_dir = path::Path::new(DEFAULT_FLATPAK_OUTPUT_DIR);
+    if !flatpak_build_dir.is_dir() {
+        return Err("Looks like this workspace was not built. Run `fpm make` first.".to_string());
+    }
+
+    let child = Command::new("flatpak-builder")
+        .arg("--user")
+        .arg("--force-clean")
+        .arg(DEFAULT_FLATPAK_OUTPUT_DIR)
+        .arg(&manifest_path)
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+
+    let output = match child.wait_with_output() {
+        Ok(o) => o,
+        Err(e) => return Err(e.to_string()),
+    };
+    if !output.status.success() {
+        return Ok("it went ok".to_string());
+    }
     Ok(String::from("lol"))
 }
 
