@@ -126,7 +126,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             Err(e) => {
                 log::error!("Error while search for Flatpak manifests: {}.", e);
                 return 1;
-            },
+            }
         };
 
         if candidate_flatpak_manifests.len() == 0 {
@@ -138,7 +138,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             log::error!("Too many Flatpak manifests to pick from. Use workspaces.");
             return 1;
         }
-
 
         // make without argument runs the only manifest if there is only one
     }
