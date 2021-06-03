@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
+pub mod build_systems;
 pub mod db;
 pub mod flatpak_manifest;
-pub mod build_systems;
+pub mod logger;
 pub mod projects;
 pub mod utils;
-pub mod logger;
 
 mod config;
 mod version;
@@ -143,14 +143,14 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         // make without argument runs the only manifest if there is only one
         let manifest_path = candidate_flatpak_manifests.first().unwrap();
 
-        if let Some(flatpak_manifest) = crate::flatpak_manifest::FlatpakManifest::load_from_file(manifest_path.to_string()) {
+        if let Some(flatpak_manifest) =
+            crate::flatpak_manifest::FlatpakManifest::load_from_file(manifest_path.to_string())
+        {
             crate::flatpak_manifest::run_build(manifest_path);
-
         } else {
             log::error!("Could not parse Flatpak manifest at {}.", manifest_path);
             return 1;
         };
-
     }
 
     if command_name == "run" {}
