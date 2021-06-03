@@ -368,6 +368,7 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
         }
 
         if let Some(build_system) = fpm::build_systems::get_build_system(file_path.to_string()) {
+            log::info!("Detected buildsystem {} for repo {}", build_system, repo_url);
             software_project.build_systems.insert(build_system);
         }
 
@@ -385,7 +386,6 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
 
             for module in &flatpak_manifest.modules {
                 for url in module.get_all_repos_urls() {
-                    println!("MODULE URL {}", url);
                     if url.ends_with(".git") && url.starts_with("https://") {
                         mined_repos_urls.push(url);
                     }
