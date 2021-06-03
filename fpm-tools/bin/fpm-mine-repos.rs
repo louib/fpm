@@ -404,7 +404,7 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
 
     }
 
-    if software_project.supports_flatpak() {
+    if software_project.supports_flatpak() || !software_project.build_systems.is_empty() {
         db.add_project(software_project);
     }
 

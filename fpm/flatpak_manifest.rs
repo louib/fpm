@@ -477,6 +477,17 @@ impl FlatpakModule {
     }
 }
 
+lazy_static! {
+    static ref FLATPAK_BUILD_SYSTEMS: Vec<String> = vec![
+        "autotools".to_string(),
+        "cmake".to_string(),
+        "cmake-ninja".to_string(),
+        "meson".to_string(),
+        "simple".to_string(),
+        "qmake".to_string(),
+    ];
+}
+
 // Each module specifies a source that has to be separately built and installed.
 // It contains the build options and a list of sources to download and extract before
 // building.

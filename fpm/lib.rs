@@ -2,9 +2,10 @@ use std::collections::HashMap;
 
 pub mod db;
 pub mod flatpak_manifest;
-pub mod logger;
+pub mod build_systems;
 pub mod projects;
 pub mod utils;
+pub mod logger;
 
 mod config;
 mod version;

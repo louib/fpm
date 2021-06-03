@@ -32,6 +32,10 @@ pub struct SoftwareProject {
     #[serde(skip_serializing_if = "HashSet::is_empty")]
     pub flatpak_module_manifests: HashSet<String>,
 
+    // All the build systems that are know to be supported by the project.
+    #[serde(skip_serializing_if = "HashSet::is_empty")]
+    pub build_systems: HashSet<String>,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_branch: Option<String>,
 
@@ -53,6 +57,9 @@ impl SoftwareProject {
         }
         for module_manifest in &other_project.flatpak_module_manifests {
             self.flatpak_module_manifests.insert(module_manifest.to_string());
+        }
+        for build_system in &other_project.build_systems {
+            self.build_systems.insert(build_system.to_string());
         }
         // TODO validate that the root hashes are the same!
     }
