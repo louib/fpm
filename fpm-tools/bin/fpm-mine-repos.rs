@@ -366,6 +366,11 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
         if file_path.contains(".git/") {
             continue;
         }
+
+        if let Some(build_system) = fpm::build_systems::get_build_system(file_path.to_string()) {
+            software_project.build_systems.insert(build_system);
+        }
+
         // We handle the shared modules separately.
         if file_path.contains(".shared-modules/") {
             continue;
