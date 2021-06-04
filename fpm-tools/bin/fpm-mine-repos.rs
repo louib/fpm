@@ -247,6 +247,44 @@ pub fn search_github(search_term: &str) -> Result<String, String> {
     Ok(github_repos_search_dump)
 }
 
+/// Gets all the repositories' URLs associated with a specific Debian (apt) repository.
+pub fn get_debian_repos(debian_sources_url: &str, debian_repo_name: &str) -> Result<String, String> {
+    let debian_repos_dump_path = format!("{}/{}.txt", fpm::db::Database::get_repos_db_path(), debian_repo_name);
+    let debian_repos_dump_path = path::Path::new(&debian_repos_dump_path);
+
+    // Reuse the dump if it exists.
+    if debian_repos_dump_path.is_file() {
+        log::info!("Dump of the repos at GitLab instance {} exists, not fetching.", &debian_sources_url);
+        return match fs::read_to_string(debian_repos_dump_path) {
+            Ok(content) => Ok(content),
+            Err(e) => Err(e.to_string()),
+        };
+    }
+
+    log::info!("Fetching sources for Debian repo {} at {}.", &debian_repo_name, &debian_sources_url);
+    let debian_repos = match fpm_tools::hubs::deb::get_all_repos(&debian_sources_url) {
+        Ok(r) => r,
+        Err(e) => return Err(e),
+    };
+    log::info!("There are {} Debian repos at {}.", debian_repos.len(), &debian_sources_url);
+
+    let mut debian_repos_dump = "".to_string();
+    for debian_repo_url in &debian_repos {
+        debian_repos_dump += &format!("{}\n", debian_repo_url);
+    }
+
+    if !debian_repos_dump.is_empty() {
+        match fs::write(debian_repos_dump_path, &debian_repos_dump) {
+            Ok(_) => {},
+            Err(e) => {
+                log::warn!("Could not save the Debian repos dump to {}: {}.", debian_repos_dump_path.display(), e);
+            },
+        };
+    }
+
+    Ok(debian_repos_dump)
+}
+
 /// Gets all the repositories' URLs for a specific GitLab instance, one on each line.
 pub fn get_gitlab_repos(gitlab_instance_url: &str, gitlab_instance_auth_token_name: &str) -> Result<String, String> {
     let gitlab_instance_dump_key = gitlab_instance_url.replace('.', "_");
@@ -277,7 +315,7 @@ pub fn get_gitlab_repos(gitlab_instance_url: &str, gitlab_instance_auth_token_na
         match fs::write(gitlab_instance_repos_dump_path, &gitlab_repos_dump) {
             Ok(_) => {},
             Err(e) => {
-                log::warn!("Could not save the Flathub repos dump to {}: {}.", gitlab_instance_repos_dump_path.display(), e);
+                log::warn!("Could not save the GitLab repos dump to {}: {}.", gitlab_instance_repos_dump_path.display(), e);
             },
         };
     }
