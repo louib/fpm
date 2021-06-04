@@ -44,6 +44,30 @@ pub fn clone_git_repo(repo_url: &str) -> Result<String, String> {
     Ok(repo_dir)
 }
 
+/// Uncompress an archive into a new temp directory, and returns
+/// that directory's path.
+pub fn uncompress(archive_path: &str) -> Result<String, String> {
+    if !archive_path.ends_with(".xz") {
+        return Err("Currently only supports xz archives".to_string());
+    }
+    // FIXME how can I send the output of unxz somewhere else? Do I have
+    // to change the current working directory?
+    let output = Command::new("unxz")
+        .arg("-d")
+        .arg(archive_path.to_string())
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+    let output = match output.wait_with_output() {
+        Ok(o) => o,
+        Err(e) => return Err(e.to_string()),
+    };
+    if !output.status.success() {
+        return Err("Could not uncompress file.".to_string());
+    }
+    return Ok("it went ok".to_string());
+}
+
 pub fn fetch_file(file_url: &str) -> Result<String, String> {
     let file_name_parts = file_url.split("/");
     let file_name = file_name_parts.last().unwrap();
