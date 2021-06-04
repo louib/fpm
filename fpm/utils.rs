@@ -44,7 +44,7 @@ pub fn clone_git_repo(repo_url: &str) -> Result<String, String> {
     Ok(repo_dir)
 }
 
-pub fn fetch_file(file_url: String) -> Result<String, String> {
+pub fn fetch_file(file_url: &str) -> Result<String, String> {
     let file_name_parts = file_url.split("/");
     let file_name = file_name_parts.last().unwrap();
 
