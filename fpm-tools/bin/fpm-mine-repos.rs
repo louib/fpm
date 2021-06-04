@@ -372,11 +372,6 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
             software_project.build_systems.insert(build_system);
         }
 
-        // We handle the shared modules separately.
-        if file_path.contains(".shared-modules/") {
-            continue;
-        }
-
         if let Some(flatpak_manifest) = FlatpakManifest::load_from_file(file_path.to_string()) {
             let flatpak_manifest_path = file_path.replace(&repo_dir, "");
             software_project.flatpak_app_manifests.insert(flatpak_manifest_path);
