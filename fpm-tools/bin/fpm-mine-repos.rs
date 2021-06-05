@@ -94,6 +94,13 @@ fn main() {
         };
     }
 
+    if sources.contains("debian-apt-repositories") {
+        repos_urls += &match get_debian_repos("ubuntu_devel_main", "http://us.archive.ubuntu.com/ubuntu/dists/devel/main/source/Sources.gz") {
+            Ok(r) => r,
+            Err(e) => panic!(e),
+        };
+    }
+
     if sources.contains("gitlab-com") {
         fpm_tools::hubs::gitlab::get_all_repos("gitlab.com", "FPM_GITLAB_TOKEN");
     }
