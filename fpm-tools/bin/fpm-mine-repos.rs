@@ -386,7 +386,6 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
     let mut software_project = fpm::projects::SoftwareProject::default();
     software_project.id = fpm::utils::repo_url_to_reverse_dns(repo_url);
     software_project.vcs_urls.insert(repo_url.to_string());
-    // TODO get the root hashes.
 
     let mut mined_repos_urls: Vec<String> = vec![];
     let mut repo_manifest_count = 0;
@@ -397,6 +396,10 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
             return mined_repos_urls;
         },
     };
+
+    if let Ok(hashes) = fpm::utils::get_git_repo_root_hashes(&repo_dir) {
+        software_project.root_hashes = hashes;
+    }
 
     // TODO we should also rewind on all the commits of that repo?
     let repo_file_paths = match fpm::utils::get_all_paths(path::Path::new(&repo_dir)) {
