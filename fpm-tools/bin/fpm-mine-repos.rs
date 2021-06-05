@@ -99,6 +99,14 @@ fn main() {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
+    // ubuntu_devel_universe http://us.archive.ubuntu.com/ubuntu/dists/devel/universe/source/Sources.gz
+    // ubuntu_devel_multiverse http://us.archive.ubuntu.com/ubuntu/dists/devel/multiverse/source/Sources.gz
+    // debian_sid_main https://ftp.nl.debian.org/debian/dists/sid/main/source/Sources.gz
+    // pureos_green_main https://repo.pureos.net/pureos/dists/green/main/source/Sources.xz
+    // pureos_landing_main https://repo.pureos.net/pureos/dists/landing/main/source/Sources.xz
+    // pureos_amber https://repo.pureos.net/pureos/dists/amber/main/source/Sources.xz
+    // pureos_byzantium_main https://repo.pureos.net/pureos/dists/byzantium/main/source/Sources.xz
+
     }
 
     if sources.contains("gitlab-com") {
