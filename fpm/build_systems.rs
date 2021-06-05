@@ -20,5 +20,8 @@ pub fn get_build_system(file_path: String) -> Option<String> {
     if file_path.ends_with("Cargo.toml") {
         return Some("cargo".to_string());
     }
+    if file_path.ends_with("pom.xml") {
+        return Some("maven".to_string());
+    }
     None
 }
