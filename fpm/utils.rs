@@ -60,6 +60,7 @@ pub fn uncompress(archive_path: &str) -> Result<String, String> {
     if let Err(e) = fs::create_dir(&new_temp_dir) {
         return Err(e.to_string());
     }
+    log::info!("Created new temp dir {} for uncompressed archive.", &new_temp_dir);
 
     if let Err(e) = env::set_current_dir(&new_temp_dir) {
         return Err(e.to_string());
