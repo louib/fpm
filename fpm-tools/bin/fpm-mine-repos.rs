@@ -99,9 +99,14 @@ fn main() {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-        // ubuntu_devel_universe http://us.archive.ubuntu.com/ubuntu/dists/devel/universe/source/Sources.gz
-        // ubuntu_devel_multiverse http://us.archive.ubuntu.com/ubuntu/dists/devel/multiverse/source/Sources.gz
-        // debian_sid_main https://ftp.nl.debian.org/debian/dists/sid/main/source/Sources.gz
+        repos_urls += &match get_debian_repos("ubuntu_devel_universe", "http://us.archive.ubuntu.com/ubuntu/dists/devel/universe/source/Sources.gz") {
+            Ok(r) => r,
+            Err(e) => panic!(e),
+        };
+        repos_urls += &match get_debian_repos("ubuntu_devel_multiverse", "http://us.archive.ubuntu.com/ubuntu/dists/devel/multiverse/source/Sources.gz") {
+            Ok(r) => r,
+            Err(e) => panic!(e),
+        };
         // pureos_green_main https://repo.pureos.net/pureos/dists/green/main/source/Sources.xz
         // pureos_landing_main https://repo.pureos.net/pureos/dists/landing/main/source/Sources.xz
         // pureos_amber https://repo.pureos.net/pureos/dists/amber/main/source/Sources.xz
@@ -164,7 +169,8 @@ pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined
         }
 
         eprintln!("repo url is {}", repo_url);
-        let mined_repos_urls = mine_repository(&mut db, &repo_url);
+        // let mined_repos_urls = mine_repository(&mut db, &repo_url);
+        let mined_repos_urls = vec![];
 
         for mined_repo_url in mined_repos_urls {
             if mined_repos.contains(&mined_repo_url) {

@@ -53,18 +53,6 @@ pub fn uncompress(archive_path: &str) -> Result<String, String> {
         return Err("Currently only supports gz archives".to_string());
     }
     log::info!("Uncompressing archive {}.", archive_path);
-    let new_temp_dir_uuid = Uuid::new_v4();
-
-
-    let new_temp_dir = format!("/tmp/fpm-{}/", new_temp_dir_uuid);
-    if let Err(e) = fs::create_dir(&new_temp_dir) {
-        return Err(e.to_string());
-    }
-    log::info!("Created new temp dir {} for uncompressed archive.", &new_temp_dir);
-
-    if let Err(e) = env::set_current_dir(&new_temp_dir) {
-        return Err(e.to_string());
-    }
 
     // FIXME how can I send the output of unxz somewhere else? Do I have
     // to change the current working directory?
@@ -81,22 +69,30 @@ pub fn uncompress(archive_path: &str) -> Result<String, String> {
     if !output.status.success() {
         return Err("Could not uncompress file.".to_string());
     }
-    return Ok(new_temp_dir);
+
+    return Ok(Path::new(archive_path).parent().unwrap().to_str().unwrap().to_string());
 }
 
 pub fn fetch_file(file_url: &str) -> Result<String, String> {
+    let new_temp_dir_uuid = Uuid::new_v4();
+    let new_temp_dir = format!("/tmp/fpm-{}/", new_temp_dir_uuid);
+    if let Err(e) = fs::create_dir(&new_temp_dir) {
+        return Err(e.to_string());
+    }
+    log::info!("Created new temp dir {}.", &new_temp_dir);
+
     let file_name_parts = file_url.split("/");
     let file_name = file_name_parts.last().unwrap();
 
     println!("Getting file at {}", file_url);
     let output = Command::new("wget")
         .arg(file_url.to_string())
-        .arg("-P/tmp/")
+        .arg(format!("-P{}", new_temp_dir))
         .stdout(Stdio::piped())
         .spawn()
         .unwrap();
 
-    let local_file_path = "/tmp/".to_owned() + &file_name.to_owned();
+    let local_file_path = new_temp_dir + &file_name.to_owned();
 
     let output = match output.wait_with_output() {
         Ok(o) => o,
