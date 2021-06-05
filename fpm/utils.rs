@@ -49,9 +49,10 @@ pub fn clone_git_repo(repo_url: &str) -> Result<String, String> {
 /// Uncompress an archive into a new temp directory, and returns
 /// that directory's path.
 pub fn uncompress(archive_path: &str) -> Result<String, String> {
-    if !archive_path.ends_with(".xz") {
-        return Err("Currently only supports xz archives".to_string());
+    if !archive_path.ends_with(".gz") {
+        return Err("Currently only supports gz archives".to_string());
     }
+    log::info!("Uncompressing archive {}.", archive_path);
     let new_temp_dir_uuid = Uuid::new_v4();
 
 
@@ -66,7 +67,7 @@ pub fn uncompress(archive_path: &str) -> Result<String, String> {
 
     // FIXME how can I send the output of unxz somewhere else? Do I have
     // to change the current working directory?
-    let output = Command::new("unxz")
+    let output = Command::new("gzip")
         .arg("-d")
         .arg(archive_path.to_string())
         .stdout(Stdio::piped())
@@ -89,7 +90,7 @@ pub fn fetch_file(file_url: &str) -> Result<String, String> {
     println!("Getting file at {}", file_url);
     let output = Command::new("wget")
         .arg(file_url.to_string())
-        .arg("-P /tmp/")
+        .arg("-P/tmp/")
         .stdout(Stdio::piped())
         .spawn()
         .unwrap();

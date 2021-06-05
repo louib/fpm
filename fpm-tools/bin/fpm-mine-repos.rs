@@ -99,13 +99,13 @@ fn main() {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-    // ubuntu_devel_universe http://us.archive.ubuntu.com/ubuntu/dists/devel/universe/source/Sources.gz
-    // ubuntu_devel_multiverse http://us.archive.ubuntu.com/ubuntu/dists/devel/multiverse/source/Sources.gz
-    // debian_sid_main https://ftp.nl.debian.org/debian/dists/sid/main/source/Sources.gz
-    // pureos_green_main https://repo.pureos.net/pureos/dists/green/main/source/Sources.xz
-    // pureos_landing_main https://repo.pureos.net/pureos/dists/landing/main/source/Sources.xz
-    // pureos_amber https://repo.pureos.net/pureos/dists/amber/main/source/Sources.xz
-    // pureos_byzantium_main https://repo.pureos.net/pureos/dists/byzantium/main/source/Sources.xz
+        // ubuntu_devel_universe http://us.archive.ubuntu.com/ubuntu/dists/devel/universe/source/Sources.gz
+        // ubuntu_devel_multiverse http://us.archive.ubuntu.com/ubuntu/dists/devel/multiverse/source/Sources.gz
+        // debian_sid_main https://ftp.nl.debian.org/debian/dists/sid/main/source/Sources.gz
+        // pureos_green_main https://repo.pureos.net/pureos/dists/green/main/source/Sources.xz
+        // pureos_landing_main https://repo.pureos.net/pureos/dists/landing/main/source/Sources.xz
+        // pureos_amber https://repo.pureos.net/pureos/dists/amber/main/source/Sources.xz
+        // pureos_byzantium_main https://repo.pureos.net/pureos/dists/byzantium/main/source/Sources.xz
 
     }
 
@@ -263,7 +263,7 @@ pub fn search_github(search_term: &str) -> Result<String, String> {
 }
 
 /// Gets all the repositories' URLs associated with a specific Debian (apt) repository.
-pub fn get_debian_repos(debian_sources_url: &str, debian_repo_name: &str) -> Result<String, String> {
+pub fn get_debian_repos(debian_repo_name: &str, debian_sources_url: &str) -> Result<String, String> {
     let debian_repos_dump_path = format!("{}/{}.txt", fpm::db::Database::get_repos_db_path(), debian_repo_name);
     let debian_repos_dump_path = path::Path::new(&debian_repos_dump_path);
 
