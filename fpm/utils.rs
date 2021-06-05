@@ -4,6 +4,8 @@ use std::io::{stdin, stdout, Write};
 use std::path::Path;
 use std::process::{Command, Stdio};
 
+use uuid::Uuid;
+
 // Gets the path the repos should be located at.
 // FIXME not sure this function belongs in utils...
 pub fn get_repos_dir_path() -> String {
@@ -50,6 +52,18 @@ pub fn uncompress(archive_path: &str) -> Result<String, String> {
     if !archive_path.ends_with(".xz") {
         return Err("Currently only supports xz archives".to_string());
     }
+    let new_temp_dir_uuid = Uuid::new_v4();
+
+
+    let new_temp_dir = format!("/tmp/fpm-{}/", new_temp_dir_uuid);
+    if let Err(e) = fs::create_dir(&new_temp_dir) {
+        return Err(e.to_string());
+    }
+
+    if let Err(e) = env::set_current_dir(&new_temp_dir) {
+        return Err(e.to_string());
+    }
+
     // FIXME how can I send the output of unxz somewhere else? Do I have
     // to change the current working directory?
     let output = Command::new("unxz")
@@ -65,7 +79,7 @@ pub fn uncompress(archive_path: &str) -> Result<String, String> {
     if !output.status.success() {
         return Err("Could not uncompress file.".to_string());
     }
-    return Ok("it went ok".to_string());
+    return Ok(new_temp_dir);
 }
 
 pub fn fetch_file(file_url: &str) -> Result<String, String> {
