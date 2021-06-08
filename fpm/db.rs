@@ -64,7 +64,8 @@ impl Database {
         let projects_path = path::Path::new(&projects_path);
         let all_projects_paths = match crate::utils::get_all_paths(projects_path) {
             Ok(paths) => paths,
-            Err(_) => {
+            Err(e) => {
+                log::error!("Could not get projects' paths: {}", e);
                 return vec![];
             }
         };
