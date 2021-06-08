@@ -70,7 +70,12 @@ pub fn uncompress(archive_path: &str) -> Result<String, String> {
         return Err("Could not uncompress file.".to_string());
     }
 
-    return Ok(Path::new(archive_path).parent().unwrap().to_str().unwrap().to_string());
+    return Ok(Path::new(archive_path)
+        .parent()
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_string());
 }
 
 pub fn fetch_file(file_url: &str) -> Result<String, String> {

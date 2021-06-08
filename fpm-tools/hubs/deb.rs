@@ -1,6 +1,6 @@
-use std::path;
 use std::fs::File;
 use std::io::{self, prelude::*, BufReader};
+use std::path;
 
 pub fn get_all_repos(repo_sources_url: &str) -> Result<Vec<String>, String> {
     log::info!("Getting debian repos {}", repo_sources_url);
@@ -17,7 +17,8 @@ pub fn get_all_repos(repo_sources_url: &str) -> Result<Vec<String>, String> {
     };
 
     log::info!("Getting all paths in {}", debian_sources_dir_path);
-    let debian_sources_file_paths = match fpm::utils::get_all_paths(path::Path::new(&debian_sources_dir_path)) {
+    let debian_sources_file_paths = match fpm::utils::get_all_paths(path::Path::new(&debian_sources_dir_path))
+    {
         Ok(paths) => paths,
         Err(message) => return Err(message),
     };
@@ -50,7 +51,6 @@ pub fn get_all_repos(repo_sources_url: &str) -> Result<Vec<String>, String> {
             }
         }
     }
-
 
     Ok(repos_urls)
 }
