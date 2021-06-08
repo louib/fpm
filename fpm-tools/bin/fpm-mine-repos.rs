@@ -168,9 +168,7 @@ pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined
             continue;
         }
 
-        eprintln!("repo url is {}", repo_url);
-        // let mined_repos_urls = mine_repository(&mut db, &repo_url);
-        let mined_repos_urls = vec![];
+        let mined_repos_urls = mine_repository(&mut db, &repo_url);
 
         for mined_repo_url in mined_repos_urls {
             if mined_repos.contains(&mined_repo_url) {
