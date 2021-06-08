@@ -17,23 +17,19 @@ pub struct SoftwareProject {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 
-    #[serde(skip_serializing_if = "HashSet::is_empty")]
     pub web_urls: HashSet<String>,
 
     pub vcs_urls: HashSet<String>,
 
     // A list of the paths of known flatpak app manifests found
     // in the project's repository.
-    #[serde(skip_serializing_if = "HashSet::is_empty")]
     pub flatpak_app_manifests: HashSet<String>,
 
     // A list of the paths of known flatpak module definition manifests found
     // in the project's repository.
-    #[serde(skip_serializing_if = "HashSet::is_empty")]
     pub flatpak_module_manifests: HashSet<String>,
 
     // All the build systems that are know to be supported by the project.
-    #[serde(skip_serializing_if = "HashSet::is_empty")]
     pub build_systems: HashSet<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
