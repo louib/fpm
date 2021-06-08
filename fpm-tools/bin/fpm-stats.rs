@@ -8,6 +8,7 @@ use std::process::exit;
 use fpm::flatpak_manifest::{FlatpakManifest, FlatpakSource, FlatpakModule, FlatpakModuleDescription};
 
 fn main() {
+    fpm::logger::init();
     let db = fpm::db::Database::get_database();
 
     let mut sources_count: BTreeMap<String, i64> = BTreeMap::new();
@@ -28,6 +29,10 @@ fn main() {
     let mut modules_urls_count: i64 = 0;
     let mut modules_mirror_urls_count: i64 = 0;
     let mut modules_urls_protocols: BTreeMap<String, i64> = BTreeMap::new();
+
+    if db.indexed_projects.len() == 0 {
+        panic!("There are no projects in the database!");
+    }
 
     for (project_id, project) in &db.indexed_projects {
         log::info!("Processing project {}...", project_id);
@@ -174,7 +179,7 @@ fn main() {
 
         }
     }
-    println!("Manifests:");
+    println!("===== Manifests =====");
     for (depth, depth_count) in manifests_max_depth {
         println!("Depth {}: {}% ({}/{})", depth, (depth_count as f64 / manifests_count as f64) * 100.0, depth_count, manifests_count);
     }
@@ -183,9 +188,10 @@ fn main() {
         println!("Extension {}: {}% ({}/{})", extension_name, (count as f64 / manifests_count as f64) * 100.0, count, manifests_count);
     }
     println!("Manifests with no SDK extensions: {}% ({}/{})", (no_extensions_count as f64 / manifests_count as f64) * 100.0, no_extensions_count, manifests_count);
+    println!("==========");
     println!("\n");
 
-    println!("Modules:");
+    println!("===== Modules =====");
     println!("Patched modules: {}% ({}/{})", (patched_modules_count as f64 / modules_count as f64) * 100.0, patched_modules_count, modules_count);
     for (source_count, count) in modules_sources_count {
         println!("Modules with {} source(s): {}% ({}/{})", source_count, (count as f64 / modules_count as f64) * 100.0, count, sources_total_count);
@@ -193,22 +199,23 @@ fn main() {
     for (buildsystem, buildsystem_count) in modules_buildsystems_count {
         println!("Modules with buildsystem {}: {}% ({}/{})", buildsystem, (buildsystem_count as f64 / modules_count as f64) * 100.0, buildsystem_count, modules_count);
     }
+    println!("==========");
     println!("\n");
 
-    println!("Sources:");
+    println!("===== Sources =====");
     for (source_type, source_count) in sources_count {
         println!("{}: {}% ({}/{})", source_type, (source_count as f64 / sources_total_count as f64) * 100.0, source_count, sources_total_count);
     }
     println!("Sources with mirror urls: {}% ({}/{})", (sources_mirror_urls_available_count as f64 / sources_mirror_urls_supported_count as f64) * 100.0, sources_mirror_urls_available_count, sources_mirror_urls_supported_count);
     println!("Sources with invalid type: {}.", invalid_sources_count);
     println!("Sources with empty type: {}.", empty_sources_count);
-
+    println!("==========");
     println!("\n");
-    println!("URLs:");
+
+    println!("===== URLs =====");
     for (protocol_name, count) in modules_urls_protocols {
         println!("URLs with protocol {}: {}% ({}/{})", protocol_name, (count as f64 / modules_urls_count as f64) * 100.0, count, modules_urls_count);
     }
     println!("URLs used as mirrors: {}% ({}/{})", (modules_mirror_urls_count as f64 / modules_urls_count as f64) * 100.0, modules_mirror_urls_count, modules_urls_count);
-
-    fpm::logger::init();
+    println!("==========");
 }
