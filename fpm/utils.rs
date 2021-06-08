@@ -89,7 +89,7 @@ pub fn fetch_file(file_url: &str) -> Result<String, String> {
     let file_name_parts = file_url.split("/");
     let file_name = file_name_parts.last().unwrap();
 
-    println!("Getting file at {}", file_url);
+    log::info!("Getting file at {}", file_url);
     let output = Command::new("wget")
         .arg(file_url.to_string())
         .arg(format!("-P{}", new_temp_dir))
@@ -114,7 +114,7 @@ pub fn get_git_repo_root_hashes(repo_path: &str) -> Result<Vec<String>, String> 
     // FIXME there can actually be more than 1 parentless commit
     // in a git repo, in the case of a merger. A parentless commit
     // can also be found in multiple projects in the case of a fork.
-    println!("Getting initial commit for repo at {}", repo_path);
+    log::info!("Getting initial commit for repo at {}", repo_path);
 
     let output = Command::new("git")
         .arg(format!("--git-dir={}/.git", repo_path).to_owned())
