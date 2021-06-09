@@ -838,7 +838,7 @@ impl FlatpakSource {
                 if let Some(t) = &d.r#type {
                     return t.to_string();
                 }
-                return DEFAULT_SOURCE_TYPE.to_string();
+                return "empty".to_string();
             }
         };
     }
