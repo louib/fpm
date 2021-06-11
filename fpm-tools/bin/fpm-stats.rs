@@ -35,6 +35,11 @@ fn main() {
     }
 
     for (project_id, project) in &db.indexed_projects {
+        // We're only interested in having stats for the projects supporting Flatpak.
+        if !project.supports_flatpak() {
+            continue;
+        }
+
         log::info!("Processing project {}...", project_id);
         let repo_url = project.get_main_vcs_url();
 
@@ -180,6 +185,7 @@ fn main() {
         }
     }
     println!("===== Manifests =====");
+    println!("Total count: {}", manifests_count);
     for (depth, depth_count) in manifests_max_depth {
         println!("Depth {}: {}% ({}/{})", depth, (depth_count as f64 / manifests_count as f64) * 100.0, depth_count, manifests_count);
     }
@@ -192,6 +198,7 @@ fn main() {
     println!("\n");
 
     println!("===== Modules =====");
+    println!("Total count: {}", modules_count);
     println!("Patched modules: {}% ({}/{})", (patched_modules_count as f64 / modules_count as f64) * 100.0, patched_modules_count, modules_count);
     for (source_count, count) in modules_sources_count {
         println!("Modules with {} source(s): {}% ({}/{})", source_count, (count as f64 / modules_count as f64) * 100.0, count, sources_total_count);
@@ -203,6 +210,7 @@ fn main() {
     println!("\n");
 
     println!("===== Sources =====");
+    println!("Total count: {}", sources_total_count);
     for (source_type, source_count) in sources_count {
         println!("{}: {}% ({}/{})", source_type, (source_count as f64 / sources_total_count as f64) * 100.0, source_count, sources_total_count);
     }
@@ -213,6 +221,7 @@ fn main() {
     println!("\n");
 
     println!("===== URLs =====");
+    println!("Total count: {}", modules_urls_count);
     for (protocol_name, count) in modules_urls_protocols {
         println!("URLs with protocol {}: {}% ({}/{})", protocol_name, (count as f64 / modules_urls_count as f64) * 100.0, count, modules_urls_count);
     }
