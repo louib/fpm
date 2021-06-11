@@ -179,7 +179,6 @@ fn main() {
 
             if let Some(flatpak_module) = FlatpakModuleDescription::load_from_file(file_path.to_string()) {
                 modules_count += 1;
-
             }
 
         }
