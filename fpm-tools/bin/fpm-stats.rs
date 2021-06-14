@@ -67,11 +67,17 @@ fn main() {
                 Some(f) => f,
                 None => continue,
             };
+            let file_relative_path = file_path.replace(&repo_dir, "");
+            if (
+              !project.flatpak_app_manifests.contains(&file_relative_path) &&
+              !project.flatpak_module_manifests.contains(&file_relative_path)
+            ) {
+
+            }
 
             if file_path.contains(".git/") {
                 continue;
             }
-
 
             if let Some(flatpak_manifest) = FlatpakManifest::load_from_file(file_path.to_string()) {
                 manifests_count += 1;
