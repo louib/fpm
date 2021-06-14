@@ -848,6 +848,12 @@ impl FlatpakSource {
             FlatpakSource::Description(d) => d.commit.is_some(),
         };
     }
+    pub fn has_tag(&self) -> bool {
+        return match self {
+            FlatpakSource::Path(_) => false,
+            FlatpakSource::Description(d) => d.tag.is_some(),
+        };
+    }
     pub fn type_is_valid(&self) -> bool {
         return match self {
             FlatpakSource::Path(_) => true,
@@ -967,6 +973,11 @@ pub struct FlatpakSourceDescription {
     // types: git
     #[serde(skip_serializing_if = "Option::is_none")]
     pub commit: Option<String>,
+
+    // The tag to use from the git repository
+    // types: git
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tag: Option<String>,
 
     // The path to associated with the resource.
     // types: git, archive, dir, patch, file
