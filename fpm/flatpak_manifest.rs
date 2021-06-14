@@ -842,6 +842,12 @@ impl FlatpakSource {
             }
         };
     }
+    pub fn has_commit(&self) -> bool {
+        return match self {
+            FlatpakSource::Path(_) => false,
+            FlatpakSource::Description(d) => d.commit.is_some(),
+        };
+    }
     pub fn type_is_valid(&self) -> bool {
         return match self {
             FlatpakSource::Path(_) => true,
