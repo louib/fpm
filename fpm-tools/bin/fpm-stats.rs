@@ -17,6 +17,7 @@ fn main() {
     let mut sources_mirror_urls_available_count: i64 = 0;
     let mut sources_git_with_commit_count: i64 = 0;
     let mut sources_git_with_tag_count: i64 = 0;
+    let mut sources_git_with_tag_and_commit_count: i64 = 0;
     let mut invalid_sources_count: i64 = 0;
     let mut empty_sources_count: i64 = 0;
     let mut modules_count: i64 = 0;
@@ -179,6 +180,9 @@ fn main() {
                         if source_type_name == "git" && source.has_tag() {
                             sources_git_with_tag_count += 1;
                         }
+                        if source_type_name == "git" && source.has_tag() && source.has_commit() {
+                            sources_git_with_tag_and_commit_count += 1;
+                        }
 
                         if !source.type_is_valid() {
                             invalid_sources_count += 1;
@@ -232,6 +236,7 @@ fn main() {
     let sources_git_count = sources_count.get("git").unwrap();
     println!("Git sources fixed with commit hash: {}% ({}/{})", (sources_git_with_commit_count as f64 / *sources_git_count as f64) * 100.0, sources_git_with_commit_count, sources_git_count);
     println!("Git sources fixed with tag: {}% ({}/{})", (sources_git_with_tag_count as f64 / *sources_git_count as f64) * 100.0, sources_git_with_tag_count, sources_git_count);
+    println!("Git sources fixed with tag and commit: {}% ({}/{})", (sources_git_with_tag_and_commit_count as f64 / *sources_git_count as f64) * 100.0, sources_git_with_tag_and_commit_count, sources_git_count);
     println!("Sources with invalid type: {}.", invalid_sources_count);
     println!("Sources with empty type: {}.", empty_sources_count);
     println!("==========");
