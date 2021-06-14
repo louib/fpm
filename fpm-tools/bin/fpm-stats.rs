@@ -72,7 +72,7 @@ fn main() {
               !project.flatpak_app_manifests.contains(&file_relative_path) &&
               !project.flatpak_module_manifests.contains(&file_relative_path)
             ) {
-
+                continue;
             }
 
             if file_path.contains(".git/") {
