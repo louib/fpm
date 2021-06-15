@@ -21,7 +21,7 @@ fn main() {
     let mut repos_urls: String = "".to_string();
 
     if sources.contains("github-flathub-org") {
-        repos_urls += &match get_flathub_repos() {
+        repos_urls += &match get_github_org_repos("flathub") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
@@ -165,6 +165,13 @@ pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined
         // Found on Gnome's GitLab instance
         // Too big to be processed.
         if repo_url.contains("kefqse/origin") {
+            continue;
+        }
+
+        // For some reason, the valvesoftware.Steam.CompatibilityTool.Proton
+        // project, found in the Flathub org, causes an infinite loop when we
+        // try to clone it...
+        if repo_url.contains("CompatibilityTool.Proton") {
             continue;
         }
 
@@ -342,35 +349,28 @@ pub fn get_gitlab_repos(gitlab_instance_url: &str, gitlab_instance_auth_token_na
     Ok(gitlab_repos_dump)
 }
 
-/// Gets all the repositories' URLs for the Flathub organization hosted
-/// on github.com, one on each line.
-pub fn get_flathub_repos() -> Result<String, String> {
-    let flathub_repos_dump_path = format!("{}/flathub.txt", fpm::db::Database::get_repos_db_path());
+/// Gets all the repositories' URLs for a github.com organization,
+/// one on each line.
+pub fn get_github_org_repos(org_name: &str) -> Result<String, String> {
+    let flathub_repos_dump_path = format!("{}/{}.txt", fpm::db::Database::get_repos_db_path(), org_name);
     let flathub_repos_dump_path = path::Path::new(&flathub_repos_dump_path);
 
     // Reuse the dump if it exists.
     if flathub_repos_dump_path.is_file() {
-        log::info!("Dump of Flathub repos exists, not fetching from GitHub.");
+        log::info!("Dump of {} repos exists, not fetching from GitHub.", org_name);
         return match fs::read_to_string(flathub_repos_dump_path) {
             Ok(content) => Ok(content),
             Err(e) => Err(e.to_string()),
         };
     }
 
-    log::info!("Fetching Flathub repos from GitHub.");
-    let flathub_repos = fpm_tools::hubs::github::get_org_repos("flathub");
-    log::info!("There are {} flathub repos.", flathub_repos.len());
+    log::info!("Fetching {} repos from GitHub.", org_name);
+    let flathub_repos = fpm_tools::hubs::github::get_org_repos(org_name);
+    log::info!("There are {} {} repos.", flathub_repos.len(), org_name);
 
     let mut flathub_repos_dump = "".to_string();
     for flathub_repo in &flathub_repos {
         let repo_url = &flathub_repo.get_git_url();
-        // For some reason, the valvesoftware.Steam.CompatibilityTool.Proton
-        // project causes an infinite loop when we try to clone it...
-        // FIXME this should be handled in the mining phase.
-        if repo_url.contains("CompatibilityTool.Proton") {
-            continue;
-        }
-
         flathub_repos_dump += &format!("{}\n", repo_url);
     }
 
@@ -378,7 +378,7 @@ pub fn get_flathub_repos() -> Result<String, String> {
         match fs::write(flathub_repos_dump_path, &flathub_repos_dump) {
             Ok(_) => {},
             Err(e) => {
-                log::warn!("Could not save the Flathub repos dump to {}: {}.", flathub_repos_dump_path.display(), e);
+                log::warn!("Could not save the {} repos dump to {}: {}.", org_name, flathub_repos_dump_path.display(), e);
             },
         };
     }
