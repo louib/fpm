@@ -27,6 +27,13 @@ fn main() {
         };
     }
 
+    if sources.contains("github-elementary-org") {
+        repos_urls += &match get_github_org_repos("elementary") {
+            Ok(r) => r,
+            Err(e) => panic!(e),
+        };
+    }
+
     if sources.contains("gnome-gitlab-instance") {
         repos_urls += &match get_gitlab_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN") {
             Ok(r) => r,
