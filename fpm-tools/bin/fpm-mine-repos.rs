@@ -352,38 +352,38 @@ pub fn get_gitlab_repos(gitlab_instance_url: &str, gitlab_instance_auth_token_na
 /// Gets all the repositories' URLs for a github.com organization,
 /// one on each line.
 pub fn get_github_org_repos(org_name: &str) -> Result<String, String> {
-    let flathub_repos_dump_path = format!("{}/{}.txt", fpm::db::Database::get_repos_db_path(), org_name);
-    let flathub_repos_dump_path = path::Path::new(&flathub_repos_dump_path);
+    let org_repos_dump_path = format!("{}/{}.txt", fpm::db::Database::get_repos_db_path(), org_name);
+    let org_repos_dump_path = path::Path::new(&org_repos_dump_path);
 
     // Reuse the dump if it exists.
-    if flathub_repos_dump_path.is_file() {
+    if org_repos_dump_path.is_file() {
         log::info!("Dump of {} repos exists, not fetching from GitHub.", org_name);
-        return match fs::read_to_string(flathub_repos_dump_path) {
+        return match fs::read_to_string(org_repos_dump_path) {
             Ok(content) => Ok(content),
             Err(e) => Err(e.to_string()),
         };
     }
 
     log::info!("Fetching {} repos from GitHub.", org_name);
-    let flathub_repos = fpm_tools::hubs::github::get_org_repos(org_name);
-    log::info!("There are {} {} repos.", flathub_repos.len(), org_name);
+    let org_repos = fpm_tools::hubs::github::get_org_repos(org_name);
+    log::info!("There are {} {} repos.", org_repos.len(), org_name);
 
-    let mut flathub_repos_dump = "".to_string();
-    for flathub_repo in &flathub_repos {
-        let repo_url = &flathub_repo.get_git_url();
-        flathub_repos_dump += &format!("{}\n", repo_url);
+    let mut org_repos_dump = "".to_string();
+    for org_repo in &org_repos {
+        let repo_url = &org_repo.get_git_url();
+        org_repos_dump += &format!("{}\n", repo_url);
     }
 
-    if !flathub_repos_dump.is_empty() {
-        match fs::write(flathub_repos_dump_path, &flathub_repos_dump) {
+    if !org_repos_dump.is_empty() {
+        match fs::write(org_repos_dump_path, &org_repos_dump) {
             Ok(_) => {},
             Err(e) => {
-                log::warn!("Could not save the {} repos dump to {}: {}.", org_name, flathub_repos_dump_path.display(), e);
+                log::warn!("Could not save the {} repos dump to {}: {}.", org_name, org_repos_dump_path.display(), e);
             },
         };
     }
 
-    Ok(flathub_repos_dump)
+    Ok(org_repos_dump)
 }
 
 pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String> {
