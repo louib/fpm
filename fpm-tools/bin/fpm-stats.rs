@@ -11,6 +11,7 @@ fn main() {
     fpm::logger::init();
     let db = fpm::db::Database::get_database();
 
+    let mut app_ids: HashSet<String> = HashSet::new();
     let mut sources_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut sources_total_count: i64 = 0;
     let mut sources_mirror_urls_supported_count: i64 = 0;
@@ -84,6 +85,8 @@ fn main() {
 
             if let Some(flatpak_manifest) = FlatpakManifest::load_from_file(file_path.to_string()) {
                 manifests_count += 1;
+
+                app_ids.insert(flatpak_manifest.get_id());
 
                 if flatpak_manifest.is_extension() {
                     extension_manifests_count += 1;
@@ -202,6 +205,8 @@ fn main() {
 
         }
     }
+    println!("Unique app IDs: {}", app_ids.len());
+
     println!("===== Manifests =====");
     println!("Total count: {}", manifests_count);
     for (depth, depth_count) in manifests_max_depth {
@@ -212,7 +217,7 @@ fn main() {
         println!("Extension {}: {}% ({}/{})", extension_name, (count as f64 / manifests_count as f64) * 100.0, count, manifests_count);
     }
     println!("Manifests with no SDK extensions: {}% ({}/{})", (no_extensions_count as f64 / manifests_count as f64) * 100.0, no_extensions_count, manifests_count);
-    println!("==========");
+    println!("=====================");
     println!("\n");
 
     println!("===== Modules =====");
@@ -224,7 +229,7 @@ fn main() {
     for (buildsystem, buildsystem_count) in modules_buildsystems_count {
         println!("Modules with buildsystem {}: {}% ({}/{})", buildsystem, (buildsystem_count as f64 / modules_count as f64) * 100.0, buildsystem_count, modules_count);
     }
-    println!("==========");
+    println!("=====================");
     println!("\n");
 
     println!("===== Sources =====");
@@ -239,7 +244,7 @@ fn main() {
     println!("Git sources fixed with tag and commit: {}% ({}/{})", (sources_git_with_tag_and_commit_count as f64 / *sources_git_count as f64) * 100.0, sources_git_with_tag_and_commit_count, sources_git_count);
     println!("Sources with invalid type: {}.", invalid_sources_count);
     println!("Sources with empty type: {}.", empty_sources_count);
-    println!("==========");
+    println!("=====================");
     println!("\n");
 
     println!("===== URLs =====");
@@ -248,5 +253,5 @@ fn main() {
         println!("URLs with protocol {}: {}% ({}/{})", protocol_name, (count as f64 / modules_urls_count as f64) * 100.0, count, modules_urls_count);
     }
     println!("URLs used as mirrors: {}% ({}/{})", (modules_mirror_urls_count as f64 / modules_urls_count as f64) * 100.0, modules_mirror_urls_count, modules_urls_count);
-    println!("==========");
+    println!("=====================");
 }
