@@ -9,9 +9,7 @@ use regex::Regex;
 use uuid::Uuid;
 
 lazy_static! {
-    static ref SEMVER_REGEX: Regex = Regex::new(
-        r"([0-9]+.[0-9]+.[0-9]+)(-[0-9a-zA-Z_]+)?"
-    ).unwrap();
+    static ref SEMVER_REGEX: Regex = Regex::new(r"([0-9]+.[0-9]+.[0-9]+)(-[0-9a-zA-Z_]+)?").unwrap();
 }
 
 // Gets the path the repos should be located at.
