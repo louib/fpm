@@ -14,8 +14,8 @@ keywords = [
 ]
 
 [[bin]]
-name = "fpm-mine-repos"
-path = "bin/fpm-mine-repos.rs"
+name = "fpm-discover-manifests"
+path = "bin/fpm-discover-manifests.rs"
 
 [[bin]]
 name = "fpm-stats"
