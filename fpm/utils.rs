@@ -4,7 +4,15 @@ use std::io::{stdin, stdout, Write};
 use std::path::Path;
 use std::process::{Command, Stdio};
 
+use lazy_static::lazy_static;
+use regex::Regex;
 use uuid::Uuid;
+
+lazy_static! {
+    static ref SEMVER_REGEX: Regex = Regex::new(
+        r"([0-9]+.[0-9]+.[0-9]+)(-[0-9a-zA-Z_]+)?"
+    ).unwrap();
+}
 
 // Gets the path the repos should be located at.
 // FIXME not sure this function belongs in utils...
@@ -355,4 +363,53 @@ pub fn get_candidate_flatpak_manifests(dir_path: &str) -> Result<Vec<String>, St
         response.push(file_path.to_string());
     }
     return Ok(response);
+}
+
+///```
+///let version = fpm::utils::get_semver_from_archive_url(
+///  "https://download-fallback.gnome.org/sources/libgda/5.2/libgda-5.2.9.tar.xz"
+///);
+///assert!(version.is_some());
+///assert_eq!(version.unwrap(), "5.2.9");
+///
+///let version = fpm::utils::get_semver_from_archive_url(
+///  "https://download.gnome.org/core/3.28/3.28.2/sources/libgsf-1.14.43.tar.xz"
+///);
+///assert!(version.is_some());
+///assert_eq!(version.unwrap(), "1.14.43");
+///
+///let version = fpm::utils::get_semver_from_archive_url(
+///  "https://download.gnome.org/core/3.28/3.28.2/sources/libgsf-1.14.43.tar.xz"
+///);
+///assert!(version.is_some());
+///assert_eq!(version.unwrap(), "1.14.43");
+///
+///let version = fpm::utils::get_semver_from_archive_url(
+///  "https://github.com/haskell/ghc/releases/download/ghc-8.6.3-release/ghc-8.6.3-armv7-deb8-linux.tar.xz"
+///);
+///assert!(version.is_some());
+///assert_eq!(version.unwrap(), "8.6.3");
+///
+///let version = fpm::utils::get_semver_from_archive_url(
+///  "https://github.com/GNOME/libxml2/archive/v2.9.10.tar.gz"
+///);
+///assert!(version.is_some());
+///assert_eq!(version.unwrap(), "2.9.10");
+///
+///let version = fpm::utils::get_semver_from_archive_url(
+///  "https://github.com/sass/libsass/archive/3.6.4.tar.gz"
+///);
+///assert!(version.is_some());
+///assert_eq!(version.unwrap(), "3.6.4");
+///```
+pub fn get_semver_from_archive_url(archive_url: &str) -> Option<String> {
+    let archive_filename = archive_url.split("/").last().unwrap();
+    let captured_groups = match SEMVER_REGEX.captures(archive_filename) {
+        Some(g) => g,
+        None => return None,
+    };
+    if captured_groups.len() == 0 {
+        return None;
+    }
+    return Some(captured_groups[1].to_string());
 }

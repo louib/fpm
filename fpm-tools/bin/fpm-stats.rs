@@ -139,7 +139,7 @@ fn main() {
                         } else {
                             let new_modules_protocol_count = modules_urls_protocols.get("other").unwrap_or(&0) + 1;
                             modules_urls_protocols.insert("other".to_string(), new_modules_protocol_count);
-                            println!("UKNOWN URL PROTOCOL {}", url);
+                            log::warn!("UNKNOWN URL PROTOCOL {}", url);
                         }
                     }
 
