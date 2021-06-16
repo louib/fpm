@@ -194,6 +194,14 @@ fn main() {
                         if source.type_is_empty() {
                             empty_sources_count += 1;
                         }
+
+                        for url in source.get_all_urls() {
+                            if source_type_name == "git" {
+                                log::debug!("GIT URL {}", url);
+                            } else if source_type_name == "archive" {
+                                log::debug!("ARCHIVE URL {}", url);
+                            }
+                        }
                     }
                 }
 
