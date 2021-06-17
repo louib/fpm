@@ -9,8 +9,6 @@ use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescrip
 fn main() {
     fpm::logger::init();
 
-    // TODO might need to use std::env::args_os instead, if
-    // the args contain unicode.
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         panic!("Requires 1 argument: the list of sources to import from, or `all` for all the sources.");
@@ -99,35 +97,6 @@ fn main() {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
-    }
-
-    if sources.contains("debian-apt-repositories") {
-        repos_urls += &match get_debian_repos("ubuntu_devel_main", "http://us.archive.ubuntu.com/ubuntu/dists/devel/main/source/Sources.gz") {
-            Ok(r) => r,
-            Err(e) => panic!(e),
-        };
-        repos_urls += &match get_debian_repos("ubuntu_devel_universe", "http://us.archive.ubuntu.com/ubuntu/dists/devel/universe/source/Sources.gz") {
-            Ok(r) => r,
-            Err(e) => panic!(e),
-        };
-        repos_urls += &match get_debian_repos("ubuntu_devel_multiverse", "http://us.archive.ubuntu.com/ubuntu/dists/devel/multiverse/source/Sources.gz") {
-            Ok(r) => r,
-            Err(e) => panic!(e),
-        };
-        // pureos_green_main https://repo.pureos.net/pureos/dists/green/main/source/Sources.xz
-        // pureos_landing_main https://repo.pureos.net/pureos/dists/landing/main/source/Sources.xz
-        // pureos_amber https://repo.pureos.net/pureos/dists/amber/main/source/Sources.xz
-        // pureos_byzantium_main https://repo.pureos.net/pureos/dists/byzantium/main/source/Sources.xz
-
-    }
-
-    if sources.contains("gitlab-com") {
-        fpm_tools::hubs::gitlab::get_all_repos("gitlab.com", "FPM_GITLAB_TOKEN");
-    }
-
-    if sources.contains("brew-recipes") {
-        let mut db = fpm::db::Database::get_database();
-        fpm_tools::hubs::brew::get_and_add_recipes(&mut db);
     }
 
     let db = fpm::db::Database::get_database();
