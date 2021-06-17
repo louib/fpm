@@ -411,3 +411,40 @@ pub fn get_semver_from_archive_url(archive_url: &str) -> Option<String> {
     }
     return Some(captured_groups[1].to_string());
 }
+
+///```
+///let version = fpm::utils::get_semver_from_archive_url(
+///  "https://github.com/sass/libsass/archive/3.6.4.tar.gz"
+///);
+///assert!(version.is_some());
+///assert_eq!(version.unwrap(), "https://github.com/sass/libsass.git");
+///
+///let version = fpm::utils::get_semver_from_archive_url(
+///  "https://pagure.io/libaio/archive/libaio-0.3.111/libaio-libaio-0.3.111.tar.gz"
+///);
+///assert!(version.is_some());
+///assert_eq!(version.unwrap(), "https://pagure.io/libaio.git");
+///
+///let version = fpm::utils::get_semver_from_archive_url(
+///  "https://gitlab.com/rszibele/e-juice-calc/-/archive/1.0.7/e-juice-calc-1.0.7.tar.bz2"
+///);
+///assert!(version.is_some());
+///assert_eq!(version.unwrap(), "https://gitlab.com/rszibele/e-juice-calc.git");
+///
+///let version = fpm::utils::get_semver_from_archive_url(
+///  "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.16.tar.gz"
+///);
+///assert!(version.is_some());
+///assert_eq!(version.unwrap(), "https://git.savannah.gnu.org/git/libiconv.git");
+///```
+pub fn get_git_url_from_archive_url(archive_url: &str) -> Option<String> {
+    let archive_filename = archive_url.split("/").last().unwrap();
+    let captured_groups = match SEMVER_REGEX.captures(archive_filename) {
+        Some(g) => g,
+        None => return None,
+    };
+    if captured_groups.len() == 0 {
+        return None;
+    }
+    return Some(captured_groups[1].to_string());
+}
