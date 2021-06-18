@@ -12,6 +12,22 @@ lazy_static! {
     static ref SEMVER_REGEX: Regex = Regex::new(r"([0-9]+.[0-9]+.[0-9]+)(-[0-9a-zA-Z_]+)?").unwrap();
 }
 
+lazy_static! {
+    static ref GITHUB_PROJECT_REGEX: Regex = Regex::new(r"https://github.com/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
+}
+
+lazy_static! {
+    static ref GITLAB_PROJECT_REGEX: Regex = Regex::new(r"https://gitlab.com/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
+}
+
+lazy_static! {
+    static ref PAGURE_PROJECT_REGEX: Regex = Regex::new(r"https://pagure.io/([0-9a-zA-Z_-]+)").unwrap();
+}
+
+lazy_static! {
+    static ref GNU_PROJECT_REGEX: Regex = Regex::new(r"https://ftp.gnu.org/pub/gnu/([0-9a-zA-Z_-]+)").unwrap();
+}
+
 // Gets the path the repos should be located at.
 // FIXME not sure this function belongs in utils...
 pub fn get_repos_dir_path() -> String {
@@ -413,38 +429,92 @@ pub fn get_semver_from_archive_url(archive_url: &str) -> Option<String> {
 }
 
 ///```
-///let version = fpm::utils::get_semver_from_archive_url(
+///let git_url = fpm::utils::get_git_url_from_archive_url(
 ///  "https://github.com/sass/libsass/archive/3.6.4.tar.gz"
 ///);
-///assert!(version.is_some());
-///assert_eq!(version.unwrap(), "https://github.com/sass/libsass.git");
+///assert!(git_url.is_some());
+///assert_eq!(git_url.unwrap(), "https://github.com/sass/libsass.git");
 ///
-///let version = fpm::utils::get_semver_from_archive_url(
-///  "https://pagure.io/libaio/archive/libaio-0.3.111/libaio-libaio-0.3.111.tar.gz"
-///);
-///assert!(version.is_some());
-///assert_eq!(version.unwrap(), "https://pagure.io/libaio.git");
-///
-///let version = fpm::utils::get_semver_from_archive_url(
+///let git_url = fpm::utils::get_git_url_from_archive_url(
 ///  "https://gitlab.com/rszibele/e-juice-calc/-/archive/1.0.7/e-juice-calc-1.0.7.tar.bz2"
 ///);
-///assert!(version.is_some());
-///assert_eq!(version.unwrap(), "https://gitlab.com/rszibele/e-juice-calc.git");
+///assert!(git_url.is_some());
+///assert_eq!(git_url.unwrap(), "https://gitlab.com/rszibele/e-juice-calc.git");
 ///
-///let version = fpm::utils::get_semver_from_archive_url(
+///let git_url = fpm::utils::get_git_url_from_archive_url(
+///  "https://pagure.io/libaio/archive/libaio-0.3.111/libaio-libaio-0.3.111.tar.gz"
+///);
+///assert!(git_url.is_some());
+///assert_eq!(git_url.unwrap(), "https://pagure.io/libaio.git");
+///
+///let git_url = fpm::utils::get_git_url_from_archive_url(
 ///  "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.16.tar.gz"
 ///);
-///assert!(version.is_some());
-///assert_eq!(version.unwrap(), "https://git.savannah.gnu.org/git/libiconv.git");
+///assert!(git_url.is_some());
+///assert_eq!(git_url.unwrap(), "https://git.savannah.gnu.org/git/libiconv.git");
 ///```
 pub fn get_git_url_from_archive_url(archive_url: &str) -> Option<String> {
-    let archive_filename = archive_url.split("/").last().unwrap();
-    let captured_groups = match SEMVER_REGEX.captures(archive_filename) {
+    if let Some(git_url) = get_github_url_from_archive_url(archive_url) {
+        return Some(git_url);
+    }
+    if let Some(git_url) = get_gitlab_url_from_archive_url(archive_url) {
+        return Some(git_url);
+    }
+    if let Some(git_url) = get_pagure_url_from_archive_url(archive_url) {
+        return Some(git_url);
+    }
+    if let Some(git_url) = get_gnu_url_from_archive_url(archive_url) {
+        return Some(git_url);
+    }
+    None
+}
+
+pub fn get_github_url_from_archive_url(archive_url: &str) -> Option<String> {
+    let captured_groups = match GITHUB_PROJECT_REGEX.captures(archive_url) {
         Some(g) => g,
         None => return None,
     };
     if captured_groups.len() == 0 {
         return None;
     }
-    return Some(captured_groups[1].to_string());
+    let user_name: String = captured_groups[1].to_string();
+    let project_name: String = captured_groups[2].to_string();
+    return Some(format!("https://github.com/{}/{}.git", user_name, project_name));
+}
+
+pub fn get_gitlab_url_from_archive_url(archive_url: &str) -> Option<String> {
+    let captured_groups = match GITLAB_PROJECT_REGEX.captures(archive_url) {
+        Some(g) => g,
+        None => return None,
+    };
+    if captured_groups.len() == 0 {
+        return None;
+    }
+    let user_name: String = captured_groups[1].to_string();
+    let project_name: String = captured_groups[2].to_string();
+    return Some(format!("https://gitlab.com/{}/{}.git", user_name, project_name));
+}
+
+pub fn get_pagure_url_from_archive_url(archive_url: &str) -> Option<String> {
+    let captured_groups = match PAGURE_PROJECT_REGEX.captures(archive_url) {
+        Some(g) => g,
+        None => return None,
+    };
+    if captured_groups.len() == 0 {
+        return None;
+    }
+    let project_name: String = captured_groups[1].to_string();
+    return Some(format!("https://pagure.io/{}.git", project_name));
+}
+
+pub fn get_gnu_url_from_archive_url(archive_url: &str) -> Option<String> {
+    let captured_groups = match GNU_PROJECT_REGEX.captures(archive_url) {
+        Some(g) => g,
+        None => return None,
+    };
+    if captured_groups.len() == 0 {
+        return None;
+    }
+    let project_name: String = captured_groups[1].to_string();
+    return Some(format!("https://git.savannah.gnu.org/git/{}.git", project_name));
 }
