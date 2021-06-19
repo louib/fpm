@@ -62,7 +62,14 @@ fn main() {
         for manifest_path in &project.flatpak_app_manifests {
             let absolute_manifest_path = repo_dir.to_string() + manifest_path;
 
-            let flatpak_manifest = FlatpakManifest::load_from_file(absolute_manifest_path).unwrap();
+            let flatpak_manifest = match FlatpakManifest::load_from_file(absolute_manifest_path.to_string()) {
+                Some(m) => m,
+                None => {
+                    log::warn!("Could not parse Flatpak manifest at {}!!!", absolute_manifest_path);
+                    continue;
+                }
+            };
+
             manifests_count += 1;
 
             app_ids.insert(flatpak_manifest.get_id());
