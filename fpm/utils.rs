@@ -31,6 +31,11 @@ lazy_static! {
         Regex::new(r"https://ftp.gnu.org/pub/gnu/([0-9a-zA-Z_-]+)").unwrap();
 }
 
+lazy_static! {
+    static ref NONGNU_PROJECT_REGEX: Regex =
+        Regex::new(r"https?://download.savannah.nongnu.org/releases/([0-9a-zA-Z_-]+)").unwrap();
+}
+
 // Gets the path the repos should be located at.
 // FIXME not sure this function belongs in utils...
 pub fn get_repos_dir_path() -> String {
@@ -455,6 +460,12 @@ pub fn get_semver_from_archive_url(archive_url: &str) -> Option<String> {
 ///);
 ///assert!(git_url.is_some());
 ///assert_eq!(git_url.unwrap(), "https://git.savannah.gnu.org/git/libiconv.git");
+///
+///let git_url = fpm::utils::get_git_url_from_archive_url(
+///  "https://download.savannah.nongnu.org/releases/openexr/openexr-2.2.1.tar.gz"
+///);
+///assert!(git_url.is_some());
+///assert_eq!(git_url.unwrap(), "https://git.savannah.nongnu.org/git/openexr.git");
 ///```
 pub fn get_git_url_from_archive_url(archive_url: &str) -> Option<String> {
     if let Some(git_url) = get_github_url_from_archive_url(archive_url) {
@@ -467,6 +478,9 @@ pub fn get_git_url_from_archive_url(archive_url: &str) -> Option<String> {
         return Some(git_url);
     }
     if let Some(git_url) = get_gnu_url_from_archive_url(archive_url) {
+        return Some(git_url);
+    }
+    if let Some(git_url) = get_nongnu_url_from_archive_url(archive_url) {
         return Some(git_url);
     }
     None
@@ -520,4 +534,16 @@ pub fn get_gnu_url_from_archive_url(archive_url: &str) -> Option<String> {
     }
     let project_name: String = captured_groups[1].to_string();
     return Some(format!("https://git.savannah.gnu.org/git/{}.git", project_name));
+}
+
+pub fn get_nongnu_url_from_archive_url(archive_url: &str) -> Option<String> {
+    let captured_groups = match NONGNU_PROJECT_REGEX.captures(archive_url) {
+        Some(g) => g,
+        None => return None,
+    };
+    if captured_groups.len() == 0 {
+        return None;
+    }
+    let project_name: String = captured_groups[1].to_string();
+    return Some(format!("https://git.savannah.nongnu.org/git/{}.git", project_name));
 }
