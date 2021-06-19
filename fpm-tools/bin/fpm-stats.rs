@@ -224,7 +224,7 @@ fn main() {
 
     println!("===== Modules =====");
     println!("Total count: {}", modules_count);
-    println!("Standalone modules: {}", modules_count);
+    println!("Standalone modules: {}", standalone_modules_count);
     println!("Patched modules: {}% ({}/{})", (patched_modules_count as f64 / modules_count as f64) * 100.0, patched_modules_count, modules_count);
     for (source_count, count) in modules_sources_count {
         println!("Modules with {} source(s): {}% ({}/{})", source_count, (count as f64 / modules_count as f64) * 100.0, count, sources_total_count);
