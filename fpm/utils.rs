@@ -28,7 +28,7 @@ lazy_static! {
 
 lazy_static! {
     static ref GNU_PROJECT_REGEX: Regex =
-        Regex::new(r"https://ftp.gnu.org/pub/gnu/([0-9a-zA-Z_-]+)").unwrap();
+        Regex::new(r"https?://ftp.gnu.org/(?:pub/)?gnu/([0-9a-zA-Z_-]+)").unwrap();
 }
 
 lazy_static! {
@@ -462,6 +462,12 @@ pub fn get_semver_from_archive_url(archive_url: &str) -> Option<String> {
 ///assert_eq!(git_url.unwrap(), "https://git.savannah.gnu.org/git/libiconv.git");
 ///
 ///let git_url = fpm::utils::get_git_url_from_archive_url(
+///  "http://ftp.gnu.org/gnu/autoconf/autoconf-2.13.tar.gz"
+///);
+///assert!(git_url.is_some());
+///assert_eq!(git_url.unwrap(), "https://git.savannah.gnu.org/git/autoconf.git");
+///
+///let git_url = fpm::utils::get_git_url_from_archive_url(
 ///  "https://download.savannah.nongnu.org/releases/openexr/openexr-2.2.1.tar.gz"
 ///);
 ///assert!(git_url.is_some());
@@ -546,4 +552,11 @@ pub fn get_nongnu_url_from_archive_url(archive_url: &str) -> Option<String> {
     }
     let project_name: String = captured_groups[1].to_string();
     return Some(format!("https://git.savannah.nongnu.org/git/{}.git", project_name));
+}
+
+// The SourceForge git access is documented here
+// https://sourceforge.net/p/forge/documentation/Git/#anonymous-access-read-only
+pub fn get_sourceforge_url_from_archive_url(archive_url: &str) -> Option<String> {
+    // FIXME could not get that one to work.
+    None
 }
