@@ -25,6 +25,7 @@ fn main() {
     let mut invalid_sources_count: i64 = 0;
     let mut empty_sources_count: i64 = 0;
     let mut modules_count: i64 = 0;
+    let mut standalone_modules_count: i64 = 0;
     let mut modules_sources_count: BTreeMap<i32, i64> = BTreeMap::new();
     let mut modules_buildsystems_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut manifests_max_depth: BTreeMap<i32, i64> = BTreeMap::new();
@@ -220,7 +221,7 @@ fn main() {
             }
 
             if let Some(flatpak_module) = FlatpakModuleDescription::load_from_file(file_path.to_string()) {
-                modules_count += 1;
+                standalone_modules_count += 1;
             }
 
         }
@@ -242,6 +243,7 @@ fn main() {
 
     println!("===== Modules =====");
     println!("Total count: {}", modules_count);
+    println!("Standalone modules: {}", modules_count);
     println!("Patched modules: {}% ({}/{})", (patched_modules_count as f64 / modules_count as f64) * 100.0, patched_modules_count, modules_count);
     for (source_count, count) in modules_sources_count {
         println!("Modules with {} source(s): {}% ({}/{})", source_count, (count as f64 / modules_count as f64) * 100.0, count, sources_total_count);
