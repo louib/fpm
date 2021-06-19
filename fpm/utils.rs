@@ -13,11 +13,13 @@ lazy_static! {
 }
 
 lazy_static! {
-    static ref GITHUB_PROJECT_REGEX: Regex = Regex::new(r"https://github.com/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
+    static ref GITHUB_PROJECT_REGEX: Regex =
+        Regex::new(r"https://github.com/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
 }
 
 lazy_static! {
-    static ref GITLAB_PROJECT_REGEX: Regex = Regex::new(r"https://gitlab.com/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
+    static ref GITLAB_PROJECT_REGEX: Regex =
+        Regex::new(r"https://gitlab.com/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
 }
 
 lazy_static! {
@@ -25,7 +27,8 @@ lazy_static! {
 }
 
 lazy_static! {
-    static ref GNU_PROJECT_REGEX: Regex = Regex::new(r"https://ftp.gnu.org/pub/gnu/([0-9a-zA-Z_-]+)").unwrap();
+    static ref GNU_PROJECT_REGEX: Regex =
+        Regex::new(r"https://ftp.gnu.org/pub/gnu/([0-9a-zA-Z_-]+)").unwrap();
 }
 
 // Gets the path the repos should be located at.
