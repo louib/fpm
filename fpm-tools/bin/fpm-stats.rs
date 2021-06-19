@@ -209,6 +209,8 @@ fn main() {
                                 }
                                 if fpm::utils::get_git_url_from_archive_url(&url).is_some() {
                                     sources_archives_with_direct_git_url += 1;
+                                } else {
+                                    log::debug!("ARCHIVE URL FROM UNKNOWN SOURCE {}", url);
                                 }
                             }
                         }
