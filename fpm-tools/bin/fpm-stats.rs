@@ -1,7 +1,13 @@
 use std::collections::HashSet;
 use std::collections::BTreeMap;
 
-use fpm::flatpak_manifest::{FlatpakManifest, FlatpakSource, FlatpakModule, FlatpakModuleDescription};
+use fpm::flatpak_manifest::{
+    FlatpakManifest,
+    FlatpakSource,
+    FlatpakModule,
+    FlatpakModuleDescription,
+    FlatpakSourceDescription,
+};
 
 fn main() {
     fpm::logger::init();
@@ -16,6 +22,7 @@ fn main() {
     let mut sources_git_with_tag_count: i64 = 0;
     let mut sources_git_with_tag_and_commit_count: i64 = 0;
     let mut archives_urls: HashSet<String> = HashSet::new();
+    let mut archives_formats: BTreeMap<String, i64> = BTreeMap::new();
     let mut project_names_from_archives: HashSet<String> = HashSet::new();
     let mut sources_archives_with_semver: i64 = 0;
     let mut sources_archives_with_direct_git_url: i64 = 0;
@@ -189,6 +196,14 @@ fn main() {
                                 continue;
                             }
                             archives_urls.insert(url.to_string());
+
+                            if let Some(archive_type) = FlatpakSourceDescription::detect_archive_type(&url) {
+                                let new_count = archives_formats.get(&archive_type).unwrap_or(&0) + 1;
+                                archives_formats.insert(archive_type.to_string(), new_count);
+                            } else {
+                                let new_count = archives_formats.get("unknown").unwrap_or(&0) + 1;
+                                archives_formats.insert("unknown".to_string(), new_count);
+                            }
 
                             log::debug!("ARCHIVE URL {}", url);
                             sources_archives_count += 1;

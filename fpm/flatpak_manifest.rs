@@ -922,7 +922,18 @@ pub struct FlatpakSourceDescription {
     pub branch: Option<String>,
 
     // The type of archive if it cannot be guessed from the path.
-    // Possible values are "rpm", "tar", "tar-gzip", "tar-compress", "tar-bzip2", "tar-lzip", "tar-lzma", "tar-lzop", "tar-xz", "zip" and "7z".
+    // Possible values are:
+    //   * "rpm",
+    //   * "tar",
+    //   * "tar-gzip",
+    //   * "tar-compress",
+    //   * "tar-bzip2",
+    //   * "tar-lzip",
+    //   * "tar-lzma",
+    //   * "tar-lzop",
+    //   * "tar-xz",
+    //   * "zip",
+    //   * "7z",
     // types: archive
     #[serde(skip_serializing_if = "Option::is_none")]
     pub archive_type: Option<String>,
@@ -1004,6 +1015,49 @@ pub struct FlatpakSourceDescription {
     // types: all
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dest: Option<String>,
+}
+impl FlatpakSourceDescription {
+    // The logic of this functions is based on the code from BuilderArchiveType.get_type
+    // in the flatpak-builder project.
+    pub fn detect_archive_type(url: &str) -> Option<String> {
+        let url = url.to_lowercase();
+        if url.ends_with(".tar") {
+            return Some("tar".to_string());
+        }
+        if url.ends_with(".tar.gz") || url.ends_with(".tgz") || url.ends_with(".taz") {
+            return Some("tar-gzip".to_string());
+        }
+        if url.ends_with(".tar.Z") || url.ends_with(".taZ") {
+            return Some("tar-compress".to_string());
+        }
+        if (
+            url.ends_with(".tar.bz2") ||
+            url.ends_with(".tz2") ||
+            url.ends_with(".tbz2") ||
+            url.ends_with(".tz2")
+        ) {
+            return Some("tar-bzip2".to_string());
+        }
+        if url.ends_with(".tar.lz") {
+            return Some("tar-lzip".to_string());
+        }
+        if url.ends_with(".tar.lzma") || url.ends_with(".tlz") {
+            return Some("tar-lzma".to_string());
+        }
+        if url.ends_with(".tar.lzo") {
+            return Some("tar-lzop".to_string());
+        }
+        if url.ends_with(".tar.xz") || url.ends_with(".txz") {
+            return Some("tar-xz".to_string());
+        }
+        if url.ends_with(".zip") {
+            return Some("zip".to_string());
+        }
+        if url.ends_with(".rpm") {
+            return Some("rpm".to_string());
+        }
+        None
+    }
 }
 
 // Extension define extension points in the app/runtime that can be implemented by extensions,
