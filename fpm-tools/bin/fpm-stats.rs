@@ -346,7 +346,7 @@ fn main() {
     );
     for (archive_format, archive_count) in &archives_formats {
         println!(
-            "Archives with {} format: {}% ({}/{})",
+            "Archives with {} format: {:.2}% ({}/{})",
             archive_format,
             (*archive_count as f64 / sources_archives_count as f64) * 100.0,
             archive_count,
