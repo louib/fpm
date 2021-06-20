@@ -13,6 +13,10 @@ lazy_static! {
 }
 
 lazy_static! {
+    static ref PROJECT_NAME_REGEX: Regex = Regex::new(r"([0-9a-zA-Z_-]+)-[0-9]+.[0-9]+.[0-9]+").unwrap();
+}
+
+lazy_static! {
     static ref GITHUB_PROJECT_REGEX: Regex =
         Regex::new(r"https?://github.com/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
 }
@@ -436,6 +440,31 @@ pub fn get_candidate_flatpak_manifests(dir_path: &str) -> Result<Vec<String>, St
 pub fn get_semver_from_archive_url(archive_url: &str) -> Option<String> {
     let archive_filename = archive_url.split("/").last().unwrap();
     let captured_groups = match SEMVER_REGEX.captures(archive_filename) {
+        Some(g) => g,
+        None => return None,
+    };
+    if captured_groups.len() == 0 {
+        return None;
+    }
+    return Some(captured_groups[1].to_string());
+}
+
+///```
+///let version = fpm::utils::get_project_name_from_archive_url(
+///  "https://download-fallback.gnome.org/sources/libgda/5.2/libgda-5.2.9.tar.xz"
+///);
+///assert!(version.is_some());
+///assert_eq!(version.unwrap(), "libgda");
+///
+///let version = fpm::utils::get_project_name_from_archive_url(
+///  "https://download.gnome.org/core/3.28/3.28.2/sources/libgsf-1.14.43.tar.xz"
+///);
+///assert!(version.is_some());
+///assert_eq!(version.unwrap(), "libgsf");
+///```
+pub fn get_project_name_from_archive_url(archive_url: &str) -> Option<String> {
+    let archive_filename = archive_url.split("/").last().unwrap();
+    let captured_groups = match PROJECT_NAME_REGEX.captures(archive_filename) {
         Some(g) => g,
         None => return None,
     };
