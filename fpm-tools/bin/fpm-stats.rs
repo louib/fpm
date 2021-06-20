@@ -229,13 +229,30 @@ fn main() {
     println!("===== Manifests =====");
     println!("Total count: {}", manifests_count);
     for (depth, depth_count) in manifests_max_depth {
-        println!("Depth {}: {}% ({}/{})", depth, (depth_count as f64 / manifests_count as f64) * 100.0, depth_count, manifests_count);
+        println!(
+            "Depth {}: {}% ({}/{})",
+            depth,
+            (depth_count as f64 / manifests_count as f64) * 100.0,
+            depth_count,
+            manifests_count,
+        );
     }
     println!("Number of extension manifests: {}.", extension_manifests_count);
     for (extension_name, count) in extensions_count {
-        println!("Extension {}: {}% ({}/{})", extension_name, (count as f64 / manifests_count as f64) * 100.0, count, manifests_count);
+        println!(
+            "Extension {}: {}% ({}/{})",
+            extension_name,
+            (count as f64 / manifests_count as f64) * 100.0,
+            count,
+            manifests_count,
+        );
     }
-    println!("Manifests with no SDK extensions: {}% ({}/{})", (no_extensions_count as f64 / manifests_count as f64) * 100.0, no_extensions_count, manifests_count);
+    println!(
+        "Manifests with no SDK extensions: {}% ({}/{})",
+        (no_extensions_count as f64 / manifests_count as f64) * 100.0,
+        no_extensions_count,
+        manifests_count,
+    );
     println!("=====================");
     println!("\n");
 
@@ -255,13 +272,39 @@ fn main() {
     println!("===== Sources =====");
     println!("Total count: {}", sources_total_count);
     for (source_type, source_count) in &sources_count {
-        println!("{}: {}% ({}/{})", source_type, (*source_count as f64 / sources_total_count as f64) * 100.0, source_count, sources_total_count);
+        println!(
+            "{}: {}% ({}/{})",
+            source_type,
+            (*source_count as f64 / sources_total_count as f64) * 100.0,
+            source_count,
+            sources_total_count,
+        );
     }
-    println!("Sources with mirror urls: {}% ({}/{})", (sources_mirror_urls_available_count as f64 / sources_mirror_urls_supported_count as f64) * 100.0, sources_mirror_urls_available_count, sources_mirror_urls_supported_count);
+    println!(
+        "Sources with mirror urls: {}% ({}/{})",
+        (sources_mirror_urls_available_count as f64 / sources_mirror_urls_supported_count as f64) * 100.0,
+        sources_mirror_urls_available_count,
+        sources_mirror_urls_supported_count,
+    );
     let sources_git_count = sources_count.get("git").unwrap();
-    println!("Git sources fixed with commit hash: {}% ({}/{})", (sources_git_with_commit_count as f64 / *sources_git_count as f64) * 100.0, sources_git_with_commit_count, sources_git_count);
-    println!("Git sources fixed with tag: {}% ({}/{})", (sources_git_with_tag_count as f64 / *sources_git_count as f64) * 100.0, sources_git_with_tag_count, sources_git_count);
-    println!("Git sources fixed with tag and commit: {}% ({}/{})", (sources_git_with_tag_and_commit_count as f64 / *sources_git_count as f64) * 100.0, sources_git_with_tag_and_commit_count, sources_git_count);
+    println!(
+        "Git sources fixed with commit hash: {}% ({}/{})",
+        (sources_git_with_commit_count as f64 / *sources_git_count as f64) * 100.0,
+        sources_git_with_commit_count,
+        sources_git_count
+    );
+    println!(
+        "Git sources fixed with tag: {}% ({}/{})",
+        (sources_git_with_tag_count as f64 / *sources_git_count as f64) * 100.0,
+        sources_git_with_tag_count,
+        sources_git_count
+    );
+    println!(
+        "Git sources fixed with tag and commit: {}% ({}/{})",
+        (sources_git_with_tag_and_commit_count as f64 / *sources_git_count as f64) * 100.0,
+        sources_git_with_tag_and_commit_count,
+        sources_git_count
+    );
     println!(
         "Archive URLS with a semver: {}% ({}/{})",
         (sources_archives_with_semver as f64 / sources_archives_count as f64) * 100.0,
