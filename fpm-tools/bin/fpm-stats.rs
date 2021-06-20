@@ -20,6 +20,7 @@ fn main() {
     let mut sources_git_with_tag_count: i64 = 0;
     let mut sources_git_with_tag_and_commit_count: i64 = 0;
     let mut archives_urls: HashSet<String> = HashSet::new();
+    let mut project_names_from_archives: HashSet<String> = HashSet::new();
     let mut sources_archives_with_semver: i64 = 0;
     let mut sources_archives_with_direct_git_url: i64 = 0;
     let mut sources_unknown_with_project_name: i64 = 0;
@@ -204,8 +205,9 @@ fn main() {
                                 sources_archives_with_direct_git_url += 1;
                             } else {
                                 log::debug!("ARCHIVE URL FROM UNKNOWN SOURCE {}", url);
-                                if fpm::utils::get_project_name_from_archive_url(&url).is_some() {
+                                if let Some(project_name) = fpm::utils::get_project_name_from_archive_url(&url) {
                                     sources_unknown_with_project_name += 1;
+                                    project_names_from_archives.insert(project_name.to_lowercase());
                                 } else {
                                     sources_unknown_without_project_name += 1;
                                 }
@@ -283,6 +285,9 @@ fn main() {
         (sources_unknown_without_project_name as f64 / sources_archives_with_semver as f64) * 100.0,
         sources_unknown_without_project_name,
         sources_archives_with_semver,
+    );
+    println!(
+        "Unique project names extracted from archives: {}.", project_names_from_archives.len(),
     );
     println!("Sources with invalid type: {}.", invalid_sources_count);
     println!("Sources with empty type: {}.", empty_sources_count);
