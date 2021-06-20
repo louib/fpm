@@ -242,7 +242,7 @@ fn main() {
     println!("Total count: {}", manifests_count);
     for (depth, depth_count) in manifests_max_depth {
         println!(
-            "Depth {}: {}% ({}/{})",
+            "Depth {}: {:.2}% ({}/{})",
             depth,
             (depth_count as f64 / manifests_count as f64) * 100.0,
             depth_count,
@@ -252,7 +252,7 @@ fn main() {
     println!("Number of extension manifests: {}.", extension_manifests_count);
     for (extension_name, count) in extensions_count {
         println!(
-            "Extension {}: {}% ({}/{})",
+            "Extension {}: {:.2}% ({}/{})",
             extension_name,
             (count as f64 / manifests_count as f64) * 100.0,
             count,
@@ -260,7 +260,7 @@ fn main() {
         );
     }
     println!(
-        "Manifests with no SDK extensions: {}% ({}/{})",
+        "Manifests with no SDK extensions: {:.2}% ({}/{})",
         (no_extensions_count as f64 / manifests_count as f64) * 100.0,
         no_extensions_count,
         manifests_count,
@@ -271,12 +271,29 @@ fn main() {
     println!("===== Modules =====");
     println!("Total count: {}", modules_count);
     println!("Standalone modules: {}", standalone_modules_count);
-    println!("Patched modules: {}% ({}/{})", (patched_modules_count as f64 / modules_count as f64) * 100.0, patched_modules_count, modules_count);
+    println!(
+        "Patched modules: {:.2}% ({}/{})",
+        (patched_modules_count as f64 / modules_count as f64) * 100.0,
+        patched_modules_count,
+        modules_count,
+    );
     for (source_count, count) in modules_sources_count {
-        println!("Modules with {} source(s): {}% ({}/{})", source_count, (count as f64 / modules_count as f64) * 100.0, count, sources_total_count);
+        println!(
+            "Modules with {} source(s): {:.2}% ({}/{})",
+            source_count,
+            (count as f64 / modules_count as f64) * 100.0,
+            count,
+            sources_total_count,
+        );
     }
     for (buildsystem, buildsystem_count) in modules_buildsystems_count {
-        println!("Modules with buildsystem {}: {}% ({}/{})", buildsystem, (buildsystem_count as f64 / modules_count as f64) * 100.0, buildsystem_count, modules_count);
+        println!(
+            "Modules with buildsystem {}: {:.2}% ({}/{})",
+            buildsystem,
+            (buildsystem_count as f64 / modules_count as f64) * 100.0,
+            buildsystem_count,
+            modules_count
+        );
     }
     println!("=====================");
     println!("\n");
@@ -285,7 +302,7 @@ fn main() {
     println!("Total count: {}", sources_total_count);
     for (source_type, source_count) in &sources_count {
         println!(
-            "{}: {}% ({}/{})",
+            "{}: {:.2}% ({}/{})",
             source_type,
             (*source_count as f64 / sources_total_count as f64) * 100.0,
             source_count,
@@ -293,50 +310,50 @@ fn main() {
         );
     }
     println!(
-        "Sources with mirror urls: {}% ({}/{})",
+        "Sources with mirror urls: {:.2}% ({}/{})",
         (sources_mirror_urls_available_count as f64 / sources_mirror_urls_supported_count as f64) * 100.0,
         sources_mirror_urls_available_count,
         sources_mirror_urls_supported_count,
     );
     let sources_git_count = sources_count.get("git").unwrap();
     println!(
-        "Git sources fixed with commit hash: {}% ({}/{})",
+        "Git sources fixed with commit hash: {:.2}% ({}/{})",
         (sources_git_with_commit_count as f64 / *sources_git_count as f64) * 100.0,
         sources_git_with_commit_count,
         sources_git_count
     );
     println!(
-        "Git sources fixed with tag: {}% ({}/{})",
+        "Git sources fixed with tag: {:.2}% ({}/{})",
         (sources_git_with_tag_count as f64 / *sources_git_count as f64) * 100.0,
         sources_git_with_tag_count,
         sources_git_count
     );
     println!(
-        "Git sources fixed with tag and commit: {}% ({}/{})",
+        "Git sources fixed with tag and commit: {:.2}% ({}/{})",
         (sources_git_with_tag_and_commit_count as f64 / *sources_git_count as f64) * 100.0,
         sources_git_with_tag_and_commit_count,
         sources_git_count
     );
     println!(
-        "Archive URLS with a semver: {}% ({}/{})",
+        "Archive URLS with a semver: {:.2}% ({}/{})",
         (sources_archives_with_semver as f64 / sources_archives_count as f64) * 100.0,
         sources_archives_with_semver,
         sources_archives_count,
     );
     println!(
-        "Versioned archive URLS with a direct git repository: {}% ({}/{})",
+        "Versioned archive URLS with a direct git repository: {:.2}% ({}/{})",
         (sources_archives_with_direct_git_url as f64 / sources_archives_with_semver as f64) * 100.0,
         sources_archives_with_direct_git_url,
         sources_archives_with_semver,
     );
     println!(
-        "Versioned archive URLS without a direct git repository but with a project name: {}% ({}/{})",
+        "Versioned archive URLS without a direct git repository but with a project name: {:.2}% ({}/{})",
         (sources_unknown_with_project_name as f64 / sources_archives_with_semver as f64) * 100.0,
         sources_unknown_with_project_name,
         sources_archives_with_semver,
     );
     println!(
-        "Versioned archive URLS without a direct git repository but without a project name: {}% ({}/{})",
+        "Versioned archive URLS without a direct git repository but without a project name: {:.2}% ({}/{})",
         (sources_unknown_without_project_name as f64 / sources_archives_with_semver as f64) * 100.0,
         sources_unknown_without_project_name,
         sources_archives_with_semver,
@@ -362,7 +379,7 @@ fn main() {
     println!("Total count: {}", modules_urls_count);
     for (protocol_name, count) in modules_urls_protocols {
         println!(
-            "URLs with protocol {}: {}% ({}/{})",
+            "URLs with protocol {}: {:.2}% ({}/{})",
             protocol_name,
             (count as f64 / modules_urls_count as f64) * 100.0,
             count,
@@ -370,7 +387,7 @@ fn main() {
         );
     }
     println!(
-        "URLs used as mirrors: {}% ({}/{})",
+        "URLs used as mirrors: {:.2}% ({}/{})",
         (modules_mirror_urls_count as f64 / modules_urls_count as f64) * 100.0,
         modules_mirror_urls_count,
         modules_urls_count,
