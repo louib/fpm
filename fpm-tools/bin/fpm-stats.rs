@@ -277,8 +277,19 @@ fn main() {
     println!("===== URLs =====");
     println!("Total count: {}", modules_urls_count);
     for (protocol_name, count) in modules_urls_protocols {
-        println!("URLs with protocol {}: {}% ({}/{})", protocol_name, (count as f64 / modules_urls_count as f64) * 100.0, count, modules_urls_count);
+        println!(
+            "URLs with protocol {}: {}% ({}/{})",
+            protocol_name,
+            (count as f64 / modules_urls_count as f64) * 100.0,
+            count,
+            modules_urls_count
+        );
     }
-    println!("URLs used as mirrors: {}% ({}/{})", (modules_mirror_urls_count as f64 / modules_urls_count as f64) * 100.0, modules_mirror_urls_count, modules_urls_count);
+    println!(
+        "URLs used as mirrors: {}% ({}/{})",
+        (modules_mirror_urls_count as f64 / modules_urls_count as f64) * 100.0,
+        modules_mirror_urls_count,
+        modules_urls_count,
+    );
     println!("=====================");
 }
