@@ -22,6 +22,7 @@ fn main() {
     let mut sources_archives_with_semver: i64 = 0;
     let mut sources_archives_with_direct_git_url: i64 = 0;
     let mut sources_unknown_with_project_name: i64 = 0;
+    let mut sources_unknown_without_project_name: i64 = 0;
     let mut sources_archives_count: i64 = 0;
     let mut invalid_sources_count: i64 = 0;
     let mut empty_sources_count: i64 = 0;
@@ -199,6 +200,8 @@ fn main() {
                                 log::debug!("ARCHIVE URL FROM UNKNOWN SOURCE {}", url);
                                 if fpm::utils::get_project_name_from_archive_url(&url).is_some() {
                                     sources_unknown_with_project_name += 1;
+                                } else {
+                                    sources_unknown_without_project_name += 1;
                                 }
                             }
                         }
@@ -267,6 +270,12 @@ fn main() {
         "Versioned archive URLS without a direct git repository but with a project name: {}% ({}/{})",
         (sources_unknown_with_project_name as f64 / sources_archives_with_semver as f64) * 100.0,
         sources_unknown_with_project_name,
+        sources_archives_with_semver,
+    );
+    println!(
+        "Versioned archive URLS without a direct git repository but without a project name: {}% ({}/{})",
+        (sources_unknown_without_project_name as f64 / sources_archives_with_semver as f64) * 100.0,
+        sources_unknown_without_project_name,
         sources_archives_with_semver,
     );
     println!("Sources with invalid type: {}.", invalid_sources_count);
