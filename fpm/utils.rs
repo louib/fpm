@@ -14,12 +14,12 @@ lazy_static! {
 
 lazy_static! {
     static ref GITHUB_PROJECT_REGEX: Regex =
-        Regex::new(r"https://github.com/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
+        Regex::new(r"https?://github.com/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
 }
 
 lazy_static! {
     static ref GITLAB_PROJECT_REGEX: Regex =
-        Regex::new(r"https://gitlab.com/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
+        Regex::new(r"https?://gitlab.com/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
 }
 
 lazy_static! {
@@ -32,8 +32,12 @@ lazy_static! {
 }
 
 lazy_static! {
-    static ref NONGNU_PROJECT_REGEX: Regex =
+    static ref NONGNU_RELEASE_REGEX: Regex =
         Regex::new(r"https?://download.savannah.nongnu.org/releases/([0-9a-zA-Z_-]+)").unwrap();
+}
+lazy_static! {
+    static ref NONGNU_PROJECT_REGEX: Regex =
+        Regex::new(r"https?://savannah.nongnu.org/download/([0-9a-zA-Z_-]+)").unwrap();
 }
 
 // Gets the path the repos should be located at.
@@ -472,6 +476,12 @@ pub fn get_semver_from_archive_url(archive_url: &str) -> Option<String> {
 ///);
 ///assert!(git_url.is_some());
 ///assert_eq!(git_url.unwrap(), "https://git.savannah.nongnu.org/git/openexr.git");
+///
+///let git_url = fpm::utils::get_git_url_from_archive_url(
+///  "http://savannah.nongnu.org/download/icoutils/icoutils-0.31.1.tar.bz2"
+///);
+///assert!(git_url.is_some());
+///assert_eq!(git_url.unwrap(), "https://git.savannah.nongnu.org/git/icoutils.git");
 ///```
 pub fn get_git_url_from_archive_url(archive_url: &str) -> Option<String> {
     if let Some(git_url) = get_github_url_from_archive_url(archive_url) {
@@ -486,7 +496,10 @@ pub fn get_git_url_from_archive_url(archive_url: &str) -> Option<String> {
     if let Some(git_url) = get_gnu_url_from_archive_url(archive_url) {
         return Some(git_url);
     }
-    if let Some(git_url) = get_nongnu_url_from_archive_url(archive_url) {
+    if let Some(git_url) = get_nongnu_release_url_from_archive_url(archive_url) {
+        return Some(git_url);
+    }
+    if let Some(git_url) = get_nongnu_project_url_from_archive_url(archive_url) {
         return Some(git_url);
     }
     None
@@ -542,7 +555,19 @@ pub fn get_gnu_url_from_archive_url(archive_url: &str) -> Option<String> {
     return Some(format!("https://git.savannah.gnu.org/git/{}.git", project_name));
 }
 
-pub fn get_nongnu_url_from_archive_url(archive_url: &str) -> Option<String> {
+pub fn get_nongnu_release_url_from_archive_url(archive_url: &str) -> Option<String> {
+    let captured_groups = match NONGNU_RELEASE_REGEX.captures(archive_url) {
+        Some(g) => g,
+        None => return None,
+    };
+    if captured_groups.len() == 0 {
+        return None;
+    }
+    let project_name: String = captured_groups[1].to_string();
+    return Some(format!("https://git.savannah.nongnu.org/git/{}.git", project_name));
+}
+
+pub fn get_nongnu_project_url_from_archive_url(archive_url: &str) -> Option<String> {
     let captured_groups = match NONGNU_PROJECT_REGEX.captures(archive_url) {
         Some(g) => g,
         None => return None,
