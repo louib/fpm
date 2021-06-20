@@ -227,7 +227,7 @@ impl Database {
 
     pub fn search_projects(&self, search_term: &str) -> Vec<&SoftwareProject> {
         let mut projects: Vec<&SoftwareProject> = vec![];
-        for (project_id, project) in &self.indexed_projects {
+        for (_, project) in &self.indexed_projects {
             if project.name.contains(&search_term) {
                 projects.push(&project);
             }
@@ -235,8 +235,8 @@ impl Database {
         projects
     }
 
-    pub fn get_project(&self, project_id: &str) -> Option<SoftwareProject> {
-        None
+    pub fn get_project(&self, project_id: &str) -> Option<&SoftwareProject> {
+        self.indexed_projects.get(project_id)
     }
 
     pub fn has_project(&self, project_id: &str) -> bool {

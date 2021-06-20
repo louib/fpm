@@ -1241,18 +1241,21 @@ pub fn is_setup() -> bool {
 
     let output = match child.wait_with_output() {
         Ok(o) => o,
-        Err(e) => return false,
+        Err(_) => return false,
     };
     if !output.status.success() {
         return false;
     }
     let stdout = match str::from_utf8(&output.stdout) {
         Ok(v) => v,
-        Err(e) => {
+        Err(_) => {
             log::warn!("Invalid UTF-8 sequence printed by `flatpak remote-list`.");
             return false;
         }
     };
+    if !stdout.contains("flatphub") {
+        return false;
+    }
     return true;
 }
 

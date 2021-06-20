@@ -10,7 +10,7 @@ pub mod utils;
 mod config;
 mod version;
 
-pub use flatpak_manifest::{FlatpakModule, FlatpakModuleDescription};
+pub use flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
 pub use projects::SoftwareProject;
 
 use std::fs;
@@ -34,11 +34,10 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             .get("manifest_file_path")
             .expect("an input file is required!");
 
-        let mut flatpak_manifest =
-            match crate::flatpak_manifest::FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
-                Some(m) => m,
-                None => return 1,
-            };
+        let mut flatpak_manifest = match FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
+            Some(m) => m,
+            None => return 1,
+        };
 
         let manifest_dump = match flatpak_manifest.dump() {
             Ok(d) => d,
@@ -48,7 +47,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         match fs::write(path::Path::new(manifest_file_path), manifest_dump) {
             Ok(content) => content,
             Err(e) => {
-                eprintln!("could not write file {}.", manifest_file_path);
+                eprintln!("could not write file {}: {}.", manifest_file_path, e);
                 return 1;
             }
         };
@@ -62,11 +61,10 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             .get("manifest_file_path")
             .expect("a manifest file is required!");
 
-        let flatpak_manifest =
-            match crate::flatpak_manifest::FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
-                Some(m) => m,
-                None => return 1,
-            };
+        let flatpak_manifest = match FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
+            Some(m) => m,
+            None => return 1,
+        };
 
         let mut separator = DEFAULT_PACKAGE_LIST_SEP;
         if args.contains_key("separator") {
@@ -143,9 +141,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         // make without argument runs the only manifest if there is only one
         let manifest_path = candidate_flatpak_manifests.first().unwrap();
 
-        if let Some(flatpak_manifest) =
-            crate::flatpak_manifest::FlatpakManifest::load_from_file(manifest_path.to_string())
-        {
+        if FlatpakManifest::load_from_file(manifest_path.to_string()).is_some() {
             crate::flatpak_manifest::run_build(manifest_path);
         } else {
             log::error!("Could not parse Flatpak manifest at {}.", manifest_path);
@@ -180,7 +176,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             // TODO Test that if it starts with the cache directories listed above,
             // you skip the file.
 
-            if crate::flatpak_manifest::FlatpakManifest::load_from_file(file_path_str.to_string()).is_some() {
+            if FlatpakManifest::load_from_file(file_path_str.to_string()).is_some() {
                 println!("{}", file_path_str);
                 found_manifest = true;
             }
