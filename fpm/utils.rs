@@ -578,7 +578,10 @@ pub fn get_nongnu_release_url_from_archive_url(archive_url: &str) -> Option<Stri
         return None;
     }
     let project_name: String = captured_groups[1].to_string();
-    return Some(format!("https://git.savannah.nongnu.org/git/{}.git", project_name));
+    return Some(format!(
+        "https://git.savannah.nongnu.org/git/{}.git",
+        project_name
+    ));
 }
 
 pub fn get_nongnu_project_url_from_archive_url(archive_url: &str) -> Option<String> {
@@ -590,7 +593,10 @@ pub fn get_nongnu_project_url_from_archive_url(archive_url: &str) -> Option<Stri
         return None;
     }
     let project_name: String = captured_groups[1].to_string();
-    return Some(format!("https://git.savannah.nongnu.org/git/{}.git", project_name));
+    return Some(format!(
+        "https://git.savannah.nongnu.org/git/{}.git",
+        project_name
+    ));
 }
 
 pub fn get_bitbucket_url_from_archive_url(archive_url: &str) -> Option<String> {
