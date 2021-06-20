@@ -150,7 +150,7 @@ impl Database {
 
     pub fn remove_module() {}
 
-    pub fn add_module(&mut self, mut new_module: FlatpakModuleDescription) {
+    pub fn add_module(&mut self, new_module: FlatpakModuleDescription) {
         let module_hash = new_module.get_hash();
         let modules_path = Database::get_modules_db_path();
         let new_module_path = format!("{}/{}.yaml", modules_path, module_hash,);

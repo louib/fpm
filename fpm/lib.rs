@@ -34,7 +34,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             .get("manifest_file_path")
             .expect("an input file is required!");
 
-        let mut flatpak_manifest = match FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
+        let flatpak_manifest = match FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
             Some(m) => m,
             None => return 1,
         };

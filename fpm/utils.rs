@@ -371,7 +371,7 @@ pub fn remove_comments_from_json(json_content: &str) -> String {
 
 pub fn get_candidate_flatpak_manifests(dir_path: &str) -> Result<Vec<String>, String> {
     let mut response: Vec<String> = vec![];
-    let file_paths = match get_all_paths(std::path::Path::new("./")) {
+    let file_paths = match get_all_paths(std::path::Path::new(dir_path)) {
         Ok(paths) => paths,
         Err(message) => return Err(message),
     };
