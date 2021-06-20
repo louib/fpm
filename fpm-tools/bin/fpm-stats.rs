@@ -197,6 +197,9 @@ fn main() {
                             }
                             archives_urls.insert(url.to_string());
 
+                            log::debug!("ARCHIVE URL {}", url);
+                            sources_archives_count += 1;
+
                             if let Some(archive_type) = FlatpakSourceDescription::detect_archive_type(&url) {
                                 let new_count = archives_formats.get(&archive_type).unwrap_or(&0) + 1;
                                 archives_formats.insert(archive_type.to_string(), new_count);
@@ -205,8 +208,6 @@ fn main() {
                                 archives_formats.insert("unknown".to_string(), new_count);
                             }
 
-                            log::debug!("ARCHIVE URL {}", url);
-                            sources_archives_count += 1;
                             if fpm::utils::get_semver_from_archive_url(&url).is_some() {
                                 sources_archives_with_semver += 1;
                             } else {
@@ -343,6 +344,15 @@ fn main() {
     println!(
         "Unique project names extracted from archives: {}.", project_names_from_archives.len(),
     );
+    for (archive_format, archive_count) in &archives_formats {
+        println!(
+            "{}: {}% ({}/{})",
+            archive_format,
+            (*archive_count as f64 / sources_archives_count as f64) * 100.0,
+            archive_count,
+            sources_archives_count,
+        );
+    }
     println!("Sources with invalid type: {}.", invalid_sources_count);
     println!("Sources with empty type: {}.", empty_sources_count);
     println!("=====================");
