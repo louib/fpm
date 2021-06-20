@@ -19,6 +19,7 @@ fn main() {
     let mut sources_git_with_commit_count: i64 = 0;
     let mut sources_git_with_tag_count: i64 = 0;
     let mut sources_git_with_tag_and_commit_count: i64 = 0;
+    let mut archives_urls: HashSet<String> = HashSet::new();
     let mut sources_archives_with_semver: i64 = 0;
     let mut sources_archives_with_direct_git_url: i64 = 0;
     let mut sources_unknown_with_project_name: i64 = 0;
@@ -187,6 +188,11 @@ fn main() {
                         if source_type_name == "git" {
                             log::debug!("GIT URL {}", url);
                         } else if source_type_name == "archive" {
+                            if archives_urls.contains(&url) {
+                                continue;
+                            }
+                            archives_urls.insert(url.to_string());
+
                             log::debug!("ARCHIVE URL {}", url);
                             sources_archives_count += 1;
                             if fpm::utils::get_semver_from_archive_url(&url).is_some() {
