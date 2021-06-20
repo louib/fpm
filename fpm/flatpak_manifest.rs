@@ -1030,12 +1030,10 @@ impl FlatpakSourceDescription {
         if url.ends_with(".tar.Z") || url.ends_with(".taZ") {
             return Some("tar-compress".to_string());
         }
-        if (
-            url.ends_with(".tar.bz2") ||
-            url.ends_with(".tz2") ||
-            url.ends_with(".tbz2") ||
-            url.ends_with(".tz2")
-        ) {
+        if url.ends_with(".tar.bz2") || url.ends_with(".tz2") {
+            return Some("tar-bzip2".to_string());
+        }
+        if url.ends_with(".tbz2") || url.ends_with(".tbz") {
             return Some("tar-bzip2".to_string());
         }
         if url.ends_with(".tar.lz") {
