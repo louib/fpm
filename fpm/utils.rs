@@ -40,6 +40,11 @@ lazy_static! {
         Regex::new(r"https?://savannah.nongnu.org/download/([0-9a-zA-Z_-]+)").unwrap();
 }
 
+lazy_static! {
+    static ref BITBUCKET_PROJECT_REGEX: Regex =
+        Regex::new(r"https?://bitbucket.org/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
+}
+
 // Gets the path the repos should be located at.
 // FIXME not sure this function belongs in utils...
 pub fn get_repos_dir_path() -> String {
@@ -482,6 +487,12 @@ pub fn get_semver_from_archive_url(archive_url: &str) -> Option<String> {
 ///);
 ///assert!(git_url.is_some());
 ///assert_eq!(git_url.unwrap(), "https://git.savannah.nongnu.org/git/icoutils.git");
+///
+///let git_url = fpm::utils::get_git_url_from_archive_url(
+///  "https://bitbucket.org/Doomseeker/doomseeker/get/1.3.1.tar.bz2"
+///);
+///assert!(git_url.is_some());
+///assert_eq!(git_url.unwrap(), "https://bitbucket.org/Doomseeker/doomseeker.git");
 ///```
 pub fn get_git_url_from_archive_url(archive_url: &str) -> Option<String> {
     if let Some(git_url) = get_github_url_from_archive_url(archive_url) {
@@ -500,6 +511,9 @@ pub fn get_git_url_from_archive_url(archive_url: &str) -> Option<String> {
         return Some(git_url);
     }
     if let Some(git_url) = get_nongnu_project_url_from_archive_url(archive_url) {
+        return Some(git_url);
+    }
+    if let Some(git_url) = get_bitbucket_url_from_archive_url(archive_url) {
         return Some(git_url);
     }
     None
@@ -577,6 +591,21 @@ pub fn get_nongnu_project_url_from_archive_url(archive_url: &str) -> Option<Stri
     }
     let project_name: String = captured_groups[1].to_string();
     return Some(format!("https://git.savannah.nongnu.org/git/{}.git", project_name));
+}
+
+pub fn get_bitbucket_url_from_archive_url(archive_url: &str) -> Option<String> {
+    // Bitbucket does not allow anonymous git access by default, so this
+    // might fail.
+    let captured_groups = match BITBUCKET_PROJECT_REGEX.captures(archive_url) {
+        Some(g) => g,
+        None => return None,
+    };
+    if captured_groups.len() == 0 {
+        return None;
+    }
+    let username: String = captured_groups[1].to_string();
+    let project_name: String = captured_groups[2].to_string();
+    return Some(format!("https://bitbucket.org/{}/{}.git", username, project_name));
 }
 
 // The SourceForge git access is documented here
