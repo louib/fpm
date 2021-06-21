@@ -75,15 +75,16 @@ fn main() {
             }
         }
 
-        log::info!(
-            "Extracted {} git urls from the manifests",
-            all_git_urls_from_manifests.len()
-        );
-        log::info!(
-            "Extracted {} archive urls from the manifests",
-            all_archive_urls.len()
-        );
     }
+
+    log::info!(
+        "Extracted {} git urls from the manifests",
+        all_git_urls_from_manifests.len()
+    );
+    log::info!(
+        "Extracted {} archive urls from the manifests",
+        all_archive_urls.len()
+    );
 
     for archive_url in &all_archive_urls {
         if fpm::utils::get_semver_from_archive_url(&archive_url).is_none() {

@@ -27,6 +27,11 @@ lazy_static! {
 }
 
 lazy_static! {
+    static ref GNOME_GITLAB_PROJECT_REGEX: Regex =
+        Regex::new(r"https?://gitlab.gnome.org/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
+}
+
+lazy_static! {
     static ref PAGURE_PROJECT_REGEX: Regex = Regex::new(r"https://pagure.io/([0-9a-zA-Z_-]+)").unwrap();
 }
 
@@ -525,6 +530,12 @@ pub fn get_project_name_from_archive_url(archive_url: &str) -> Option<String> {
 ///assert_eq!(git_url.unwrap(), "https://gitlab.com/rszibele/e-juice-calc.git");
 ///
 ///let git_url = fpm::utils::get_git_url_from_archive_url(
+///  "https://gitlab.gnome.org/GNOME/libsecret/-/archive/0.19.1/libsecret-0.19.1.tar.gz"
+///);
+///assert!(git_url.is_some());
+///assert_eq!(git_url.unwrap(), "https://gitlab.gnome.org/GNOME/libsecret.git");
+///
+///let git_url = fpm::utils::get_git_url_from_archive_url(
 ///  "https://pagure.io/libaio/archive/libaio-0.3.111/libaio-libaio-0.3.111.tar.gz"
 ///);
 ///assert!(git_url.is_some());
@@ -565,6 +576,9 @@ pub fn get_git_url_from_archive_url(archive_url: &str) -> Option<String> {
         return Some(git_url);
     }
     if let Some(git_url) = get_gitlab_url_from_archive_url(archive_url) {
+        return Some(git_url);
+    }
+    if let Some(git_url) = get_gnome_gitlab_url_from_archive_url(archive_url) {
         return Some(git_url);
     }
     if let Some(git_url) = get_pagure_url_from_archive_url(archive_url) {
@@ -611,6 +625,19 @@ pub fn get_gitlab_url_from_archive_url(archive_url: &str) -> Option<String> {
     let user_name: String = captured_groups[1].to_string();
     let project_name: String = captured_groups[2].to_string();
     return Some(format!("https://gitlab.com/{}/{}.git", user_name, project_name));
+}
+
+pub fn get_gnome_gitlab_url_from_archive_url(archive_url: &str) -> Option<String> {
+    let captured_groups = match GNOME_GITLAB_PROJECT_REGEX.captures(archive_url) {
+        Some(g) => g,
+        None => return None,
+    };
+    if captured_groups.len() == 0 {
+        return None;
+    }
+    let user_name: String = captured_groups[1].to_string();
+    let project_name: String = captured_groups[2].to_string();
+    return Some(format!("https://gitlab.gnome.org/{}/{}.git", user_name, project_name));
 }
 
 pub fn get_pagure_url_from_archive_url(archive_url: &str) -> Option<String> {
