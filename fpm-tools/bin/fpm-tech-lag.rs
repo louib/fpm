@@ -84,4 +84,35 @@ fn main() {
             all_archive_urls.len()
         );
     }
+
+    for archive_url in &all_archive_urls {
+        if fpm::utils::get_semver_from_archive_url(&archive_url).is_none() {
+            continue;
+        }
+        get_git_url_for_archive(archive_url, &all_git_urls_from_manifests);
+    }
+}
+
+fn get_git_url_for_archive(archive_url: &str, candidate_git_urls: &HashSet<String>) -> Option<String> {
+    if let Some(git_url) = fpm::utils::get_git_url_from_archive_url(archive_url) {
+        return Some(git_url);
+    }
+
+    for git_url in candidate_git_urls {
+        let git_url_matches = match git_url_matches_archive(git_url, archive_url) {
+            Ok(r) => r,
+            Err(e) => panic!("{}", e),
+        };
+        if git_url_matches {
+            return Some(git_url.to_string());
+        }
+    }
+
+    // TODO search in the archive for other potention git repositories.
+    None
+}
+
+fn git_url_matches_archive(git_url: &str, archive_url: &str) -> Result<bool, String> {
+    let archive_version = fpm::utils::get_semver_from_archive_url(&archive_url).unwrap();
+    Ok(false)
 }
