@@ -1,7 +1,7 @@
 use std::collections::HashSet;
-use std::path;
-use std::fs;
 use std::env;
+use std::fs;
+use std::path;
 use std::process::exit;
 
 use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
@@ -107,7 +107,11 @@ fn main() {
     exit(0);
 }
 
-pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined_repos: &mut HashSet<String>) {
+pub fn mine_repositories(
+    repos_urls: Vec<&str>,
+    mut db: fpm::db::Database,
+    mined_repos: &mut HashSet<String>,
+) {
     let mut next_repos_urls_to_mine: Vec<String> = vec![];
 
     // Marking all the repos for this discovery round as mined, so that
@@ -162,7 +166,10 @@ pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined
     }
 
     if !next_repos_urls_to_mine.is_empty() {
-        log::warn!("There are {} other repositories to mine!!!", next_repos_urls_to_mine.len());
+        log::warn!(
+            "There are {} other repositories to mine!!!",
+            next_repos_urls_to_mine.len()
+        );
         // TODO find a one-liner for that.
         let mut next_repos_urls_to_mine_str = Vec::<&str>::new();
         for url in &next_repos_urls_to_mine {
@@ -171,18 +178,24 @@ pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined
 
         mine_repositories(next_repos_urls_to_mine_str, db, mined_repos);
     }
-
 }
 
 /// Search for flatpak and flathub related repos on gitlab.com and
 /// return their URLs, one on each line.
 pub fn search_gitlab(search_term: &str) -> Result<String, String> {
-    let gitlab_repos_search_dump_path = format!("{}/gitlab_repo_search_{}.txt", fpm::db::Database::get_repos_db_path(), search_term);
+    let gitlab_repos_search_dump_path = format!(
+        "{}/gitlab_repo_search_{}.txt",
+        fpm::db::Database::get_repos_db_path(),
+        search_term
+    );
     let gitlab_repos_search_dump_path = path::Path::new(&gitlab_repos_search_dump_path);
 
     // Reuse the dump if it exists.
     if gitlab_repos_search_dump_path.is_file() {
-        log::info!("Dump of the GitLab search for `{}` exists, not fetching.", &search_term);
+        log::info!(
+            "Dump of the GitLab search for `{}` exists, not fetching.",
+            &search_term
+        );
         return match fs::read_to_string(gitlab_repos_search_dump_path) {
             Ok(content) => Ok(content),
             Err(e) => Err(e.to_string()),
@@ -191,7 +204,11 @@ pub fn search_gitlab(search_term: &str) -> Result<String, String> {
 
     log::info!("Searching for {} on GitLab.", &search_term);
     let github_repos = fpm_tools::hubs::gitlab::search_repos(&search_term);
-    log::info!("Search for {} returned {} repos.", &search_term, github_repos.len());
+    log::info!(
+        "Search for {} returned {} repos.",
+        &search_term,
+        github_repos.len()
+    );
 
     let mut gitlab_repos_search_dump = "".to_string();
     for github_repo in &github_repos {
@@ -201,10 +218,14 @@ pub fn search_gitlab(search_term: &str) -> Result<String, String> {
 
     if !gitlab_repos_search_dump.is_empty() {
         match fs::write(gitlab_repos_search_dump_path, &gitlab_repos_search_dump) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => {
-                log::warn!("Could not save the dump for GitLab search to {}: {}.", gitlab_repos_search_dump_path.display(), e);
-            },
+                log::warn!(
+                    "Could not save the dump for GitLab search to {}: {}.",
+                    gitlab_repos_search_dump_path.display(),
+                    e
+                );
+            }
         };
     }
 
@@ -215,12 +236,19 @@ pub fn search_gitlab(search_term: &str) -> Result<String, String> {
 /// return their URLs, one on each line.
 pub fn search_github(search_term: &str) -> Result<String, String> {
     // TODO clean up the search term.
-    let github_repos_search_dump_path = format!("{}/github_repo_search_{}.txt", fpm::db::Database::get_repos_db_path(), search_term);
+    let github_repos_search_dump_path = format!(
+        "{}/github_repo_search_{}.txt",
+        fpm::db::Database::get_repos_db_path(),
+        search_term
+    );
     let github_repos_search_dump_path = path::Path::new(&github_repos_search_dump_path);
 
     // Reuse the dump if it exists.
     if github_repos_search_dump_path.is_file() {
-        log::info!("Dump of the GitHub search for `{}` exists, not fetching.", &search_term);
+        log::info!(
+            "Dump of the GitHub search for `{}` exists, not fetching.",
+            &search_term
+        );
         return match fs::read_to_string(github_repos_search_dump_path) {
             Ok(content) => Ok(content),
             Err(e) => Err(e.to_string()),
@@ -229,7 +257,11 @@ pub fn search_github(search_term: &str) -> Result<String, String> {
 
     log::info!("Searching for {} on GitHub.", &search_term);
     let github_repos = fpm_tools::hubs::github::search_repos(&search_term);
-    log::info!("Search for {} returned {} repos.", &search_term, github_repos.len());
+    log::info!(
+        "Search for {} returned {} repos.",
+        &search_term,
+        github_repos.len()
+    );
 
     let mut github_repos_search_dump = "".to_string();
     for github_repo in &github_repos {
@@ -239,10 +271,14 @@ pub fn search_github(search_term: &str) -> Result<String, String> {
 
     if !github_repos_search_dump.is_empty() {
         match fs::write(github_repos_search_dump_path, &github_repos_search_dump) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => {
-                log::warn!("Could not save the dump for GitHub search to {}: {}.", github_repos_search_dump_path.display(), e);
-            },
+                log::warn!(
+                    "Could not save the dump for GitHub search to {}: {}.",
+                    github_repos_search_dump_path.display(),
+                    e
+                );
+            }
         };
     }
 
@@ -251,24 +287,39 @@ pub fn search_github(search_term: &str) -> Result<String, String> {
 
 /// Gets all the repositories' URLs associated with a specific Debian (apt) repository.
 pub fn get_debian_repos(debian_repo_name: &str, debian_sources_url: &str) -> Result<String, String> {
-    let debian_repos_dump_path = format!("{}/{}.txt", fpm::db::Database::get_repos_db_path(), debian_repo_name);
+    let debian_repos_dump_path = format!(
+        "{}/{}.txt",
+        fpm::db::Database::get_repos_db_path(),
+        debian_repo_name
+    );
     let debian_repos_dump_path = path::Path::new(&debian_repos_dump_path);
 
     // Reuse the dump if it exists.
     if debian_repos_dump_path.is_file() {
-        log::info!("Dump of the repos at GitLab instance {} exists, not fetching.", &debian_sources_url);
+        log::info!(
+            "Dump of the repos at GitLab instance {} exists, not fetching.",
+            &debian_sources_url
+        );
         return match fs::read_to_string(debian_repos_dump_path) {
             Ok(content) => Ok(content),
             Err(e) => Err(e.to_string()),
         };
     }
 
-    log::info!("Fetching sources for Debian repo {} at {}.", &debian_repo_name, &debian_sources_url);
+    log::info!(
+        "Fetching sources for Debian repo {} at {}.",
+        &debian_repo_name,
+        &debian_sources_url
+    );
     let debian_repos = match fpm_tools::hubs::deb::get_all_repos(&debian_sources_url) {
         Ok(r) => r,
         Err(e) => return Err(e),
     };
-    log::info!("There are {} Debian repos at {}.", debian_repos.len(), &debian_sources_url);
+    log::info!(
+        "There are {} Debian repos at {}.",
+        debian_repos.len(),
+        &debian_sources_url
+    );
 
     let mut debian_repos_dump = "".to_string();
     for debian_repo_url in &debian_repos {
@@ -277,10 +328,14 @@ pub fn get_debian_repos(debian_repo_name: &str, debian_sources_url: &str) -> Res
 
     if !debian_repos_dump.is_empty() {
         match fs::write(debian_repos_dump_path, &debian_repos_dump) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => {
-                log::warn!("Could not save the Debian repos dump to {}: {}.", debian_repos_dump_path.display(), e);
-            },
+                log::warn!(
+                    "Could not save the Debian repos dump to {}: {}.",
+                    debian_repos_dump_path.display(),
+                    e
+                );
+            }
         };
     }
 
@@ -288,15 +343,25 @@ pub fn get_debian_repos(debian_repo_name: &str, debian_sources_url: &str) -> Res
 }
 
 /// Gets all the repositories' URLs for a specific GitLab instance, one on each line.
-pub fn get_gitlab_repos(gitlab_instance_url: &str, gitlab_instance_auth_token_name: &str) -> Result<String, String> {
+pub fn get_gitlab_repos(
+    gitlab_instance_url: &str,
+    gitlab_instance_auth_token_name: &str,
+) -> Result<String, String> {
     let gitlab_instance_dump_key = gitlab_instance_url.replace('.', "_");
 
-    let gitlab_instance_repos_dump_path = format!("{}/{}.txt", fpm::db::Database::get_repos_db_path(), gitlab_instance_dump_key);
+    let gitlab_instance_repos_dump_path = format!(
+        "{}/{}.txt",
+        fpm::db::Database::get_repos_db_path(),
+        gitlab_instance_dump_key
+    );
     let gitlab_instance_repos_dump_path = path::Path::new(&gitlab_instance_repos_dump_path);
 
     // Reuse the dump if it exists.
     if gitlab_instance_repos_dump_path.is_file() {
-        log::info!("Dump of the repos at GitLab instance {} exists, not fetching.", &gitlab_instance_url);
+        log::info!(
+            "Dump of the repos at GitLab instance {} exists, not fetching.",
+            &gitlab_instance_url
+        );
         return match fs::read_to_string(gitlab_instance_repos_dump_path) {
             Ok(content) => Ok(content),
             Err(e) => Err(e.to_string()),
@@ -304,8 +369,13 @@ pub fn get_gitlab_repos(gitlab_instance_url: &str, gitlab_instance_auth_token_na
     }
 
     log::info!("Fetching repos from GitLab at {}.", &gitlab_instance_url);
-    let gitlab_repos = fpm_tools::hubs::gitlab::get_all_repos(&gitlab_instance_url, &gitlab_instance_auth_token_name);
-    log::info!("There are {} GitLab repos at {}.", gitlab_repos.len(), &gitlab_instance_url);
+    let gitlab_repos =
+        fpm_tools::hubs::gitlab::get_all_repos(&gitlab_instance_url, &gitlab_instance_auth_token_name);
+    log::info!(
+        "There are {} GitLab repos at {}.",
+        gitlab_repos.len(),
+        &gitlab_instance_url
+    );
 
     let mut gitlab_repos_dump = "".to_string();
     for gitlab_repo in &gitlab_repos {
@@ -315,10 +385,14 @@ pub fn get_gitlab_repos(gitlab_instance_url: &str, gitlab_instance_auth_token_na
 
     if !gitlab_repos_dump.is_empty() {
         match fs::write(gitlab_instance_repos_dump_path, &gitlab_repos_dump) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => {
-                log::warn!("Could not save the GitLab repos dump to {}: {}.", gitlab_instance_repos_dump_path.display(), e);
-            },
+                log::warn!(
+                    "Could not save the GitLab repos dump to {}: {}.",
+                    gitlab_instance_repos_dump_path.display(),
+                    e
+                );
+            }
         };
     }
 
@@ -352,10 +426,15 @@ pub fn get_github_org_repos(org_name: &str) -> Result<String, String> {
 
     if !org_repos_dump.is_empty() {
         match fs::write(org_repos_dump_path, &org_repos_dump) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => {
-                log::warn!("Could not save the {} repos dump to {}: {}.", org_name, org_repos_dump_path.display(), e);
-            },
+                log::warn!(
+                    "Could not save the {} repos dump to {}: {}.",
+                    org_name,
+                    org_repos_dump_path.display(),
+                    e
+                );
+            }
         };
     }
 
@@ -374,7 +453,7 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
         Err(e) => {
             eprintln!("Could not clone repo {}: {}", &repo_url, e);
             return mined_repos_urls;
-        },
+        }
     };
 
     if let Ok(hashes) = fpm::utils::get_git_repo_root_hashes(&repo_dir) {
@@ -410,7 +489,9 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
 
         if let Some(flatpak_manifest) = FlatpakManifest::load_from_file(file_path.to_string()) {
             let flatpak_manifest_path = file_path.replace(&repo_dir, "");
-            software_project.flatpak_app_manifests.insert(flatpak_manifest_path);
+            software_project
+                .flatpak_app_manifests
+                .insert(flatpak_manifest_path);
 
             repo_manifest_count += 1;
             log::info!("Parsed a Flatpak manifest at {}", file_path.to_string());
@@ -428,16 +509,16 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
                     db.add_module(module_description);
                 }
             }
-
         }
 
         if let Some(flatpak_module) = FlatpakModuleDescription::load_from_file(file_path.to_string()) {
             let flatpak_module_path = file_path.replace(&repo_dir, "");
-            software_project.flatpak_module_manifests.insert(flatpak_module_path);
+            software_project
+                .flatpak_module_manifests
+                .insert(flatpak_module_path);
 
             db.add_module(flatpak_module);
         }
-
     }
 
     if software_project.supports_flatpak() || !software_project.build_systems.is_empty() {
@@ -447,7 +528,11 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
     if repo_manifest_count == 0 {
         log::info!("Repo at {} had no Flatpak manifest.", repo_url);
     } else {
-        log::info!("Repo at {} had {} Flatpak manifests.", repo_url, repo_manifest_count);
+        log::info!(
+            "Repo at {} had {} Flatpak manifests.",
+            repo_url,
+            repo_manifest_count
+        );
     }
     return mined_repos_urls;
 }

@@ -14,5 +14,5 @@ jobs:
     - name: printing cargo version
       run: cargo --version
     - name: running rustfmt
-      run: rustfmt --check **/*.rs
+      run: find . -name '*.rs' -exec rustfmt --check {} \;
 
