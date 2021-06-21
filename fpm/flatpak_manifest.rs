@@ -247,7 +247,7 @@ impl FlatpakManifest {
                 }
             };
             log::info!("Parsing Flatpak manifest file {}", &path);
-            let mut manifest = match FlatpakManifest::parse(&path, &manifest_content) {
+            let manifest = match FlatpakManifest::parse(&path, &manifest_content) {
                 Ok(m) => m,
                 Err(e) => {
                     log::warn!("Failed to parse Flatpak manifest at {}: {}", path, e);
@@ -625,7 +625,7 @@ impl FlatpakModuleDescription {
                 }
             };
             log::info!("Parsing Flatpak module file {}", &path);
-            let mut module = match FlatpakModuleDescription::parse(&path, &module_content) {
+            let module = match FlatpakModuleDescription::parse(&path, &module_content) {
                 Ok(m) => m,
                 Err(e) => {
                     log::warn!("Failed to parse Flatpak module at {}: {}", path, e);

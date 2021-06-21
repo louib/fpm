@@ -141,11 +141,15 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         // make without argument runs the only manifest if there is only one
         let manifest_path = candidate_flatpak_manifests.first().unwrap();
 
-        if FlatpakManifest::load_from_file(manifest_path.to_string()).is_some() {
-            crate::flatpak_manifest::run_build(manifest_path);
-        } else {
+        if FlatpakManifest::load_from_file(manifest_path.to_string()).is_none() {
             log::error!("Could not parse Flatpak manifest at {}.", manifest_path);
             return 1;
+        }
+        // TODO get the manifest path using the current workspace in the config.
+
+        match crate::flatpak_manifest::run_build(manifest_path) {
+            Ok(_) => return 0,
+            Err(_) => return 1,
         };
     }
 

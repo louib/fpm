@@ -192,7 +192,7 @@ pub fn get_all_paths(dir: &Path) -> Result<Vec<std::path::PathBuf>, String> {
 
     let dir_entries = match fs::read_dir(dir) {
         Ok(entries) => entries,
-        Err(err) => return Ok(vec![]),
+        Err(err) => return Err(err.to_string()),
     };
     for entry in dir_entries {
         let entry_path = entry.unwrap().path();
@@ -545,6 +545,8 @@ pub fn get_git_url_from_archive_url(archive_url: &str) -> Option<String> {
     if let Some(git_url) = get_bitbucket_url_from_archive_url(archive_url) {
         return Some(git_url);
     }
+    // The SourceForge git access is documented here
+    // https://sourceforge.net/p/forge/documentation/Git/#anonymous-access-read-only
     None
 }
 
@@ -641,11 +643,4 @@ pub fn get_bitbucket_url_from_archive_url(archive_url: &str) -> Option<String> {
     let username: String = captured_groups[1].to_string();
     let project_name: String = captured_groups[2].to_string();
     return Some(format!("https://bitbucket.org/{}/{}.git", username, project_name));
-}
-
-// The SourceForge git access is documented here
-// https://sourceforge.net/p/forge/documentation/Git/#anonymous-access-read-only
-pub fn get_sourceforge_url_from_archive_url(archive_url: &str) -> Option<String> {
-    // FIXME could not get that one to work.
-    None
 }

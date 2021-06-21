@@ -50,6 +50,24 @@ fn main() {
                     FlatpakModule::Path(_) => continue,
                     FlatpakModule::Description(d) => d,
                 };
+
+                for source in &module_description.sources {
+                    if source.get_type_name() != "git" {
+                        continue;
+                    }
+
+                    let source_description = match &source {
+                        FlatpakSource::Path(_) => continue,
+                        FlatpakSource::Description(d) => d,
+                    };
+
+                    let git_url = match &source_description.url {
+                        Some(u) => u,
+                        None => continue,
+                    };
+                    all_git_urls_from_manifests.insert(git_url.to_string());
+
+                }
             }
         }
 

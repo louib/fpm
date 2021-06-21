@@ -105,6 +105,7 @@ impl Database {
         let all_modules_paths = match crate::utils::get_all_paths(modules_path) {
             Ok(paths) => paths,
             Err(e) => {
+                log::error!("Could not get modules from database: {}.", e);
                 return vec![];
             }
         };
@@ -155,7 +156,7 @@ impl Database {
         let modules_path = Database::get_modules_db_path();
         let new_module_path = format!("{}/{}.yaml", modules_path, module_hash,);
         log::info!("Adding module at {}", new_module_path);
-        let mut new_module_fs_path = path::Path::new(&new_module_path);
+        let new_module_fs_path = path::Path::new(&new_module_path);
         if new_module_fs_path.exists() {
             // The path is based on a hash of the module, so there should be no need to
             // update a file that exists.
@@ -179,10 +180,10 @@ impl Database {
         if project.id.len() == 0 {
             panic!("Trying to update a project to the db without an id!");
         }
-        let mut existing_project = self.indexed_projects.get_mut(&project.id).unwrap();
+        let existing_project = self.indexed_projects.get_mut(&project.id).unwrap();
 
-        let mut new_project_path = format!("{}/{}.yaml", projects_path, &project.id);
-        let mut project_fs_path = path::Path::new(&new_project_path);
+        let new_project_path = format!("{}/{}.yaml", projects_path, &project.id);
+        let project_fs_path = path::Path::new(&new_project_path);
         if !project_fs_path.exists() {
             panic!("Project {} does not exist", project.id);
         }
@@ -201,14 +202,14 @@ impl Database {
         };
     }
 
-    pub fn add_project(&mut self, mut project: SoftwareProject) {
+    pub fn add_project(&mut self, project: SoftwareProject) {
         let projects_path = Database::get_projects_db_path();
         if project.id.len() == 0 {
             panic!("Trying to add a project to the db without an id!");
         }
-        let mut project_path = format!("{}/{}.yaml", projects_path, &project.id);
+        let project_path = format!("{}/{}.yaml", projects_path, &project.id);
         log::info!("Adding project at {}", project_path);
-        let mut new_project_fs_path = path::Path::new(&project_path);
+        let new_project_fs_path = path::Path::new(&project_path);
         if new_project_fs_path.exists() {
             return self.update_project(&project);
         }

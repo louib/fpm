@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{self, prelude::*, BufReader};
+use std::io::{prelude::*, BufReader};
 use std::path;
 
 pub fn get_all_repos(repo_sources_url: &str) -> Result<Vec<String>, String> {
@@ -41,7 +41,7 @@ pub fn get_all_repos(repo_sources_url: &str) -> Result<Vec<String>, String> {
         let file = File::open(file_path).unwrap();
         let reader = BufReader::new(file);
 
-        for (index, line) in reader.lines().enumerate() {
+        for (_, line) in reader.lines().enumerate() {
             let line = line.unwrap(); // Ignore errors.
             let line = line.trim();
             if line.starts_with("Vcs-Git") {

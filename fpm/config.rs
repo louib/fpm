@@ -24,7 +24,7 @@ pub fn write_config(config: &WorkspaceConfig) -> Result<WorkspaceConfig, String>
     if !cache_dir.is_dir() {
         match fs::create_dir(cache_dir) {
             Ok(_) => {}
-            Err(e) => return Err(format!("Could not create cache dir at {}", DEFAULT_CACHE_DIR)),
+            Err(e) => return Err(e.to_string()),
         };
     }
 
@@ -57,8 +57,9 @@ pub fn read_config() -> Result<WorkspaceConfig, String> {
         Ok(m) => m,
         Err(e) => {
             return Err(format!(
-                "Failed to read the config file at {}",
-                config_path.to_str().unwrap_or("")
+                "Failed to read the config file at {}: {}.",
+                config_path.to_str().unwrap_or(""),
+                e,
             ))
         }
     };
