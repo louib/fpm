@@ -193,8 +193,6 @@ pub fn get_git_repo_root_hashes(repo_path: &str) -> Result<Vec<String>, String> 
 }
 
 pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
-    log::info!("Getting archive at {}", archive_url);
-
     let archive_path = archive_url.split("/").last().unwrap();
     let dir_name = normalize_name(archive_path);
 
@@ -210,6 +208,7 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
 
     let archive_destination = format!("/tmp/{}", archive_path);
     if !Path::new(&archive_destination).is_file() {
+        log::info!("Getting archive at {}", archive_url);
         let output = Command::new("curl")
             .arg(archive_url)
             .arg(format!("-o{}", archive_destination))
@@ -224,6 +223,8 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
         if !output.status.success() {
             return Err(format!("Could not fetch archive from {}.", archive_url));
         }
+    } else {
+        log::info!("Already downloaded archive at {}", archive_url);
     }
 
     Ok("".to_string())
