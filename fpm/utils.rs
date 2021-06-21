@@ -210,9 +210,7 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
 
     let archive_destination = format!("/tmp/{}", archive_path);
     if !Path::new(&archive_destination).is_file() {
-        let output = Command::new("curl")
-            .arg(archive_url)
-            .arg(format!("-o {}", archive_destination).to_owned())
+        let output = Command::new(format!("curl {} -o {}", archive_url, archive_destination))
             .stdout(Stdio::piped())
             .spawn()
             .unwrap();
