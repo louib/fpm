@@ -65,7 +65,8 @@ fn main() {
 
         for manifest_path in &project.flatpak_module_manifests {
             let absolute_manifest_path = repo_dir.to_string() + manifest_path;
-            let module_description = FlatpakModuleDescription::load_from_file(absolute_manifest_path).unwrap();
+            let module_description =
+                FlatpakModuleDescription::load_from_file(absolute_manifest_path).unwrap();
             for git_url in module_description.get_all_git_urls() {
                 all_git_urls_from_manifests.insert(git_url.to_string());
             }
