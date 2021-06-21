@@ -50,7 +50,6 @@ fn main() {
                     FlatpakModule::Path(_) => continue,
                     FlatpakModule::Description(d) => d,
                 };
-
             }
         }
 
