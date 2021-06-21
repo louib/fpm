@@ -187,6 +187,43 @@ pub fn get_git_repo_root_hashes(repo_path: &str) -> Result<Vec<String>, String> 
         .collect())
 }
 
+pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
+    log::info!("Getting archive at {}", archive_url);
+
+    let archive_path = archive_url.split("/").last().unwrap();
+    let dir_name = normalize_name(archive_path);
+
+    let repos_dir = get_repos_dir_path();
+    let archive_dir = format!("{}/{}", repos_dir, dir_name);
+
+    if Path::new(&archive_dir).is_dir() {
+        return Ok(archive_dir);
+    }
+    if let Err(e) = fs::create_dir(&archive_dir) {
+        return Err(e.to_string());
+    }
+
+    let archive_destination = format!("/tmp/{}", archive_path);
+    if !Path::new(&archive_destination).is_file() {
+        let output = Command::new("curl")
+            .arg(format!("-o {}", archive_destination).to_owned())
+            .arg(archive_url)
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap();
+
+        let output = match output.wait_with_output() {
+            Ok(o) => o,
+            Err(e) => return Err(e.to_string()),
+        };
+        if !output.status.success() {
+            return Err(format!("Could not fetch archive from {}.", archive_url));
+        }
+    }
+
+    Ok("".to_string())
+}
+
 pub fn get_all_paths(dir: &Path) -> Result<Vec<std::path::PathBuf>, String> {
     let mut all_paths: Vec<std::path::PathBuf> = vec![];
 
@@ -226,7 +263,7 @@ pub fn ask_yes_no_question(question: String) -> bool {
     return false;
 }
 
-pub fn normalize_name(name: &String) -> String {
+pub fn normalize_name(name: &str) -> String {
     let mut response: String = "".to_string();
     for c in name.chars() {
         if c.is_alphabetic() || c.is_numeric() {
