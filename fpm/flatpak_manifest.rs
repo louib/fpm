@@ -694,6 +694,27 @@ impl FlatpakModuleDescription {
         all_urls
     }
 
+    pub fn get_all_git_urls(&self) -> Vec<String> {
+        let mut all_git_urls = vec![];
+        for source in &self.sources {
+            if source.get_type_name() != "git" {
+                continue;
+            }
+
+            let source_description = match &source {
+                FlatpakSource::Path(_) => continue,
+                FlatpakSource::Description(d) => d,
+            };
+
+            let git_url = match &source_description.url {
+                Some(u) => u,
+                None => continue,
+            };
+            all_git_urls.push(git_url.to_string());
+        }
+        all_git_urls
+    }
+
     pub fn get_max_depth(&self) -> i32 {
         let mut max_depth: i32 = 0;
         for module in &self.modules {

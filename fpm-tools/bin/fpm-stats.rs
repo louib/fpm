@@ -96,6 +96,7 @@ fn main() {
             let new_count = manifests_max_depth.get(&manifest_depth).unwrap_or(&0) + 1;
             manifests_max_depth.insert(manifest_depth, new_count);
 
+            // FIXME we should get the modules recursively here!!!
             for module in &flatpak_manifest.modules {
                 let module_description = match &module {
                     FlatpakModule::Path(_) => continue,

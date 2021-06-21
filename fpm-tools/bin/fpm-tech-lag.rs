@@ -45,28 +45,15 @@ fn main() {
                 }
             };
 
+            // FIXME we should get the modules recursively here!!!
             for module in &flatpak_manifest.modules {
                 let module_description = match &module {
                     FlatpakModule::Path(_) => continue,
                     FlatpakModule::Description(d) => d,
                 };
 
-                for source in &module_description.sources {
-                    if source.get_type_name() != "git" {
-                        continue;
-                    }
-
-                    let source_description = match &source {
-                        FlatpakSource::Path(_) => continue,
-                        FlatpakSource::Description(d) => d,
-                    };
-
-                    let git_url = match &source_description.url {
-                        Some(u) => u,
-                        None => continue,
-                    };
+                for git_url in module_description.get_all_git_urls() {
                     all_git_urls_from_manifests.insert(git_url.to_string());
-
                 }
             }
         }
@@ -74,6 +61,11 @@ fn main() {
         for manifest_path in &project.flatpak_module_manifests {
             let absolute_manifest_path = repo_dir.to_string() + manifest_path;
             let flatpak_module = FlatpakModuleDescription::load_from_file(absolute_manifest_path).unwrap();
+            for git_url in flatpak_module.get_all_git_urls() {
+                all_git_urls_from_manifests.insert(git_url.to_string());
+            }
         }
+
+        log::info!("Extracted {} git urls from the manifests", all_git_urls_from_manifests.len());
     }
 }
