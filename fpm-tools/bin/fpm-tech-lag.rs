@@ -66,6 +66,9 @@ fn main() {
             }
         }
 
-        log::info!("Extracted {} git urls from the manifests", all_git_urls_from_manifests.len());
+        log::info!(
+            "Extracted {} git urls from the manifests",
+            all_git_urls_from_manifests.len()
+        );
     }
 }
