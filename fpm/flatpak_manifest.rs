@@ -694,6 +694,27 @@ impl FlatpakModuleDescription {
         all_urls
     }
 
+    pub fn get_all_archive_urls(&self) -> Vec<String> {
+        let mut all_archive_urls = vec![];
+        for source in &self.sources {
+            if source.get_type_name() != "archive" {
+                continue;
+            }
+
+            let source_description = match &source {
+                FlatpakSource::Path(_) => continue,
+                FlatpakSource::Description(d) => d,
+            };
+
+            let archive_url = match &source_description.url {
+                Some(u) => u,
+                None => continue,
+            };
+            all_archive_urls.push(archive_url.to_string());
+        }
+        all_archive_urls
+    }
+
     pub fn get_all_git_urls(&self) -> Vec<String> {
         let mut all_git_urls = vec![];
         for source in &self.sources {

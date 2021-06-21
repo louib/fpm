@@ -240,7 +240,7 @@ fn main() {
 
         for manifest_path in &project.flatpak_module_manifests {
             let absolute_manifest_path = repo_dir.to_string() + manifest_path;
-            let flatpak_module = FlatpakModuleDescription::load_from_file(absolute_manifest_path).unwrap();
+            let module_description = FlatpakModuleDescription::load_from_file(absolute_manifest_path).unwrap();
             standalone_modules_count += 1;
         }
     }

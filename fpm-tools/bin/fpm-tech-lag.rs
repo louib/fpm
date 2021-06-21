@@ -14,6 +14,8 @@ fn main() {
     }
 
     let mut all_git_urls_from_manifests: HashSet<String> = HashSet::new();
+    let mut all_archive_urls: HashSet<String> = HashSet::new();
+
     for (project_id, project) in &db.indexed_projects {
         // We're only interested in having stats for the projects supporting Flatpak.
         if !project.supports_flatpak() {
@@ -55,14 +57,20 @@ fn main() {
                 for git_url in module_description.get_all_git_urls() {
                     all_git_urls_from_manifests.insert(git_url.to_string());
                 }
+                for archive_url in module_description.get_all_archive_urls() {
+                    all_archive_urls.insert(archive_url.to_string());
+                }
             }
         }
 
         for manifest_path in &project.flatpak_module_manifests {
             let absolute_manifest_path = repo_dir.to_string() + manifest_path;
-            let flatpak_module = FlatpakModuleDescription::load_from_file(absolute_manifest_path).unwrap();
-            for git_url in flatpak_module.get_all_git_urls() {
+            let module_description = FlatpakModuleDescription::load_from_file(absolute_manifest_path).unwrap();
+            for git_url in module_description.get_all_git_urls() {
                 all_git_urls_from_manifests.insert(git_url.to_string());
+            }
+            for archive_url in module_description.get_all_archive_urls() {
+                all_archive_urls.insert(archive_url.to_string());
             }
         }
 
