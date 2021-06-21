@@ -21,6 +21,10 @@ path = "bin/fpm-discover-manifests.rs"
 name = "fpm-stats"
 path = "bin/fpm-stats.rs"
 
+[[bin]]
+name = "fpm-tech-lag"
+path = "bin/fpm-tech-lag.rs"
+
 [lib]
 path = "lib.rs"
 
