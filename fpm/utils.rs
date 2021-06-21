@@ -637,7 +637,10 @@ pub fn get_gnome_gitlab_url_from_archive_url(archive_url: &str) -> Option<String
     }
     let user_name: String = captured_groups[1].to_string();
     let project_name: String = captured_groups[2].to_string();
-    return Some(format!("https://gitlab.gnome.org/{}/{}.git", user_name, project_name));
+    return Some(format!(
+        "https://gitlab.gnome.org/{}/{}.git",
+        user_name, project_name
+    ));
 }
 
 pub fn get_pagure_url_from_archive_url(archive_url: &str) -> Option<String> {

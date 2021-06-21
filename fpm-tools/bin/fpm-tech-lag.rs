@@ -74,7 +74,6 @@ fn main() {
                 all_archive_urls.insert(archive_url.to_string());
             }
         }
-
     }
 
     log::info!(
