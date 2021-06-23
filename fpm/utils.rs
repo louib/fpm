@@ -54,19 +54,18 @@ lazy_static! {
         Regex::new(r"https?://bitbucket.org/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
 }
 
-// Gets the path the repos should be located at.
-// FIXME not sure this function belongs in utils...
-pub fn get_repos_dir_path() -> String {
-    if let Ok(path) = env::var("FPM_CLONED_REPOS_DIR") {
+pub fn get_assets_dir() -> String {
+    if let Ok(path) = env::var("FPM_ASSETS_DIR") {
         return path.to_string();
     }
+    log::warn!("FPM_ASSETS_DIR is not defined, using /tmp/");
     "/tmp".to_string()
 }
 
 pub fn clone_git_repo(repo_url: &str) -> Result<String, String> {
     let project_id = repo_url_to_reverse_dns(repo_url);
-    let repos_dir = get_repos_dir_path();
-    let repo_dir = format!("{}/{}", repos_dir, project_id);
+    let assets_dir = get_assets_dir();
+    let repo_dir = format!("{}/repos/{}", assets_dir, project_id);
     if Path::new(&repo_dir).is_dir() {
         return Ok(repo_dir);
     }
@@ -196,8 +195,8 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
     let archive_path = archive_url.split("/").last().unwrap();
     let dir_name = normalize_name(archive_path);
 
-    let repos_dir = get_repos_dir_path();
-    let archive_dir = format!("{}/{}", repos_dir, dir_name);
+    let assets_dir = get_assets_dir();
+    let archive_dir = format!("{}/archives/{}", assets_dir, dir_name);
 
     if Path::new(&archive_dir).is_dir() {
         return Ok(archive_dir);
@@ -226,6 +225,8 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
     } else {
         log::info!("Already downloaded archive at {}", archive_url);
     }
+
+
 
     Ok("".to_string())
 }
