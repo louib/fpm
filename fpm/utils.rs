@@ -196,16 +196,17 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
     let dir_name = normalize_name(archive_path);
 
     let assets_dir = get_assets_dir();
-    let archive_dir = format!("{}/archives/{}", assets_dir, dir_name);
+    let archives_dir = format!("{}/archives", assets_dir);
+    let uncompressed_archive_dir = format!("{}/uncompressed_archives/{}", assets_dir, dir_name);
 
-    if Path::new(&archive_dir).is_dir() {
-        return Ok(archive_dir);
+    if Path::new(&uncompressed_archive_dir).is_dir() {
+        return Ok(uncompressed_archive_dir);
     }
-    if let Err(e) = fs::create_dir(&archive_dir) {
+    if let Err(e) = fs::create_dir(&uncompressed_archive_dir) {
         return Err(e.to_string());
     }
 
-    let archive_destination = format!("/tmp/{}", archive_path);
+    let archive_destination = format!("{}/{}", archives_dir, archive_path);
     if !Path::new(&archive_destination).is_file() {
         log::info!("Getting archive at {}", archive_url);
         let output = Command::new("curl")
