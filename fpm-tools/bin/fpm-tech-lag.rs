@@ -101,7 +101,10 @@ fn get_git_url_for_archive(archive_url: &str, candidate_git_urls: &HashSet<Strin
     for git_url in candidate_git_urls {
         let git_url_matches = match git_url_matches_archive(git_url, archive_url) {
             Ok(r) => r,
-            Err(e) => panic!("{}", e),
+            Err(e) => {
+                log::warn!("Could not determine if {} matches {}.", git_url, archive_url);
+                continue;
+            },
         };
         if git_url_matches {
             return Some(git_url.to_string());
