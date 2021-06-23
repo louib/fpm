@@ -227,10 +227,11 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
         log::info!("Already downloaded archive at {}", archive_url);
     }
 
-    let archive_type = match crate::flatpak_manifest::FlatpakSourceDescription::detect_archive_type(archive_url) {
-        Some(t) => t,
-        None => return Err(format!("Could not detect archive type for {}", archive_url)),
-    };
+    let archive_type =
+        match crate::flatpak_manifest::FlatpakSourceDescription::detect_archive_type(archive_url) {
+            Some(t) => t,
+            None => return Err(format!("Could not detect archive type for {}", archive_url)),
+        };
 
     if archive_type.starts_with("tar") {
         let mut tar_flags = "";
@@ -269,7 +270,6 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
             panic!("Could not extract archive from {}.", archive_destination)
             // return Err(format!("Could not extract archive from {}.", archive_destination));
         }
-
     }
 
     Ok("".to_string())
