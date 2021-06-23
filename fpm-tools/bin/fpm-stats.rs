@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::collections::HashSet;
 
 use fpm::flatpak_manifest::{
-    FlatpakManifest, FlatpakModule, FlatpakModuleDescription, FlatpakSourceDescription,
+    FlatpakManifest, FlatpakModule, FlatpakSource, FlatpakModuleDescription, FlatpakSourceDescription,
 };
 
 fn main() {
@@ -17,6 +17,7 @@ fn main() {
     let mut sources_git_with_commit_count: i64 = 0;
     let mut sources_git_with_tag_count: i64 = 0;
     let mut sources_git_with_tag_and_commit_count: i64 = 0;
+    let mut sources_with_strip_components_count: i64 = 0;
     let mut archives_urls: HashSet<String> = HashSet::new();
     let mut archives_formats: BTreeMap<String, i64> = BTreeMap::new();
     let mut project_names_from_archives: HashSet<String> = HashSet::new();
@@ -163,6 +164,11 @@ fn main() {
                 }
 
                 for source in &module_description.sources {
+                    let source_description = match source {
+                        FlatpakSource::Description(d) => d,
+                        FlatpakSource::Path(_) => continue,
+                    };
+
                     sources_total_count += 1;
 
                     if source.supports_mirror_urls() {
@@ -192,6 +198,10 @@ fn main() {
 
                     if source.type_is_empty() {
                         empty_sources_count += 1;
+                    }
+
+                    if source_description.strip_components.is_some() {
+                        sources_with_strip_components_count += 1;
                     }
 
                     for url in source.get_all_urls() {
@@ -342,6 +352,13 @@ fn main() {
         (sources_git_with_tag_and_commit_count as f64 / *sources_git_count as f64) * 100.0,
         sources_git_with_tag_and_commit_count,
         sources_git_count
+    );
+    let sources_archive_count = sources_count.get("archive").unwrap();
+    println!(
+        "Archive sources with the strip-components option: {:.2}% ({}/{})",
+        (sources_with_strip_components_count as f64 / *sources_archive_count as f64) * 100.0,
+        sources_with_strip_components_count,
+        sources_archive_count,
     );
     println!(
         "Archive URLS with a semver: {:.2}% ({}/{})",

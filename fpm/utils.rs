@@ -232,7 +232,45 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
         None => return Err(format!("Could not detect archive type for {}", archive_url)),
     };
 
+    if archive_type.starts_with("tar") {
+        let mut tar_flags = "";
+        if archive_type == "tar-gzip" {
+            tar_flags = "-z";
+        } else if archive_type == "tar-compress" {
+            tar_flags = "-Z";
+        } else if archive_type == "tar-bzip2" {
+            tar_flags = "-j";
+        } else if archive_type == "tar-lzip" {
+            tar_flags = "--lzip";
+        } else if archive_type == "tar-lzma" {
+            tar_flags = "--lzma";
+        } else if archive_type == "tar-lzop" {
+            tar_flags = "--lzop";
+        } else if archive_type == "tar-xz" {
+            tar_flags = "-J";
+        }
 
+        // TODO should we handle the strip-components option?
+        let output = Command::new("tar")
+            .arg(format!("--directory={}", uncompressed_archive_dir))
+            .arg("--no-same-owner")
+            .arg("-x")
+            .arg(tar_flags)
+            .arg(format!("-f{}", archive_destination))
+            .stdout(Stdio::piped())
+            .spawn()
+            .unwrap();
+
+        let output = match output.wait_with_output() {
+            Ok(o) => o,
+            Err(e) => return Err(e.to_string()),
+        };
+        if !output.status.success() {
+            panic!("Could not extract archive from {}.", archive_destination)
+            // return Err(format!("Could not extract archive from {}.", archive_destination));
+        }
+
+    }
 
     Ok("".to_string())
 }

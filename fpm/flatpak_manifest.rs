@@ -1034,6 +1034,7 @@ pub struct FlatpakSourceDescription {
     pub disable_submodules: Option<bool>,
 
     // The number of initial pathname components to strip.
+    // defaults to 1.
     // types: archive, patch
     #[serde(skip_serializing_if = "Option::is_none")]
     pub strip_components: Option<i64>,
@@ -1095,6 +1096,9 @@ impl FlatpakSourceDescription {
         }
         if url.ends_with(".rpm") {
             return Some("rpm".to_string());
+        }
+        if url.ends_with(".7z") {
+            return Some("sevenz".to_string());
         }
         None
     }
