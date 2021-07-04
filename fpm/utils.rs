@@ -262,8 +262,15 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
             .arg(tar_flags)
             .arg(format!("-f{}", archive_destination))
             .stdout(Stdio::piped())
-            .spawn()
-            .unwrap();
+            .spawn();
+
+        let output = match output {
+            Ok(o) => o,
+            Err(msg) => {
+                log::error!("Error when decompressing with tar: {}", msg);
+                return Err(msg.to_string());
+            },
+        };
 
         let output = match output.wait_with_output() {
             Ok(o) => o,
