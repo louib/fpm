@@ -257,6 +257,7 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
         let output = Command::new("tar")
             .arg(format!("--directory={}", uncompressed_archive_dir))
             .arg("--no-same-owner")
+            .arg("--strip-components=1")
             .arg("-x")
             .arg(tar_flags)
             .arg(format!("-f{}", archive_destination))
