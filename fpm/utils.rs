@@ -200,6 +200,7 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
     let uncompressed_archive_dir = format!("{}/uncompressed_archives/{}", assets_dir, dir_name);
 
     if Path::new(&uncompressed_archive_dir).is_dir() {
+        log::info!("Archive was already uncompressed at {}", uncompressed_archive_dir);
         return Ok(uncompressed_archive_dir);
     }
     if let Err(e) = fs::create_dir(&uncompressed_archive_dir) {
