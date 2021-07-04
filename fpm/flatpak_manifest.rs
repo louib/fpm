@@ -1070,7 +1070,7 @@ impl FlatpakSourceDescription {
         if url.ends_with(".tar.gz") || url.ends_with(".tgz") || url.ends_with(".taz") {
             return Some("tar-gzip".to_string());
         }
-        if url.ends_with(".tar.Z") || url.ends_with(".taZ") {
+        if url.ends_with(".tar.z") || url.ends_with(".taz") {
             return Some("tar-compress".to_string());
         }
         if url.ends_with(".tar.bz2") || url.ends_with(".tz2") {

@@ -251,6 +251,8 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
             tar_flags = "-J";
         }
 
+        log::info!("Decompressing with `tar` the following archive: {}", archive_destination);
+        log::debug!("Tar flags: {}", tar_flags);
         // TODO should we handle the strip-components option?
         let output = Command::new("tar")
             .arg(format!("--directory={}", uncompressed_archive_dir))
