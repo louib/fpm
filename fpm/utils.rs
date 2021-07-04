@@ -240,7 +240,7 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
         } else if archive_type == "tar-compress" {
             tar_flags = "-Z";
         } else if archive_type == "tar-bzip2" {
-            tar_flags = "-j";
+            tar_flags = "--bzip2";
         } else if archive_type == "tar-lzip" {
             tar_flags = "--lzip";
         } else if archive_type == "tar-lzma" {
@@ -248,7 +248,7 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
         } else if archive_type == "tar-lzop" {
             tar_flags = "--lzop";
         } else if archive_type == "tar-xz" {
-            tar_flags = "-J";
+            tar_flags = "--xz";
         }
 
         log::info!("Decompressing with `tar` the following archive: {}", archive_destination);
