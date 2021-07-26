@@ -3,8 +3,6 @@ use std::collections::HashSet;
 use std::fs;
 use std::path;
 
-use lazy_static::lazy_static;
-
 use fpm::flatpak_manifest::{
     FlatpakManifest, FlatpakModule, FlatpakModuleDescription, FlatpakSource, FlatpakSourceDescription,
 };
@@ -62,10 +60,6 @@ fn main() {
                     all_git_urls_from_manifests.insert(git_url.to_string());
                 }
                 for archive_url in module_description.get_all_archive_urls() {
-                    // FIXME remove this after testing!!!
-                    if all_archive_urls.len() > 20 {
-                        continue;
-                    }
                     all_archive_urls.insert(archive_url.to_string());
                 }
             }
