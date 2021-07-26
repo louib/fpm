@@ -1,9 +1,19 @@
 use std::collections::BTreeMap;
 use std::collections::HashSet;
 
+use lazy_static::lazy_static;
+
 use fpm::flatpak_manifest::{
     FlatpakManifest, FlatpakModule, FlatpakModuleDescription, FlatpakSource, FlatpakSourceDescription,
 };
+
+lazy_static! {
+    static ref CANDIDATE_README_NAMES: Vec<String> = vec![
+        "README".to_string(),
+        "README.md".to_string(),
+        "README.txt".to_string(),
+    ];
+}
 
 fn main() {
     fpm::logger::init();
@@ -89,7 +99,11 @@ fn main() {
         if fpm::utils::get_semver_from_archive_url(&archive_url).is_none() {
             continue;
         }
-        get_git_url_for_archive(archive_url, &all_git_urls_from_manifests);
+        if let Some(git_url) = get_git_url_for_archive(archive_url, &all_git_urls_from_manifests) {
+            println!("Git URL for {} is {}.", archive_url, git_url);
+        } else {
+            println!("Could not find git URL for {}.", archive_url);
+        }
     }
 }
 
@@ -111,7 +125,7 @@ fn get_git_url_for_archive(archive_url: &str, candidate_git_urls: &HashSet<Strin
         }
     }
 
-    // TODO search in the archive for other potention git repositories.
+    // TODO search in the archive for other potential git repositories.
     None
 }
 
@@ -119,7 +133,11 @@ fn git_url_matches_archive(git_url: &str, archive_url: &str) -> Result<bool, Str
     let archive_version = fpm::utils::get_semver_from_archive_url(archive_url).unwrap();
     let archive_dir = match fpm::utils::get_and_uncompress_archive(archive_url) {
         Ok(d) => d,
-        Err(e) => return Ok(false),
+        Err(_) => return Ok(false),
+    };
+    let git_dir = match fpm::utils::clone_git_repo(git_url) {
+        Ok(d) => d,
+        Err(_) => return Ok(false),
     };
     Ok(false)
 }
