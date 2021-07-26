@@ -1,7 +1,7 @@
-use std::path;
-use std::fs;
 use std::collections::BTreeMap;
 use std::collections::HashSet;
+use std::fs;
+use std::path;
 
 use lazy_static::lazy_static;
 
@@ -154,20 +154,31 @@ fn git_url_matches_archive(git_url: &str, archive_url: &str) -> Result<bool, Str
         let git_readme_path = format!("{}/{}", git_dir, candidate_readme_name);
         let git_readme_path = path::Path::new(&git_readme_path);
         if !archive_readme_path.is_file() || !git_readme_path.is_file() {
-            log::debug!("{} was not found in the archive or git repo", candidate_readme_name);
+            log::debug!(
+                "{} was not found in the archive or git repo",
+                candidate_readme_name
+            );
             continue;
         }
         let archive_readme_content = match fs::read_to_string(archive_readme_path) {
             Ok(c) => c,
             Err(e) => {
-                log::error!("Could not load file {}: {}.", archive_readme_path.to_str().unwrap(), e);
+                log::error!(
+                    "Could not load file {}: {}.",
+                    archive_readme_path.to_str().unwrap(),
+                    e
+                );
                 continue;
             }
         };
         let git_readme_content = match fs::read_to_string(git_readme_path) {
             Ok(c) => c,
             Err(e) => {
-                log::error!("Could not load file {}: {}.", git_readme_path.to_str().unwrap(), e);
+                log::error!(
+                    "Could not load file {}: {}.",
+                    git_readme_path.to_str().unwrap(),
+                    e
+                );
                 continue;
             }
         };
