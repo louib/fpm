@@ -26,8 +26,8 @@ name = "fpm-extract-urls-from-manifests"
 path = "bin/fpm-extract-urls-from-manifests.rs"
 
 [[bin]]
-name = "fpm-tech-lag"
-path = "bin/fpm-tech-lag.rs"
+name = "fpm-map-archives-to-repos"
+path = "bin/fpm-map-archives-to-repos.rs"
 
 [lib]
 path = "lib.rs"
