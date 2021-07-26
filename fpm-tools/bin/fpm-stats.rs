@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::collections::HashSet;
 
 use fpm::flatpak_manifest::{
-    FlatpakManifest, FlatpakModule, FlatpakSource, FlatpakModuleDescription, FlatpakSourceDescription,
+    FlatpakManifest, FlatpakModule, FlatpakModuleDescription, FlatpakSource, FlatpakSourceDescription,
 };
 
 fn main() {
