@@ -437,9 +437,6 @@ pub fn repo_url_to_reverse_dns(repo_url: &str) -> String {
     if !repo_url.starts_with("https://") {
         panic!("Only supports https urls: {}", repo_url);
     }
-    if !repo_url.ends_with(".git") {
-        panic!("Only supports git repositories: {}", repo_url);
-    }
     let mut sanitized_url = repo_url[8..].to_string();
     // Removing the .git at the end of the url.
     // There has to be a better way to do this...
