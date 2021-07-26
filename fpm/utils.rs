@@ -62,6 +62,39 @@ pub fn get_assets_dir() -> String {
     "/tmp".to_string()
 }
 
+pub fn checkout_git_ref(repo_url: &str, git_ref: &str) -> Result<(), String> {
+    let project_id = repo_url_to_reverse_dns(repo_url);
+    let assets_dir = get_assets_dir();
+    let repo_dir = format!("{}/repos/{}", assets_dir, project_id);
+    if !Path::new(&repo_dir).is_dir() {
+        return Err(format!("{} is not a directory!", repo_dir));
+    }
+
+    let git_internal_dir = format!("{}/.git", repo_dir);
+    if !Path::new(&git_internal_dir).is_dir() {
+        return Err(format!("{} is not a git project!", repo_dir));
+    }
+
+    println!("Checking out {} in repo {}", git_ref, repo_dir);
+    let output = Command::new("git")
+        .arg(format!("--git-dir={}/.git", repo_dir).to_owned())
+        .arg("checkout")
+        .arg(git_ref)
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+
+    let output = match output.wait_with_output() {
+        Ok(o) => o,
+        Err(e) => return Err(e.to_string()),
+    };
+    if !output.status.success() {
+        return Err("Could not checkout git ref.".to_string());
+    }
+
+    Ok(())
+}
+
 pub fn clone_git_repo(repo_url: &str) -> Result<String, String> {
     let project_id = repo_url_to_reverse_dns(repo_url);
     let assets_dir = get_assets_dir();

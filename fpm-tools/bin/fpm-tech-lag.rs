@@ -1,3 +1,5 @@
+use std::path;
+use std::fs;
 use std::collections::BTreeMap;
 use std::collections::HashSet;
 
@@ -68,6 +70,10 @@ fn main() {
                     all_git_urls_from_manifests.insert(git_url.to_string());
                 }
                 for archive_url in module_description.get_all_archive_urls() {
+                    // FIXME remove this after testing!!!
+                    if all_archive_urls.len() > 20 {
+                        continue;
+                    }
                     all_archive_urls.insert(archive_url.to_string());
                 }
             }
@@ -139,5 +145,36 @@ fn git_url_matches_archive(git_url: &str, archive_url: &str) -> Result<bool, Str
         Ok(d) => d,
         Err(_) => return Ok(false),
     };
+    if let Err(_) = fpm::utils::checkout_git_ref(git_url, &archive_version) {
+        return Ok(false);
+    };
+    for candidate_readme_name in CANDIDATE_README_NAMES.iter() {
+        let archive_readme_path = format!("{}/{}", archive_dir, candidate_readme_name);
+        let archive_readme_path = path::Path::new(&archive_readme_path);
+        let git_readme_path = format!("{}/{}", git_dir, candidate_readme_name);
+        let git_readme_path = path::Path::new(&git_readme_path);
+        if !archive_readme_path.is_file() || !git_readme_path.is_file() {
+            log::debug!("{} was not found in the archive or git repo", candidate_readme_name);
+            continue;
+        }
+        let archive_readme_content = match fs::read_to_string(archive_readme_path) {
+            Ok(c) => c,
+            Err(e) => {
+                log::error!("Could not load file {}: {}.", archive_readme_path.to_str().unwrap(), e);
+                continue;
+            }
+        };
+        let git_readme_content = match fs::read_to_string(git_readme_path) {
+            Ok(c) => c,
+            Err(e) => {
+                log::error!("Could not load file {}: {}.", git_readme_path.to_str().unwrap(), e);
+                continue;
+            }
+        };
+        if archive_readme_content == git_readme_content {
+            return Ok(true);
+        }
+    }
+
     Ok(false)
 }
