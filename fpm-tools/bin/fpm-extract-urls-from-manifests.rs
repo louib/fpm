@@ -97,10 +97,7 @@ fn main() {
     for git_url in &all_git_urls_from_manifests {
         git_urls_dump += &format!("{}\n", git_url);
     }
-    let git_urls_dump_path = format!(
-        "{}/git_urls_from_manifests.txt",
-        fpm::db::Database::get_db_path()
-    );
+    let git_urls_dump_path = format!("{}/git_urls_from_manifests.txt", fpm::db::Database::get_db_path());
     let git_urls_dump_path = path::Path::new(&git_urls_dump_path);
     if let Err(e) = fs::write(git_urls_dump_path, &git_urls_dump) {
         log::warn!(
@@ -127,5 +124,3 @@ fn main() {
         );
     };
 }
-
-
