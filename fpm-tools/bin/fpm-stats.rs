@@ -69,10 +69,7 @@ fn main() {
             let flatpak_manifest = match FlatpakManifest::load_from_file(absolute_manifest_path.to_string()) {
                 Some(m) => m,
                 None => {
-                    log::warn!(
-                        "Could not parse Flatpak manifest at {}!!!",
-                        absolute_manifest_path
-                    );
+                    log::warn!("Could not parse Flatpak manifest at {}!!!", absolute_manifest_path);
                     continue;
                 }
             };
@@ -112,14 +109,12 @@ fn main() {
                     if url == "." || url == ".." || url.starts_with("./") || url.starts_with("../") {
                         let new_modules_protocol_count =
                             modules_urls_protocols.get("relative fs path").unwrap_or(&0) + 1;
-                        modules_urls_protocols
-                            .insert("relative fs path".to_string(), new_modules_protocol_count);
+                        modules_urls_protocols.insert("relative fs path".to_string(), new_modules_protocol_count);
                     } else if url.starts_with("http://") {
                         let new_modules_protocol_count = modules_urls_protocols.get("http").unwrap_or(&0) + 1;
                         modules_urls_protocols.insert("http".to_string(), new_modules_protocol_count);
                     } else if url.starts_with("https://") {
-                        let new_modules_protocol_count =
-                            modules_urls_protocols.get("https").unwrap_or(&0) + 1;
+                        let new_modules_protocol_count = modules_urls_protocols.get("https").unwrap_or(&0) + 1;
                         modules_urls_protocols.insert("https".to_string(), new_modules_protocol_count);
                     } else if url.starts_with("git://") {
                         let new_modules_protocol_count = modules_urls_protocols.get("git").unwrap_or(&0) + 1;
@@ -134,8 +129,7 @@ fn main() {
                         let new_modules_protocol_count = modules_urls_protocols.get("file").unwrap_or(&0) + 1;
                         modules_urls_protocols.insert("file".to_string(), new_modules_protocol_count);
                     } else {
-                        let new_modules_protocol_count =
-                            modules_urls_protocols.get("other").unwrap_or(&0) + 1;
+                        let new_modules_protocol_count = modules_urls_protocols.get("other").unwrap_or(&0) + 1;
                         modules_urls_protocols.insert("other".to_string(), new_modules_protocol_count);
                         log::warn!("UNKNOWN URL PROTOCOL {}", url);
                     }
@@ -154,12 +148,10 @@ fn main() {
                 modules_sources_count.insert(module_sources_count, new_sources_count);
 
                 if let Some(buildsystem) = module_description.get_buildsystem() {
-                    let new_buildsystem_count =
-                        modules_buildsystems_count.get(&buildsystem).unwrap_or(&0) + 1;
+                    let new_buildsystem_count = modules_buildsystems_count.get(&buildsystem).unwrap_or(&0) + 1;
                     modules_buildsystems_count.insert(buildsystem.to_string(), new_buildsystem_count);
                 } else {
-                    let new_buildsystem_count =
-                        modules_buildsystems_count.get("unspecified").unwrap_or(&0) + 1;
+                    let new_buildsystem_count = modules_buildsystems_count.get("unspecified").unwrap_or(&0) + 1;
                     modules_buildsystems_count.insert("unspecified".to_string(), new_buildsystem_count);
                 }
 
@@ -233,9 +225,7 @@ fn main() {
                                 sources_archives_with_direct_git_url += 1;
                             } else {
                                 log::debug!("ARCHIVE URL FROM UNKNOWN SOURCE {}", url);
-                                if let Some(project_name) =
-                                    fpm::utils::get_project_name_from_archive_url(&url)
-                                {
+                                if let Some(project_name) = fpm::utils::get_project_name_from_archive_url(&url) {
                                     sources_unknown_with_project_name += 1;
                                     project_names_from_archives.insert(project_name.to_lowercase());
                                 } else {
@@ -250,8 +240,7 @@ fn main() {
 
         for manifest_path in &project.flatpak_module_manifests {
             let absolute_manifest_path = repo_dir.to_string() + manifest_path;
-            let module_description =
-                FlatpakModuleDescription::load_from_file(absolute_manifest_path).unwrap();
+            let module_description = FlatpakModuleDescription::load_from_file(absolute_manifest_path).unwrap();
             standalone_modules_count += 1;
         }
     }

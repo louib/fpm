@@ -10,11 +10,8 @@ use fpm::flatpak_manifest::{
 };
 
 lazy_static! {
-    static ref CANDIDATE_README_NAMES: Vec<String> = vec![
-        "README".to_string(),
-        "README.md".to_string(),
-        "README.txt".to_string(),
-    ];
+    static ref CANDIDATE_README_NAMES: Vec<String> =
+        vec!["README".to_string(), "README.md".to_string(), "README.txt".to_string(),];
 }
 
 fn main() {
@@ -31,7 +28,10 @@ fn main() {
     let git_urls_dump_path = format!("{}/git_urls_from_manifests.txt", fpm::db::Database::get_db_path());
     let git_urls_dump_path = path::Path::new(&git_urls_dump_path);
     if !git_urls_dump_path.is_file() {
-        panic!("Could not find git urls dump at {}.", git_urls_dump_path.to_str().unwrap());
+        panic!(
+            "Could not find git urls dump at {}.",
+            git_urls_dump_path.to_str().unwrap()
+        );
     }
     let git_urls_dump = match fs::read_to_string(git_urls_dump_path) {
         Ok(content) => content,
@@ -40,19 +40,15 @@ fn main() {
     for git_url in git_urls_dump.split("\n") {
         git_urls_from_manifests.insert(git_url.to_string());
     }
-    log::info!(
-        "Loaded {} git urls from the manifests",
-        git_urls_from_manifests.len()
-    );
+    log::info!("Loaded {} git urls from the manifests", git_urls_from_manifests.len());
 
-
-    let archive_urls_dump_path = format!(
-        "{}/archive_urls_from_manifests.txt",
-        fpm::db::Database::get_db_path()
-    );
+    let archive_urls_dump_path = format!("{}/archive_urls_from_manifests.txt", fpm::db::Database::get_db_path());
     let archive_urls_dump_path = path::Path::new(&archive_urls_dump_path);
     if !archive_urls_dump_path.is_file() {
-        panic!("Could not find git urls dump at {}.", archive_urls_dump_path.to_str().unwrap());
+        panic!(
+            "Could not find git urls dump at {}.",
+            archive_urls_dump_path.to_str().unwrap()
+        );
     }
     let archive_urls_dump = match fs::read_to_string(archive_urls_dump_path) {
         Ok(content) => content,
@@ -124,31 +120,20 @@ fn git_url_matches_archive(git_url: &str, archive_url: &str) -> Result<bool, Str
         let git_readme_path = format!("{}/{}", git_dir, candidate_readme_name);
         let git_readme_path = path::Path::new(&git_readme_path);
         if !archive_readme_path.is_file() || !git_readme_path.is_file() {
-            log::debug!(
-                "{} was not found in the archive or git repo",
-                candidate_readme_name
-            );
+            log::debug!("{} was not found in the archive or git repo", candidate_readme_name);
             continue;
         }
         let archive_readme_content = match fs::read_to_string(archive_readme_path) {
             Ok(c) => c,
             Err(e) => {
-                log::error!(
-                    "Could not load file {}: {}.",
-                    archive_readme_path.to_str().unwrap(),
-                    e
-                );
+                log::error!("Could not load file {}: {}.", archive_readme_path.to_str().unwrap(), e);
                 continue;
             }
         };
         let git_readme_content = match fs::read_to_string(git_readme_path) {
             Ok(c) => c,
             Err(e) => {
-                log::error!(
-                    "Could not load file {}: {}.",
-                    git_readme_path.to_str().unwrap(),
-                    e
-                );
+                log::error!("Could not load file {}: {}.", git_readme_path.to_str().unwrap(), e);
                 continue;
             }
         };

@@ -1,4 +1,4 @@
 # https://rust-lang.github.io/rustfmt for all the options.
-max_width = 110
+max_width = 115
 edition = "2018"
 merge_derives = false

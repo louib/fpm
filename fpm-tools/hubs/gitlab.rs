@@ -67,10 +67,7 @@ pub fn search_repos(search_term: &str) -> Vec<GitLabProject> {
     let mut projects: Vec<GitLabProject> = vec![];
 
     // https://docs.gitlab.com/ee/api/search.html
-    let mut next_page_url = format!(
-        "https://gitlab.com/api/v4/search?scope=projects&search={}",
-        search_term,
-    );
+    let mut next_page_url = format!("https://gitlab.com/api/v4/search?scope=projects&search={}", search_term,);
 
     let mut headers = header::HeaderMap::new();
     if let Ok(token) = env::var("FPM_GITLAB_TOKEN") {
@@ -113,10 +110,7 @@ pub fn search_repos(search_term: &str) -> Vec<GitLabProject> {
                     return projects;
                 }
             };
-            log::error!(
-                "Error returned by the GitLab API: {}",
-                error_object.get_error_message()
-            );
+            log::error!("Error returned by the GitLab API: {}", error_object.get_error_message());
             return projects;
         }
 
@@ -197,10 +191,7 @@ pub fn get_all_repos(domain: &str, token_env_var_name: &str) -> Vec<GitLabProjec
 }
 
 pub fn get_repos(request: fpm::utils::PagedRequest) -> fpm::utils::PagedResponse<GitLabProject> {
-    let mut current_url = format!(
-        "https://{}/api/v4/projects?per_page=100&simple=false",
-        request.domain
-    );
+    let mut current_url = format!("https://{}/api/v4/projects?per_page=100&simple=false", request.domain);
     if let Some(url) = request.next_page_url {
         current_url = url;
     }

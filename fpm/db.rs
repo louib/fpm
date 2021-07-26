@@ -165,11 +165,7 @@ impl Database {
         match fs::write(new_module_fs_path, serde_yaml::to_string(&new_module).unwrap()) {
             Ok(content) => content,
             Err(e) => {
-                eprintln!(
-                    "Could not write new module at {}: {}",
-                    new_module_path.to_string(),
-                    e
-                );
+                eprintln!("Could not write new module at {}: {}", new_module_path.to_string(), e);
             }
         };
         self.modules.push(new_module);
@@ -193,11 +189,7 @@ impl Database {
         match fs::write(project_fs_path, serde_yaml::to_string(&existing_project).unwrap()) {
             Ok(content) => content,
             Err(e) => {
-                eprintln!(
-                    "Could not write new project at {}: {}",
-                    new_project_path.to_string(),
-                    e
-                );
+                eprintln!("Could not write new project at {}: {}", new_project_path.to_string(), e);
             }
         };
     }
@@ -216,11 +208,7 @@ impl Database {
         match fs::write(new_project_fs_path, serde_yaml::to_string(&project).unwrap()) {
             Ok(content) => content,
             Err(e) => {
-                eprintln!(
-                    "Could not write new project at {}: {}",
-                    project_path.to_string(),
-                    e
-                );
+                eprintln!("Could not write new project at {}: {}", project_path.to_string(), e);
             }
         };
         self.indexed_projects.insert(project.id.clone(), project);

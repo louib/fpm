@@ -107,11 +107,7 @@ fn main() {
     exit(0);
 }
 
-pub fn mine_repositories(
-    repos_urls: Vec<&str>,
-    mut db: fpm::db::Database,
-    mined_repos: &mut HashSet<String>,
-) {
+pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined_repos: &mut HashSet<String>) {
     let mut next_repos_urls_to_mine: Vec<String> = vec![];
 
     // Marking all the repos for this discovery round as mined, so that
@@ -192,10 +188,7 @@ pub fn search_gitlab(search_term: &str) -> Result<String, String> {
 
     // Reuse the dump if it exists.
     if gitlab_repos_search_dump_path.is_file() {
-        log::info!(
-            "Dump of the GitLab search for `{}` exists, not fetching.",
-            &search_term
-        );
+        log::info!("Dump of the GitLab search for `{}` exists, not fetching.", &search_term);
         return match fs::read_to_string(gitlab_repos_search_dump_path) {
             Ok(content) => Ok(content),
             Err(e) => Err(e.to_string()),
@@ -204,11 +197,7 @@ pub fn search_gitlab(search_term: &str) -> Result<String, String> {
 
     log::info!("Searching for {} on GitLab.", &search_term);
     let github_repos = fpm_tools::hubs::gitlab::search_repos(&search_term);
-    log::info!(
-        "Search for {} returned {} repos.",
-        &search_term,
-        github_repos.len()
-    );
+    log::info!("Search for {} returned {} repos.", &search_term, github_repos.len());
 
     let mut gitlab_repos_search_dump = "".to_string();
     for github_repo in &github_repos {
@@ -245,10 +234,7 @@ pub fn search_github(search_term: &str) -> Result<String, String> {
 
     // Reuse the dump if it exists.
     if github_repos_search_dump_path.is_file() {
-        log::info!(
-            "Dump of the GitHub search for `{}` exists, not fetching.",
-            &search_term
-        );
+        log::info!("Dump of the GitHub search for `{}` exists, not fetching.", &search_term);
         return match fs::read_to_string(github_repos_search_dump_path) {
             Ok(content) => Ok(content),
             Err(e) => Err(e.to_string()),
@@ -257,11 +243,7 @@ pub fn search_github(search_term: &str) -> Result<String, String> {
 
     log::info!("Searching for {} on GitHub.", &search_term);
     let github_repos = fpm_tools::hubs::github::search_repos(&search_term);
-    log::info!(
-        "Search for {} returned {} repos.",
-        &search_term,
-        github_repos.len()
-    );
+    log::info!("Search for {} returned {} repos.", &search_term, github_repos.len());
 
     let mut github_repos_search_dump = "".to_string();
     for github_repo in &github_repos {
@@ -287,11 +269,7 @@ pub fn search_github(search_term: &str) -> Result<String, String> {
 
 /// Gets all the repositories' URLs associated with a specific Debian (apt) repository.
 pub fn get_debian_repos(debian_repo_name: &str, debian_sources_url: &str) -> Result<String, String> {
-    let debian_repos_dump_path = format!(
-        "{}/{}.txt",
-        fpm::db::Database::get_repos_db_path(),
-        debian_repo_name
-    );
+    let debian_repos_dump_path = format!("{}/{}.txt", fpm::db::Database::get_repos_db_path(), debian_repo_name);
     let debian_repos_dump_path = path::Path::new(&debian_repos_dump_path);
 
     // Reuse the dump if it exists.
@@ -489,9 +467,7 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
 
         if let Some(flatpak_manifest) = FlatpakManifest::load_from_file(file_path.to_string()) {
             let flatpak_manifest_path = file_path.replace(&repo_dir, "");
-            software_project
-                .flatpak_app_manifests
-                .insert(flatpak_manifest_path);
+            software_project.flatpak_app_manifests.insert(flatpak_manifest_path);
 
             repo_manifest_count += 1;
             log::info!("Parsed a Flatpak manifest at {}", file_path.to_string());
@@ -513,9 +489,7 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
 
         if let Some(flatpak_module) = FlatpakModuleDescription::load_from_file(file_path.to_string()) {
             let flatpak_module_path = file_path.replace(&repo_dir, "");
-            software_project
-                .flatpak_module_manifests
-                .insert(flatpak_module_path);
+            software_project.flatpak_module_manifests.insert(flatpak_module_path);
 
             db.add_module(flatpak_module);
         }
@@ -528,11 +502,7 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
     if repo_manifest_count == 0 {
         log::info!("Repo at {} had no Flatpak manifest.", repo_url);
     } else {
-        log::info!(
-            "Repo at {} had {} Flatpak manifests.",
-            repo_url,
-            repo_manifest_count
-        );
+        log::info!("Repo at {} had {} Flatpak manifests.", repo_url, repo_manifest_count);
     }
     return mined_repos_urls;
 }

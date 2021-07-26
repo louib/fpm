@@ -150,12 +150,7 @@ pub fn uncompress(archive_path: &str) -> Result<String, String> {
         return Err("Could not uncompress file.".to_string());
     }
 
-    return Ok(Path::new(archive_path)
-        .parent()
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .to_string());
+    return Ok(Path::new(archive_path).parent().unwrap().to_str().unwrap().to_string());
 }
 
 pub fn fetch_file(file_url: &str) -> Result<String, String> {
@@ -261,11 +256,10 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
         log::info!("Already downloaded archive at {}", archive_url);
     }
 
-    let archive_type =
-        match crate::flatpak_manifest::FlatpakSourceDescription::detect_archive_type(archive_url) {
-            Some(t) => t,
-            None => return Err(format!("Could not detect archive type for {}", archive_url)),
-        };
+    let archive_type = match crate::flatpak_manifest::FlatpakSourceDescription::detect_archive_type(archive_url) {
+        Some(t) => t,
+        None => return Err(format!("Could not detect archive type for {}", archive_url)),
+    };
 
     if archive_type.starts_with("tar") {
         let mut tar_flags = "";
@@ -719,10 +713,7 @@ pub fn get_gnome_gitlab_url_from_archive_url(archive_url: &str) -> Option<String
     }
     let user_name: String = captured_groups[1].to_string();
     let project_name: String = captured_groups[2].to_string();
-    return Some(format!(
-        "https://gitlab.gnome.org/{}/{}.git",
-        user_name, project_name
-    ));
+    return Some(format!("https://gitlab.gnome.org/{}/{}.git", user_name, project_name));
 }
 
 pub fn get_pagure_url_from_archive_url(archive_url: &str) -> Option<String> {
@@ -758,10 +749,7 @@ pub fn get_nongnu_release_url_from_archive_url(archive_url: &str) -> Option<Stri
         return None;
     }
     let project_name: String = captured_groups[1].to_string();
-    return Some(format!(
-        "https://git.savannah.nongnu.org/git/{}.git",
-        project_name
-    ));
+    return Some(format!("https://git.savannah.nongnu.org/git/{}.git", project_name));
 }
 
 pub fn get_nongnu_project_url_from_archive_url(archive_url: &str) -> Option<String> {
@@ -773,10 +761,7 @@ pub fn get_nongnu_project_url_from_archive_url(archive_url: &str) -> Option<Stri
         return None;
     }
     let project_name: String = captured_groups[1].to_string();
-    return Some(format!(
-        "https://git.savannah.nongnu.org/git/{}.git",
-        project_name
-    ));
+    return Some(format!("https://git.savannah.nongnu.org/git/{}.git", project_name));
 }
 
 pub fn get_bitbucket_url_from_archive_url(archive_url: &str) -> Option<String> {
