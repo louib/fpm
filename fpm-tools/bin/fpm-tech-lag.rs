@@ -136,6 +136,10 @@ fn get_git_url_for_archive(archive_url: &str, candidate_git_urls: &HashSet<Strin
 }
 
 fn git_url_matches_archive(git_url: &str, archive_url: &str) -> Result<bool, String> {
+    // FIXME we should actually just handle that...
+    if git_url.starts_with("git://") {
+        continue;
+    }
     let archive_version = fpm::utils::get_semver_from_archive_url(archive_url).unwrap();
     let archive_dir = match fpm::utils::get_and_uncompress_archive(archive_url) {
         Ok(d) => d,
