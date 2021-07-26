@@ -241,6 +241,7 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
         let output = Command::new("curl")
             .arg(archive_url)
             .arg(format!("-o{}", archive_destination))
+            .arg("-L")
             .stdout(Stdio::piped())
             .spawn()
             .unwrap();
