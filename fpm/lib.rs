@@ -30,7 +30,9 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
     };
 
     if command_name == "lint" {
-        let manifest_file_path = args.get("manifest_file_path").expect("an input file is required!");
+        let manifest_file_path = args
+            .get("manifest_file_path")
+            .expect("an input file is required!");
 
         let flatpak_manifest = match FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
             Some(m) => m,
@@ -55,7 +57,9 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
     }
 
     if command_name == "get-package-list" {
-        let manifest_file_path = args.get("manifest_file_path").expect("a manifest file is required!");
+        let manifest_file_path = args
+            .get("manifest_file_path")
+            .expect("a manifest file is required!");
 
         let flatpak_manifest = match FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
             Some(m) => m,

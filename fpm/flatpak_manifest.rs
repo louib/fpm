@@ -308,13 +308,17 @@ impl FlatpakManifest {
         // That being said, the `command` field is not required by manifests that declare an
         // extension to be build, using the `build-extension` field.
         if flatpak_manifest.app_id.is_empty() && flatpak_manifest.id.is_empty() {
-            return Err("Required top-level field id (or app-id) is missing from Flatpak manifest.".to_string());
+            return Err(
+                "Required top-level field id (or app-id) is missing from Flatpak manifest.".to_string(),
+            );
         }
         if flatpak_manifest.runtime.is_empty() {
             return Err("Required top-level field runtime is missing from Flatpak manifest.".to_string());
         }
         if flatpak_manifest.runtime_version.is_empty() {
-            return Err("Required top-level field runtime-version is missing from Flatpak manifest.".to_string());
+            return Err(
+                "Required top-level field runtime-version is missing from Flatpak manifest.".to_string(),
+            );
         }
         if flatpak_manifest.sdk.is_empty() {
             return Err("Required top-level field sdk is missing from Flatpak manifest.".to_string());
@@ -1411,9 +1415,15 @@ mod tests {
     pub fn test_file_path_matches() {
         assert!(FlatpakManifest::file_path_matches("com.example.appName.yaml"));
         assert!(FlatpakManifest::file_path_matches("COM.EXAMPLE.APPNAME.YAML"));
-        assert!(FlatpakManifest::file_path_matches("io.github.user.repo.Devel.yaml"));
-        assert!(FlatpakManifest::file_path_matches("/path/to/com.example.appName.yaml"));
-        assert!(FlatpakManifest::file_path_matches("/path/to/com.example.appName.yml"));
+        assert!(FlatpakManifest::file_path_matches(
+            "io.github.user.repo.Devel.yaml"
+        ));
+        assert!(FlatpakManifest::file_path_matches(
+            "/path/to/com.example.appName.yaml"
+        ));
+        assert!(FlatpakManifest::file_path_matches(
+            "/path/to/com.example.appName.yml"
+        ));
         assert!(FlatpakManifest::file_path_matches(
             "/path/to/com.example.department.product.yaml"
         ));

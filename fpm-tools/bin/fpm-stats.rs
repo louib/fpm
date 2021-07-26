@@ -69,7 +69,10 @@ fn main() {
             let flatpak_manifest = match FlatpakManifest::load_from_file(absolute_manifest_path.to_string()) {
                 Some(m) => m,
                 None => {
-                    log::warn!("Could not parse Flatpak manifest at {}!!!", absolute_manifest_path);
+                    log::warn!(
+                        "Could not parse Flatpak manifest at {}!!!",
+                        absolute_manifest_path
+                    );
                     continue;
                 }
             };
@@ -109,7 +112,8 @@ fn main() {
                     if url == "." || url == ".." || url.starts_with("./") || url.starts_with("../") {
                         let new_modules_protocol_count =
                             modules_urls_protocols.get("relative fs path").unwrap_or(&0) + 1;
-                        modules_urls_protocols.insert("relative fs path".to_string(), new_modules_protocol_count);
+                        modules_urls_protocols
+                            .insert("relative fs path".to_string(), new_modules_protocol_count);
                     } else if url.starts_with("http://") {
                         let new_modules_protocol_count = modules_urls_protocols.get("http").unwrap_or(&0) + 1;
                         modules_urls_protocols.insert("http".to_string(), new_modules_protocol_count);
@@ -225,7 +229,8 @@ fn main() {
                                 sources_archives_with_direct_git_url += 1;
                             } else {
                                 log::debug!("ARCHIVE URL FROM UNKNOWN SOURCE {}", url);
-                                if let Some(project_name) = fpm::utils::get_project_name_from_archive_url(&url) {
+                                if let Some(project_name) = fpm::utils::get_project_name_from_archive_url(&url)
+                                {
                                     sources_unknown_with_project_name += 1;
                                     project_names_from_archives.insert(project_name.to_lowercase());
                                 } else {

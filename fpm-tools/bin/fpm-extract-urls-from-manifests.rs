@@ -41,7 +41,10 @@ fn main() {
             let flatpak_manifest = match FlatpakManifest::load_from_file(absolute_manifest_path.to_string()) {
                 Some(m) => m,
                 None => {
-                    log::warn!("Could not parse Flatpak manifest at {}!!!", absolute_manifest_path);
+                    log::warn!(
+                        "Could not parse Flatpak manifest at {}!!!",
+                        absolute_manifest_path
+                    );
                     continue;
                 }
             };
@@ -78,7 +81,10 @@ fn main() {
         "Extracted {} git urls from the manifests",
         all_git_urls_from_manifests.len()
     );
-    log::info!("Extracted {} archive urls from the manifests", all_archive_urls.len());
+    log::info!(
+        "Extracted {} archive urls from the manifests",
+        all_archive_urls.len()
+    );
 
     let mut git_urls_dump = "".to_string();
     for git_url in &all_git_urls_from_manifests {
@@ -98,7 +104,10 @@ fn main() {
     for archive_url in &all_archive_urls {
         archive_urls_dump += &format!("{}\n", archive_url);
     }
-    let archive_urls_dump_path = format!("{}/archive_urls_from_manifests.txt", fpm::db::Database::get_db_path());
+    let archive_urls_dump_path = format!(
+        "{}/archive_urls_from_manifests.txt",
+        fpm::db::Database::get_db_path()
+    );
     let archive_urls_dump_path = path::Path::new(&archive_urls_dump_path);
     if let Err(e) = fs::write(archive_urls_dump_path, &archive_urls_dump) {
         log::warn!(
