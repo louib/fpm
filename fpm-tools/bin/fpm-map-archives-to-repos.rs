@@ -5,10 +5,6 @@ use std::path;
 
 use lazy_static::lazy_static;
 
-use fpm::flatpak_manifest::{
-    FlatpakManifest, FlatpakModule, FlatpakModuleDescription, FlatpakSource, FlatpakSourceDescription,
-};
-
 lazy_static! {
     static ref CANDIDATE_README_NAMES: Vec<String> = vec![
         "README".to_string(),
@@ -18,6 +14,12 @@ lazy_static! {
 }
 
 fn main() {
+    let mut exact_matches: i64 = 0;
+    let mut infered_matches: i64 = 0;
+    let mut missing_semver: i64 = 0;
+
+    let mut mapping: BTreeMap<String, String> = BTreeMap::new();
+
     fpm::logger::init();
     let db = fpm::db::Database::get_database();
 
@@ -73,21 +75,41 @@ fn main() {
 
     for archive_url in &archive_urls_from_manifests {
         if fpm::utils::get_semver_from_archive_url(&archive_url).is_none() {
+            missing_semver += 1;
             continue;
         }
-        if let Some(git_url) = get_git_url_for_archive(archive_url, &git_urls_from_manifests) {
-            println!("Git URL for {} is {}.", archive_url, git_url);
+        if let Some(git_url) = fpm::utils::get_git_url_from_archive_url(archive_url) {
+            exact_matches += 1;
+            mapping.insert(archive_url.to_string(), git_url);
+        } else if let Some(git_url) = infer_git_url_from_archive(archive_url, &git_urls_from_manifests) {
+            infered_matches += 1;
+            mapping.insert(archive_url.to_string(), git_url);
         } else {
             println!("Could not find git URL for {}.", archive_url);
         }
     }
+
+    println!(
+        "Archive URLs with missing semver: {:.2}% ({}/{})",
+        (missing_semver as f64 / archive_urls_from_manifests.len() as f64) * 100.0,
+        missing_semver,
+        archive_urls_from_manifests.len(),
+    );
+    println!(
+        "Archive URLs with direct git URL mapping: {:.2}% ({}/{})",
+        (exact_matches as f64 / archive_urls_from_manifests.len() as f64) * 100.0,
+        exact_matches,
+        archive_urls_from_manifests.len(),
+    );
+    println!(
+        "Archive URLs with infered git URL: {:.2}% ({}/{})",
+        (infered_matches as f64 / archive_urls_from_manifests.len() as f64) * 100.0,
+        infered_matches,
+        archive_urls_from_manifests.len(),
+    );
 }
 
-fn get_git_url_for_archive(archive_url: &str, candidate_git_urls: &HashSet<String>) -> Option<String> {
-    if let Some(git_url) = fpm::utils::get_git_url_from_archive_url(archive_url) {
-        return Some(git_url);
-    }
-
+fn infer_git_url_from_archive(archive_url: &str, candidate_git_urls: &HashSet<String>) -> Option<String> {
     for git_url in candidate_git_urls {
         let git_url_matches = match git_url_matches_archive(git_url, archive_url) {
             Ok(r) => r,
