@@ -107,6 +107,12 @@ fn main() {
         infered_matches,
         archive_urls_from_manifests.len(),
     );
+    println!(
+        "Total archive URLs with a mapping: {:.2}% ({}/{})",
+        (mapping.len() as f64 / archive_urls_from_manifests.len() as f64) * 100.0,
+        mapping.len(),
+        archive_urls_from_manifests.len(),
+    );
 }
 
 fn infer_git_url_from_archive(archive_url: &str, candidate_git_urls: &HashSet<String>) -> Option<String> {
