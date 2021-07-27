@@ -17,6 +17,7 @@ fn main() {
     let mut exact_matches: i64 = 0;
     let mut infered_matches: i64 = 0;
     let mut missing_semver: i64 = 0;
+    let mut missing_project_name: i64 = 0;
 
     let mut mapping: BTreeMap<String, String> = BTreeMap::new();
 
@@ -78,6 +79,10 @@ fn main() {
             missing_semver += 1;
             continue;
         }
+        if fpm::utils::get_project_name_from_archive_url(&archive_url).is_none() {
+            missing_project_name += 1;
+            continue;
+        }
         if let Some(git_url) = fpm::utils::get_git_url_from_archive_url(archive_url) {
             exact_matches += 1;
             mapping.insert(archive_url.to_string(), git_url);
@@ -93,6 +98,12 @@ fn main() {
         "Archive URLs with missing semver: {:.2}% ({}/{})",
         (missing_semver as f64 / archive_urls_from_manifests.len() as f64) * 100.0,
         missing_semver,
+        archive_urls_from_manifests.len(),
+    );
+    println!(
+        "Archive URLs with missing project name: {:.2}% ({}/{})",
+        (missing_project_name as f64 / archive_urls_from_manifests.len() as f64) * 100.0,
+        missing_project_name,
         archive_urls_from_manifests.len(),
     );
     println!(
@@ -116,7 +127,11 @@ fn main() {
 }
 
 fn infer_git_url_from_archive(archive_url: &str, candidate_git_urls: &HashSet<String>) -> Option<String> {
+    let project_name = fpm::utils::get_project_name_from_archive_url(&archive_url).unwrap();
     for git_url in candidate_git_urls {
+        if !git_url.to_lowercase().contains(&project_name.to_lowercase()) {
+            continue;
+        }
         let git_url_matches = match git_url_matches_archive(git_url, archive_url) {
             Ok(r) => r,
             Err(e) => {
