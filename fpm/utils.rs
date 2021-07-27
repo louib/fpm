@@ -464,20 +464,25 @@ pub fn get_next_page_url(link_header: &str) -> Option<String> {
 ///assert_eq!(reverse_dns, "com.gitlab.louib.fpm");
 ///reverse_dns = fpm::utils::repo_url_to_reverse_dns("https://git.savannah.gnu.org/cgit/make.git");
 ///assert_eq!(reverse_dns, "org.gnu.savannah.git.cgit.make");
+///reverse_dns = fpm::utils::repo_url_to_reverse_dns("https://gitlab.freedesktop.org/xorg/lib/libxmu");
+///assert_eq!(reverse_dns, "org.freedesktop.gitlab.xorg.lib.libxmu");
 ///```
 pub fn repo_url_to_reverse_dns(repo_url: &str) -> String {
     if !repo_url.starts_with("https://") {
         panic!("Only supports https urls: {}", repo_url);
     }
     let mut sanitized_url = repo_url[8..].to_string();
-    // Removing the .git at the end of the url.
-    // There has to be a better way to do this...
-    // But rust has no negative index for the list
-    // comprehension.
-    sanitized_url.pop();
-    sanitized_url.pop();
-    sanitized_url.pop();
-    sanitized_url.pop();
+
+    if repo_url.ends_with(".git") {
+        // Removing the .git at the end of the url.
+        // There has to be a better way to do this...
+        // But rust has no negative index for the list
+        // comprehension.
+        sanitized_url.pop();
+        sanitized_url.pop();
+        sanitized_url.pop();
+        sanitized_url.pop();
+    }
 
     let mut repo_url_parts = sanitized_url.split("/");
     let domain = repo_url_parts.next().unwrap();
