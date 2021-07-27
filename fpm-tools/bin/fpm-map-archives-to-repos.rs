@@ -159,10 +159,18 @@ fn git_url_matches_archive(git_url: &str, archive_url: &str) -> Result<bool, Str
         }
     }
     if git_refs.len() == 0 {
-        log::info!("Did not find a git tag for version {} of repo {}.", archive_version, git_url);
+        log::info!(
+            "Did not find a git tag for version {} of repo {}.",
+            archive_version,
+            git_url
+        );
     }
     if git_refs.len() > 1 {
-        log::info!("Found multiple git tags for version {} of repo {}.", archive_version, git_url);
+        log::info!(
+            "Found multiple git tags for version {} of repo {}.",
+            archive_version,
+            git_url
+        );
     }
     let git_ref = git_refs.first().unwrap();
     if let Err(_) = fpm::utils::checkout_git_ref(git_url, &git_ref) {
