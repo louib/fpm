@@ -77,7 +77,7 @@ pub fn checkout_git_ref(repo_url: &str, git_ref: &str) -> Result<(), String> {
 
     log::info!("Checking out {} in repo {}", git_ref, repo_dir);
     let output = Command::new("git")
-        .arg(format!("--git-dir={}/.git", repo_dir).to_owned())
+        .arg(format!("--git-dir={}", repo_dir).to_owned())
         .arg("checkout")
         .arg("-f")
         .arg(git_ref)
@@ -198,7 +198,7 @@ pub fn get_git_repo_root_hashes(repo_path: &str) -> Result<Vec<String>, String> 
     log::info!("Getting initial commit for repo at {}", repo_path);
 
     let output = Command::new("git")
-        .arg(format!("--git-dir={}/.git", repo_path).to_owned())
+        .arg(format!("--git-dir={}", repo_path).to_owned())
         .arg("rev-list")
         .arg("--max-parents=0".to_owned())
         .arg("HEAD")
@@ -229,7 +229,7 @@ pub fn get_git_repo_tags(repo_path: &str) -> Result<Vec<String>, String> {
     log::info!("Getting tags for repo at {}", repo_path);
 
     let output = Command::new("git")
-        .arg(format!("--git-dir={}/.git", repo_path).to_owned())
+        .arg(format!("--git-dir={}", repo_path).to_owned())
         .arg("tag")
         .arg("-l")
         .stdout(Stdio::piped())
