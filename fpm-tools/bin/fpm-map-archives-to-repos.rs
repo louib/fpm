@@ -164,6 +164,7 @@ fn git_url_matches_archive(git_url: &str, archive_url: &str) -> Result<bool, Str
             archive_version,
             git_url
         );
+        return Ok(false);
     }
     if git_refs.len() > 1 {
         log::info!(
@@ -171,6 +172,7 @@ fn git_url_matches_archive(git_url: &str, archive_url: &str) -> Result<bool, Str
             archive_version,
             git_url
         );
+        return Ok(false);
     }
     let git_ref = git_refs.first().unwrap();
     if let Err(_) = fpm::utils::checkout_git_ref(git_url, &git_ref) {
