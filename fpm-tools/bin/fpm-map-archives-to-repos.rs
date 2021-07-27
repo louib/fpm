@@ -148,7 +148,24 @@ fn git_url_matches_archive(git_url: &str, archive_url: &str) -> Result<bool, Str
         Ok(d) => d,
         Err(_) => return Ok(false),
     };
-    if let Err(_) = fpm::utils::checkout_git_ref(git_url, &archive_version) {
+    let git_tags = match fpm::utils::get_git_repo_tags(git_url) {
+        Ok(t) => t,
+        Err(_) => return Ok(false),
+    };
+    let mut git_refs: Vec<String> = vec![];
+    for git_tag in git_tags {
+        if git_tag.contains(&archive_version) {
+            git_refs.push(git_tag);
+        }
+    }
+    if git_refs.len() == 0 {
+        log::info!("Did not find a git tag for version {} of repo {}.", archive_version, git_url);
+    }
+    if git_refs.len() > 1 {
+        log::info!("Found multiple git tags for version {} of repo {}.", archive_version, git_url);
+    }
+    let git_ref = git_refs.first().unwrap();
+    if let Err(_) = fpm::utils::checkout_git_ref(git_url, &git_ref) {
         return Ok(false);
     };
     for candidate_readme_name in CANDIDATE_README_NAMES.iter() {

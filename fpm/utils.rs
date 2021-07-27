@@ -225,6 +225,36 @@ pub fn get_git_repo_root_hashes(repo_path: &str) -> Result<Vec<String>, String> 
         .collect())
 }
 
+pub fn get_git_repo_tags(repo_path: &str) -> Result<Vec<String>, String> {
+    log::info!("Getting tags for repo at {}", repo_path);
+
+    let output = Command::new("git")
+        .arg(format!("--git-dir={}/.git", repo_path).to_owned())
+        .arg("tag")
+        .arg("-l")
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+
+    let output = match output.wait_with_output() {
+        Ok(o) => o,
+        Err(e) => return Err(e.to_string()),
+    };
+    if !output.status.success() {
+        return Err("Could not get git tags.".to_string());
+    }
+    let all_tags = match std::str::from_utf8(&output.stdout) {
+        Ok(v) => v,
+        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+    };
+
+    Ok(all_tags
+        .split('\n')
+        .map(|s| s.trim().to_string())
+        .filter(|s| s.len() != 0)
+        .collect())
+}
+
 pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
     let archive_path = archive_url.split("/").last().unwrap();
     let dir_name = normalize_name(archive_path);
