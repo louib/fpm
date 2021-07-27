@@ -139,7 +139,7 @@ fn main() {
                     }
                 }
 
-                for url in module.get_repos_mirror_urls() {
+                for _url in module.get_repos_mirror_urls() {
                     modules_mirror_urls_count += 1;
                 }
 
