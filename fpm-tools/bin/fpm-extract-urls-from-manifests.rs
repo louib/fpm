@@ -2,9 +2,7 @@ use std::collections::HashSet;
 use std::fs;
 use std::path;
 
-use fpm::flatpak_manifest::{
-    FlatpakManifest, FlatpakModule, FlatpakModuleDescription,
-};
+use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
 
 fn main() {
     fpm::logger::init();
