@@ -77,9 +77,9 @@ pub fn checkout_git_ref(repo_url: &str, git_ref: &str) -> Result<(), String> {
 
     log::info!("Checking out {} in repo {}", git_ref, repo_dir);
     let output = Command::new("git")
-        .arg("-f")
         .arg(format!("--git-dir={}/.git", repo_dir).to_owned())
         .arg("checkout")
+        .arg("-f")
         .arg(git_ref)
         .stdout(Stdio::piped())
         .spawn()
