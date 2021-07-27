@@ -75,8 +75,9 @@ pub fn checkout_git_ref(repo_url: &str, git_ref: &str) -> Result<(), String> {
         return Err(format!("{} is not a git project!", repo_dir));
     }
 
-    println!("Checking out {} in repo {}", git_ref, repo_dir);
+    log::info!("Checking out {} in repo {}", git_ref, repo_dir);
     let output = Command::new("git")
+        .arg("-f")
         .arg(format!("--git-dir={}/.git", repo_dir).to_owned())
         .arg("checkout")
         .arg(git_ref)
@@ -106,7 +107,7 @@ pub fn clone_git_repo(repo_url: &str) -> Result<String, String> {
         return Err(e.to_string());
     }
 
-    println!("Cloning repo {}", repo_url);
+    log::info!("Cloning repo {}", repo_url);
     let output = Command::new("git")
         .arg("clone")
         .arg(repo_url)
