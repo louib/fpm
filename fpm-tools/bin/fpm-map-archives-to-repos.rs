@@ -148,7 +148,7 @@ fn git_url_matches_archive(git_url: &str, archive_url: &str) -> Result<bool, Str
         Ok(d) => d,
         Err(_) => return Ok(false),
     };
-    let git_tags = match fpm::utils::get_git_repo_tags(git_url) {
+    let git_tags = match fpm::utils::get_git_repo_tags(&git_dir) {
         Ok(t) => t,
         Err(_) => return Ok(false),
     };
