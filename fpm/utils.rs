@@ -195,7 +195,7 @@ pub fn get_git_repo_root_hashes(repo_path: &str) -> Result<Vec<String>, String> 
     // FIXME there can actually be more than 1 parentless commit
     // in a git repo, in the case of a merger. A parentless commit
     // can also be found in multiple projects in the case of a fork.
-    log::info!("Getting initial commit for repo at {}", repo_path);
+    log::debug!("Getting initial commit for repo at {}", repo_path);
 
     let output = Command::new("git")
         .arg(format!("--git-dir={}/.git", repo_path).to_owned())
