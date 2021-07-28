@@ -31,10 +31,8 @@ fn main() {
                     sources_repos_with_manifests_count.get(source).unwrap_or(&0) + 1;
                 sources_repos_with_manifests_count.insert(source.to_string(), new_repos_with_manifest_count);
 
-                let new_manifest_count =
-                    sources_manifests_count.get(source).unwrap_or(&0) + 1;
+                let new_manifest_count = sources_manifests_count.get(source).unwrap_or(&0) + 1;
                 sources_manifests_count.insert(source.to_string(), new_manifest_count);
-
             }
 
             if project.flatpak_module_manifests.len() > 0 {
@@ -42,19 +40,19 @@ fn main() {
                     sources_repos_with_modules_count.get(source).unwrap_or(&0) + 1;
                 sources_repos_with_modules_count.insert(source.to_string(), new_repos_with_module_count);
 
-                let new_module_count =
-                    sources_modules_count.get(source).unwrap_or(&0) + 1;
+                let new_module_count = sources_modules_count.get(source).unwrap_or(&0) + 1;
                 sources_modules_count.insert(source.to_string(), new_module_count);
             }
 
             if !app_ids_to_sources.get(source).is_some() {
                 app_ids_to_sources.insert(source.to_string(), HashSet::new());
             }
-            app_ids_to_sources.get_mut(source).unwrap().insert(source.to_string());
-
+            app_ids_to_sources
+                .get_mut(source)
+                .unwrap()
+                .insert(source.to_string());
         }
     }
-
 
     for (source_name, source_repos_count) in sources_repos_count {
         let repos_with_manifests_count = sources_repos_with_manifests_count.get(&source_name).unwrap_or(&0);
