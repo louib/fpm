@@ -45,6 +45,8 @@ fn main() {
                 sources_modules_count.insert(source.to_string(), new_module_count);
             }
 
+            // FIXME we actually need to use the app id here, not the source!!
+            // But we need to load the manifest for that :(
             if !app_ids_to_sources.get(source).is_some() {
                 app_ids_to_sources.insert(source.to_string(), HashSet::new());
             }
@@ -62,7 +64,7 @@ fn main() {
 
     for (source_count, app_ids_count) in app_ids_sources_count {
         println!(
-            "App IDs discovered from {} sources: {}",
+            "App IDs discovered from {} source(s): {}",
             source_count, app_ids_count,
         );
     }
