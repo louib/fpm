@@ -29,6 +29,9 @@ pub struct SoftwareProject {
     // in the project's repository.
     pub flatpak_module_manifests: HashSet<String>,
 
+    // A list of the sources from which a project was discovered.
+    pub sources: HashSet<String>,
+
     // All the build systems that are know to be supported by the project.
     pub build_systems: HashSet<String>,
 

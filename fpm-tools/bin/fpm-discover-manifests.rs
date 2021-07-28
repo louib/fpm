@@ -35,45 +35,87 @@ fn main() {
     }
 
     if sources.contains("github-elementary-org") || sources.eq("all") {
-        repos_urls += &match get_github_org_repos("elementary") {
+        repos_by_source.insert("github-elementary-org".to_string(), HashSet::new());
+        let repos_urls = &match get_github_org_repos("elementary") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
+        for repo_url in repos_urls.split("\n") {
+            repos_by_source
+                .get_mut("github-elementary-org")
+                .unwrap()
+                .insert(repo_url.to_string());
+        }
     }
 
     if sources.contains("gnome-gitlab-instance") || sources.eq("all") {
-        repos_urls += &match get_gitlab_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN") {
+        repos_by_source.insert("gitlab.gnome.org".to_string(), HashSet::new());
+        let repos_urls = &match get_gitlab_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
+        for repo_url in repos_urls.split("\n") {
+            repos_by_source
+                .get_mut("gitlab.gnome.org")
+                .unwrap()
+                .insert(repo_url.to_string());
+        }
     }
 
     if sources.contains("purism-gitlab-instance") || sources.eq("all") {
-        repos_urls += &match get_gitlab_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN") {
+        repos_by_source.insert("purism-gitlab-instance".to_string(), HashSet::new());
+        let repos_urls = &match get_gitlab_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
+        for repo_url in repos_urls.split("\n") {
+            repos_by_source
+                .get_mut("purism-gitlab-instance")
+                .unwrap()
+                .insert(repo_url.to_string());
+        }
     }
 
     if sources.contains("debian-gitlab-instance") || sources.eq("all") {
-        repos_urls += &match get_gitlab_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN") {
+        repos_by_source.insert("debian-gitlab-instance".to_string(), HashSet::new());
+        let repos_urls = &match get_gitlab_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
+        for repo_url in repos_urls.split("\n") {
+            repos_by_source
+                .get_mut("debian-gitlab-instance")
+                .unwrap()
+                .insert(repo_url.to_string());
+        }
     }
 
     if sources.contains("xdg-gitlab-instance") || sources.eq("all") {
-        repos_urls += &match get_gitlab_repos("gitlab.freedesktop.org", "FPM_XDG_GITLAB_TOKEN") {
+        repos_by_source.insert("xdg-gitlab-instance".to_string(), HashSet::new());
+        let repos_urls = &match get_gitlab_repos("gitlab.freedesktop.org", "FPM_XDG_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
+        for repo_url in repos_urls.split("\n") {
+            repos_by_source
+                .get_mut("xdg-gitlab-instance")
+                .unwrap()
+                .insert(repo_url.to_string());
+        }
     }
 
     if sources.contains("kde-gitlab-instance") || sources.eq("all") {
-        repos_urls += &match get_gitlab_repos("invent.kde.org", "FPM_KDE_GITLAB_TOKEN") {
+        repos_by_source.insert("kde-gitlab-instance".to_string(), HashSet::new());
+        let repos_urls = &match get_gitlab_repos("invent.kde.org", "FPM_KDE_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
+        for repo_url in repos_urls.split("\n") {
+            repos_by_source
+                .get_mut("kde-gitlab-instance")
+                .unwrap()
+                .insert(repo_url.to_string());
+        }
     }
 
     // TODO also get code.videolan.org ??
@@ -81,54 +123,71 @@ fn main() {
     // TODO also get devel.trisquel.info ??
 
     if sources.contains("gitlab-search-flatpak") || sources.eq("all") {
-        repos_urls += &match search_gitlab("flatpak") {
+        repos_by_source.insert("gitlab-search-flatpak".to_string(), HashSet::new());
+        let repos_urls = &match search_gitlab("flatpak") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
+        for repo_url in repos_urls.split("\n") {
+            repos_by_source
+                .get_mut("gitlab-search-flatpak")
+                .unwrap()
+                .insert(repo_url.to_string());
+        }
     }
 
     if sources.contains("gitlab-search-flathub") || sources.eq("all") {
-        repos_urls += &match search_gitlab("flathub") {
+        repos_by_source.insert("gitlab-search-flathub".to_string(), HashSet::new());
+        let repos_urls = &match search_gitlab("flathub") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
+        for repo_url in repos_urls.split("\n") {
+            repos_by_source
+                .get_mut("gitlab-search-flathub")
+                .unwrap()
+                .insert(repo_url.to_string());
+        }
     }
 
     if sources.contains("github-search-flatpak") || sources.eq("all") {
-        repos_urls += &match search_github("flatpak") {
+        repos_by_source.insert("github-search-flatpak".to_string(), HashSet::new());
+        let repos_urls = &match search_github("flatpak") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
+        for repo_url in repos_urls.split("\n") {
+            repos_by_source
+                .get_mut("github-search-flatpak")
+                .unwrap()
+                .insert(repo_url.to_string());
+        }
     }
 
     if sources.contains("github-search-flathub") || sources.eq("all") {
-        repos_urls += &match search_github("flathub") {
+        repos_by_source.insert("github-search-flathub".to_string(), HashSet::new());
+        let repos_urls = &match search_github("flathub") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
+        for repo_url in repos_urls.split("\n") {
+            repos_by_source
+                .get_mut("github-search-flathub")
+                .unwrap()
+                .insert(repo_url.to_string());
+        }
     }
 
     let db = fpm::db::Database::get_database();
     let mut mined_repos: HashSet<String> = HashSet::new();
 
-    mine_repositories(repos_urls.split('\n').collect(), db, &mut mined_repos);
+    mine_repositories(repos_urls.split('\n').collect(), db, &mut mined_repos, "temp_source");
 
     exit(0);
 }
 
-pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined_repos: &mut HashSet<String>) {
+pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined_repos: &mut HashSet<String>, source: &str) {
     let mut next_repos_urls_to_mine: Vec<String> = vec![];
-
-    // Marking all the repos for this discovery round as mined, so that
-    // we don't add them for discovery in the next round.
-    for repo_url in &repos_urls {
-        let repo_url = repo_url.to_string();
-        if mined_repos.contains(&repo_url) {
-            log::info!("Repo {} was already mined", &repo_url);
-            continue;
-        }
-        mined_repos.insert(repo_url);
-    }
 
     for repo_url in repos_urls {
         if repo_url.trim().is_empty() {
@@ -160,12 +219,16 @@ pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined
             continue;
         }
 
+        let project_id = fpm::utils::repo_url_to_reverse_dns(repo_url);
+        if let Some(project) = db.get_project(&project_id) {
+            log::info!("Repo {} was already mined", &repo_url);
+            project.sources.insert(source.to_string());
+            continue;
+        }
+
         let mined_repos_urls = mine_repository(&mut db, &repo_url);
 
         for mined_repo_url in mined_repos_urls {
-            if mined_repos.contains(&mined_repo_url) {
-                continue;
-            }
             next_repos_urls_to_mine.push(mined_repo_url);
         }
     }
@@ -181,8 +244,104 @@ pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined
             next_repos_urls_to_mine_str.push(url);
         }
 
-        mine_repositories(next_repos_urls_to_mine_str, db, mined_repos);
+        mine_repositories(next_repos_urls_to_mine_str, db, mined_repos, "recursive_discovery");
     }
+}
+
+pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String> {
+    let mut software_project = fpm::projects::SoftwareProject::default();
+    software_project.id = fpm::utils::repo_url_to_reverse_dns(repo_url);
+    software_project.vcs_urls.insert(repo_url.to_string());
+
+    let mut mined_repos_urls: Vec<String> = vec![];
+    let mut repo_manifest_count = 0;
+    let repo_dir = match fpm::utils::clone_git_repo(&repo_url) {
+        Ok(d) => d,
+        Err(e) => {
+            eprintln!("Could not clone repo {}: {}", &repo_url, e);
+            return mined_repos_urls;
+        }
+    };
+
+    if let Ok(hashes) = fpm::utils::get_git_repo_root_hashes(&repo_dir) {
+        software_project.root_hashes = hashes;
+    }
+
+    // TODO we should also rewind on all the commits of that repo?
+    let repo_file_paths = match fpm::utils::get_all_paths(path::Path::new(&repo_dir)) {
+        Ok(paths) => paths,
+        Err(message) => {
+            log::error!("Could not get the file paths for {} :sad: {}", repo_dir, message);
+            return mined_repos_urls;
+        }
+    };
+    for file_path in &repo_file_paths {
+        if !file_path.is_file() {
+            continue;
+        }
+
+        let file_path = match file_path.to_str() {
+            Some(f) => f,
+            None => continue,
+        };
+
+        if file_path.contains(".git/") {
+            continue;
+        }
+
+        if let Some(build_system) = fpm::build_systems::get_build_system(file_path.to_string()) {
+            log::info!("Detected buildsystem {} for repo {}", build_system, repo_url);
+            software_project.build_systems.insert(build_system);
+        }
+
+        if let Some(flatpak_manifest) = FlatpakManifest::load_from_file(file_path.to_string()) {
+            let flatpak_manifest_path = file_path.replace(&repo_dir, "");
+            software_project
+                .flatpak_app_manifests
+                .insert(flatpak_manifest_path);
+
+            repo_manifest_count += 1;
+            log::info!("Parsed a Flatpak manifest at {}", file_path.to_string());
+
+            for module in &flatpak_manifest.modules {
+                for url in module.get_all_repos_urls() {
+                    if url.ends_with(".git") && url.starts_with("https://") {
+                        mined_repos_urls.push(url);
+                    }
+                }
+            }
+
+            for module in flatpak_manifest.modules {
+                if let FlatpakModule::Description(module_description) = module {
+                    db.add_module(module_description);
+                }
+            }
+        }
+
+        if let Some(flatpak_module) = FlatpakModuleDescription::load_from_file(file_path.to_string()) {
+            let flatpak_module_path = file_path.replace(&repo_dir, "");
+            software_project
+                .flatpak_module_manifests
+                .insert(flatpak_module_path);
+
+            db.add_module(flatpak_module);
+        }
+    }
+
+    if software_project.supports_flatpak() || !software_project.build_systems.is_empty() {
+        db.add_project(software_project);
+    }
+
+    if repo_manifest_count == 0 {
+        log::info!("Repo at {} had no Flatpak manifest.", repo_url);
+    } else {
+        log::info!(
+            "Repo at {} had {} Flatpak manifests.",
+            repo_url,
+            repo_manifest_count
+        );
+    }
+    return mined_repos_urls;
 }
 
 /// Search for flatpak and flathub related repos on gitlab.com and
@@ -444,100 +603,4 @@ pub fn get_github_org_repos(org_name: &str) -> Result<String, String> {
     }
 
     Ok(org_repos_dump)
-}
-
-pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String> {
-    let mut software_project = fpm::projects::SoftwareProject::default();
-    software_project.id = fpm::utils::repo_url_to_reverse_dns(repo_url);
-    software_project.vcs_urls.insert(repo_url.to_string());
-
-    let mut mined_repos_urls: Vec<String> = vec![];
-    let mut repo_manifest_count = 0;
-    let repo_dir = match fpm::utils::clone_git_repo(&repo_url) {
-        Ok(d) => d,
-        Err(e) => {
-            eprintln!("Could not clone repo {}: {}", &repo_url, e);
-            return mined_repos_urls;
-        }
-    };
-
-    if let Ok(hashes) = fpm::utils::get_git_repo_root_hashes(&repo_dir) {
-        software_project.root_hashes = hashes;
-    }
-
-    // TODO we should also rewind on all the commits of that repo?
-    let repo_file_paths = match fpm::utils::get_all_paths(path::Path::new(&repo_dir)) {
-        Ok(paths) => paths,
-        Err(message) => {
-            log::error!("Could not get the file paths for {} :sad: {}", repo_dir, message);
-            return mined_repos_urls;
-        }
-    };
-    for file_path in &repo_file_paths {
-        if !file_path.is_file() {
-            continue;
-        }
-
-        let file_path = match file_path.to_str() {
-            Some(f) => f,
-            None => continue,
-        };
-
-        if file_path.contains(".git/") {
-            continue;
-        }
-
-        if let Some(build_system) = fpm::build_systems::get_build_system(file_path.to_string()) {
-            log::info!("Detected buildsystem {} for repo {}", build_system, repo_url);
-            software_project.build_systems.insert(build_system);
-        }
-
-        if let Some(flatpak_manifest) = FlatpakManifest::load_from_file(file_path.to_string()) {
-            let flatpak_manifest_path = file_path.replace(&repo_dir, "");
-            software_project
-                .flatpak_app_manifests
-                .insert(flatpak_manifest_path);
-
-            repo_manifest_count += 1;
-            log::info!("Parsed a Flatpak manifest at {}", file_path.to_string());
-
-            for module in &flatpak_manifest.modules {
-                for url in module.get_all_repos_urls() {
-                    if url.ends_with(".git") && url.starts_with("https://") {
-                        mined_repos_urls.push(url);
-                    }
-                }
-            }
-
-            for module in flatpak_manifest.modules {
-                if let FlatpakModule::Description(module_description) = module {
-                    db.add_module(module_description);
-                }
-            }
-        }
-
-        if let Some(flatpak_module) = FlatpakModuleDescription::load_from_file(file_path.to_string()) {
-            let flatpak_module_path = file_path.replace(&repo_dir, "");
-            software_project
-                .flatpak_module_manifests
-                .insert(flatpak_module_path);
-
-            db.add_module(flatpak_module);
-        }
-    }
-
-    if software_project.supports_flatpak() || !software_project.build_systems.is_empty() {
-        db.add_project(software_project);
-    }
-
-    if repo_manifest_count == 0 {
-        log::info!("Repo at {} had no Flatpak manifest.", repo_url);
-    } else {
-        log::info!(
-            "Repo at {} had {} Flatpak manifests.",
-            repo_url,
-            repo_manifest_count
-        );
-    }
-    return mined_repos_urls;
 }

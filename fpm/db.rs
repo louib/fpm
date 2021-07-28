@@ -236,8 +236,8 @@ impl Database {
         projects
     }
 
-    pub fn get_project(&self, project_id: &str) -> Option<&SoftwareProject> {
-        self.indexed_projects.get(project_id)
+    pub fn get_project(&mut self, project_id: &str) -> Option<&mut SoftwareProject> {
+        self.indexed_projects.get_mut(project_id)
     }
 
     pub fn has_project(&self, project_id: &str) -> bool {
