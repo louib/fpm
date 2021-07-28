@@ -241,16 +241,13 @@ impl FlatpakManifest {
         if FlatpakManifest::file_path_matches(&file_path.to_str().unwrap()) {
             let manifest_content = match fs::read_to_string(file_path) {
                 Ok(content) => content,
-                Err(e) => {
-                    log::error!("Could not read manifest file {}: {}.", path, e);
-                    return None;
-                }
+                Err(e) => panic!(e),
             };
             log::info!("Parsing Flatpak manifest file {}", &path);
             let manifest = match FlatpakManifest::parse(&path, &manifest_content) {
                 Ok(m) => m,
                 Err(e) => {
-                    log::warn!("Failed to parse Flatpak manifest at {}: {}", path, e);
+                    log::debug!("Failed to parse Flatpak manifest at {}: {}", path, e);
                     return None;
                 }
             };
@@ -619,16 +616,13 @@ impl FlatpakModuleDescription {
         if FlatpakModuleDescription::file_path_matches(&file_path.to_str().unwrap()) {
             let module_content = match fs::read_to_string(file_path) {
                 Ok(content) => content,
-                Err(e) => {
-                    log::error!("Could not read manifest file {}: {}.", path, e);
-                    return None;
-                }
+                Err(e) => panic!(e),
             };
             log::info!("Parsing Flatpak module file {}", &path);
             let module = match FlatpakModuleDescription::parse(&path, &module_content) {
                 Ok(m) => m,
                 Err(e) => {
-                    log::warn!("Failed to parse Flatpak module at {}: {}", path, e);
+                    log::debug!("Failed to parse Flatpak module at {}: {}", path, e);
                     return None;
                 }
             };

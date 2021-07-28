@@ -220,8 +220,12 @@ pub fn mine_repositories(source: &str, repos_urls: HashSet<String>) {
 
         let project_id = fpm::utils::repo_url_to_reverse_dns(&repo_url);
         if let Some(project) = Database::get_database().get_project(&project_id) {
-            log::info!("Repo {} was already mined", &repo_url);
-            project.sources.insert(source.to_string());
+            if project.sources.contains(source.to_string()) {
+                log::info!("Repo {} was already mined", &repo_url);
+            } else {
+                log::info!("Repo {} was mined from a different source. Adding current source.");
+                project.sources.insert(source.to_string());
+            }
             continue;
         }
 
@@ -299,12 +303,6 @@ pub fn mine_repository(repo_source: &str, repo_url: &str) -> Vec<String> {
                     }
                 }
             }
-
-            for module in flatpak_manifest.modules {
-                if let FlatpakModule::Description(module_description) = module {
-                    Database::get_database().add_module(module_description);
-                }
-            }
         }
 
         if let Some(flatpak_module) = FlatpakModuleDescription::load_from_file(file_path.to_string()) {
@@ -312,8 +310,6 @@ pub fn mine_repository(repo_source: &str, repo_url: &str) -> Vec<String> {
             software_project
                 .flatpak_module_manifests
                 .insert(flatpak_module_path);
-
-            Database::get_database().add_module(flatpak_module);
         }
     }
 
