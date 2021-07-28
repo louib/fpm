@@ -58,14 +58,12 @@ fn main() {
     for (_, sources) in app_ids_to_sources {
         let new_sources_count = app_ids_sources_count.get(&(sources.len() as i64)).unwrap_or(&0) + 1;
         app_ids_sources_count.insert(sources.len() as i64, new_sources_count);
-
     }
 
     for (source_count, app_ids_count) in app_ids_sources_count {
         println!(
             "App IDs discovered from {} sources: {}",
-            source_count,
-            app_ids_count,
+            source_count, app_ids_count,
         );
     }
 
