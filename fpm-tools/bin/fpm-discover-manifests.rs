@@ -18,7 +18,6 @@ fn main() {
 
     let sources = &args[1];
 
-    let mut repos_urls: String = "".to_string();
     let mut repos_by_source: BTreeMap<String, HashSet<String>> = BTreeMap::new();
 
     if sources.contains("github-flathub-org") || sources.eq("all") {
@@ -50,14 +49,14 @@ fn main() {
     }
 
     if sources.contains("gnome-gitlab-instance") || sources.eq("all") {
-        repos_by_source.insert("gitlab.gnome.org".to_string(), HashSet::new());
+        repos_by_source.insert("gnome-gitlab-instance".to_string(), HashSet::new());
         let repos_urls = &match get_gitlab_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
         for repo_url in repos_urls.split("\n") {
             repos_by_source
-                .get_mut("gitlab.gnome.org")
+                .get_mut("gnome-gitlab-instance")
                 .unwrap()
                 .insert(repo_url.to_string());
         }
