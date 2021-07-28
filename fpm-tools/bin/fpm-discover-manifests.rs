@@ -179,13 +179,14 @@ fn main() {
     }
 
     for (repo_source, repos_urls) in repos_by_source {
-        mine_repositories(&repo_source, repos_urls);
+        let mut db = Database::get_database();
+        mine_repositories(&mut db, &repo_source, repos_urls);
     }
 
     exit(0);
 }
 
-pub fn mine_repositories(source: &str, repos_urls: HashSet<String>) {
+pub fn mine_repositories(db: &mut Database, source: &str, repos_urls: HashSet<String>) {
     let mut next_repos_urls_to_mine: HashSet<String> = HashSet::new();
 
     for repo_url in repos_urls {
@@ -219,7 +220,7 @@ pub fn mine_repositories(source: &str, repos_urls: HashSet<String>) {
         }
 
         let project_id = fpm::utils::repo_url_to_reverse_dns(&repo_url);
-        if let Some(project) = Database::get_database().get_project(&project_id) {
+        if let Some(project) = db.get_project(&project_id) {
             if project.sources.contains(source) {
                 log::info!("Repo {} was already mined", &repo_url);
             } else {
@@ -229,7 +230,7 @@ pub fn mine_repositories(source: &str, repos_urls: HashSet<String>) {
             continue;
         }
 
-        let mined_repos_urls = mine_repository(source, &repo_url);
+        let mined_repos_urls = mine_repository(db, source, &repo_url);
 
         for mined_repo_url in mined_repos_urls {
             next_repos_urls_to_mine.insert(mined_repo_url);
@@ -241,11 +242,11 @@ pub fn mine_repositories(source: &str, repos_urls: HashSet<String>) {
             "There are {} other repositories to mine!!!",
             next_repos_urls_to_mine.len()
         );
-        mine_repositories("recursive_discovery", next_repos_urls_to_mine);
+        mine_repositories(db, "recursive_discovery", next_repos_urls_to_mine);
     }
 }
 
-pub fn mine_repository(repo_source: &str, repo_url: &str) -> Vec<String> {
+pub fn mine_repository(db: &mut Database, repo_source: &str, repo_url: &str) -> Vec<String> {
     log::info!("Mining repo at {} from {}.", repo_url, repo_source);
 
     let mut software_project = fpm::projects::SoftwareProject::default();
@@ -313,7 +314,7 @@ pub fn mine_repository(repo_source: &str, repo_url: &str) -> Vec<String> {
         }
     }
 
-    Database::get_database().add_project(software_project);
+    db.add_project(software_project);
     return mined_repos_urls;
 }
 
