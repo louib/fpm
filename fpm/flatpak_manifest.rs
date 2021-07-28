@@ -243,7 +243,7 @@ impl FlatpakManifest {
                 Ok(content) => content,
                 Err(e) => panic!(e),
             };
-            log::info!("Parsing Flatpak manifest file {}", &path);
+            log::debug!("Parsing Flatpak manifest file {}", &path);
             let manifest = match FlatpakManifest::parse(&path, &manifest_content) {
                 Ok(m) => m,
                 Err(e) => {
@@ -618,7 +618,7 @@ impl FlatpakModuleDescription {
                 Ok(content) => content,
                 Err(e) => panic!(e),
             };
-            log::info!("Parsing Flatpak module file {}", &path);
+            log::debug!("Parsing Flatpak module file {}", &path);
             let module = match FlatpakModuleDescription::parse(&path, &module_content) {
                 Ok(m) => m,
                 Err(e) => {
