@@ -226,7 +226,7 @@ pub fn mine_repositories(source: &str, repos_urls: HashSet<String>) {
             continue;
         }
 
-        let mined_repos_urls = mine_repository(&repo_url);
+        let mined_repos_urls = mine_repository(source, &repo_url);
 
         for mined_repo_url in mined_repos_urls {
             next_repos_urls_to_mine.insert(mined_repo_url);
@@ -242,10 +242,11 @@ pub fn mine_repositories(source: &str, repos_urls: HashSet<String>) {
     }
 }
 
-pub fn mine_repository(repo_url: &str) -> Vec<String> {
+pub fn mine_repository(repo_source: &str, repo_url: &str) -> Vec<String> {
     let mut software_project = fpm::projects::SoftwareProject::default();
     software_project.id = fpm::utils::repo_url_to_reverse_dns(repo_url);
     software_project.vcs_urls.insert(repo_url.to_string());
+    software_project.sources.insert(repo_source.to_string());
 
     let mut mined_repos_urls: Vec<String> = vec![];
     let mut repo_manifest_count = 0;
