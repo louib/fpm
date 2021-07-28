@@ -6,6 +6,7 @@ use std::path;
 use std::process::exit;
 
 use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
+use fpm::db::Database;
 
 fn main() {
     fpm::logger::init();
@@ -178,23 +179,15 @@ fn main() {
         }
     }
 
-    let db = fpm::db::Database::get_database();
-
-    mine_repositories(
-        repos_urls.split('\n').collect(),
-        db,
-        "temp_source",
-    );
+    for (repo_source, repos_urls) in repos_by_source {
+        mine_repositories(repos_urls, &repo_source);
+    }
 
     exit(0);
 }
 
-pub fn mine_repositories(
-    repos_urls: Vec<&str>,
-    mut db: fpm::db::Database,
-    source: &str,
-) {
-    let mut next_repos_urls_to_mine: Vec<String> = vec![];
+pub fn mine_repositories(repos_urls: HashSet<String>, source: &str) {
+    let mut next_repos_urls_to_mine: HashSet<String> = HashSet::new();
 
     for repo_url in repos_urls {
         if repo_url.trim().is_empty() {
@@ -226,17 +219,17 @@ pub fn mine_repositories(
             continue;
         }
 
-        let project_id = fpm::utils::repo_url_to_reverse_dns(repo_url);
-        if let Some(project) = db.get_project(&project_id) {
+        let project_id = fpm::utils::repo_url_to_reverse_dns(&repo_url);
+        if let Some(project) = Database::get_database().get_project(&project_id) {
             log::info!("Repo {} was already mined", &repo_url);
             project.sources.insert(source.to_string());
             continue;
         }
 
-        let mined_repos_urls = mine_repository(&mut db, &repo_url);
+        let mined_repos_urls = mine_repository(&repo_url);
 
         for mined_repo_url in mined_repos_urls {
-            next_repos_urls_to_mine.push(mined_repo_url);
+            next_repos_urls_to_mine.insert(mined_repo_url);
         }
     }
 
@@ -245,21 +238,11 @@ pub fn mine_repositories(
             "There are {} other repositories to mine!!!",
             next_repos_urls_to_mine.len()
         );
-        // TODO find a one-liner for that.
-        let mut next_repos_urls_to_mine_str = Vec::<&str>::new();
-        for url in &next_repos_urls_to_mine {
-            next_repos_urls_to_mine_str.push(url);
-        }
-
-        mine_repositories(
-            next_repos_urls_to_mine_str,
-            db,
-            "recursive_discovery",
-        );
+        mine_repositories(next_repos_urls_to_mine, "recursive_discovery");
     }
 }
 
-pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String> {
+pub fn mine_repository(repo_url: &str) -> Vec<String> {
     let mut software_project = fpm::projects::SoftwareProject::default();
     software_project.id = fpm::utils::repo_url_to_reverse_dns(repo_url);
     software_project.vcs_urls.insert(repo_url.to_string());
@@ -324,7 +307,7 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
 
             for module in flatpak_manifest.modules {
                 if let FlatpakModule::Description(module_description) = module {
-                    db.add_module(module_description);
+                    Database::get_database().add_module(module_description);
                 }
             }
         }
@@ -335,13 +318,11 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
                 .flatpak_module_manifests
                 .insert(flatpak_module_path);
 
-            db.add_module(flatpak_module);
+            Database::get_database().add_module(flatpak_module);
         }
     }
 
-    if software_project.supports_flatpak() || !software_project.build_systems.is_empty() {
-        db.add_project(software_project);
-    }
+    Database::get_database().add_project(software_project);
 
     if repo_manifest_count == 0 {
         log::info!("Repo at {} had no Flatpak manifest.", repo_url);
@@ -360,7 +341,7 @@ pub fn mine_repository(db: &mut fpm::db::Database, repo_url: &str) -> Vec<String
 pub fn search_gitlab(search_term: &str) -> Result<String, String> {
     let gitlab_repos_search_dump_path = format!(
         "{}/gitlab_repo_search_{}.txt",
-        fpm::db::Database::get_repos_db_path(),
+        Database::get_repos_db_path(),
         search_term
     );
     let gitlab_repos_search_dump_path = path::Path::new(&gitlab_repos_search_dump_path);
@@ -413,7 +394,7 @@ pub fn search_github(search_term: &str) -> Result<String, String> {
     // TODO clean up the search term.
     let github_repos_search_dump_path = format!(
         "{}/github_repo_search_{}.txt",
-        fpm::db::Database::get_repos_db_path(),
+        Database::get_repos_db_path(),
         search_term
     );
     let github_repos_search_dump_path = path::Path::new(&github_repos_search_dump_path);
@@ -464,7 +445,7 @@ pub fn search_github(search_term: &str) -> Result<String, String> {
 pub fn get_debian_repos(debian_repo_name: &str, debian_sources_url: &str) -> Result<String, String> {
     let debian_repos_dump_path = format!(
         "{}/{}.txt",
-        fpm::db::Database::get_repos_db_path(),
+        Database::get_repos_db_path(),
         debian_repo_name
     );
     let debian_repos_dump_path = path::Path::new(&debian_repos_dump_path);
@@ -526,7 +507,7 @@ pub fn get_gitlab_repos(
 
     let gitlab_instance_repos_dump_path = format!(
         "{}/{}.txt",
-        fpm::db::Database::get_repos_db_path(),
+        Database::get_repos_db_path(),
         gitlab_instance_dump_key
     );
     let gitlab_instance_repos_dump_path = path::Path::new(&gitlab_instance_repos_dump_path);
@@ -577,7 +558,7 @@ pub fn get_gitlab_repos(
 /// Gets all the repositories' URLs for a github.com organization,
 /// one on each line.
 pub fn get_github_org_repos(org_name: &str) -> Result<String, String> {
-    let org_repos_dump_path = format!("{}/{}.txt", fpm::db::Database::get_repos_db_path(), org_name);
+    let org_repos_dump_path = format!("{}/{}.txt", Database::get_repos_db_path(), org_name);
     let org_repos_dump_path = path::Path::new(&org_repos_dump_path);
 
     // Reuse the dump if it exists.
