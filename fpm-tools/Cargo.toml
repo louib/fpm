@@ -18,6 +18,10 @@ name = "fpm-discover-manifests"
 path = "bin/fpm-discover-manifests.rs"
 
 [[bin]]
+name = "fpm-discovery-stats"
+path = "bin/fpm-discovery-stats.rs"
+
+[[bin]]
 name = "fpm-stats"
 path = "bin/fpm-stats.rs"
 
