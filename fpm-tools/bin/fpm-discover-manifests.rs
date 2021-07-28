@@ -267,10 +267,12 @@ pub fn mine_repository(db: &mut Database, repo_source: &str, repo_url: &str) -> 
         software_project.root_hashes = hashes;
     }
 
-    // TODO we should also rewind on all the commits of that repo?
     let repo_file_paths = match fpm::utils::get_all_paths(path::Path::new(&repo_dir)) {
         Ok(paths) => paths,
-        Err(message) => panic!(message),
+        Err(message) => {
+            log::error!("Could not get all file paths for {}!", repo_dir);
+            return mined_repos_urls;
+        },
     };
     for file_path in &repo_file_paths {
         if !file_path.is_file() {
