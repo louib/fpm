@@ -230,7 +230,10 @@ pub fn mine_repositories(db: &mut Database, source: &str, repos_urls: HashSet<St
             if project.sources.contains(source) {
                 log::info!("Repo {} was already mined", &repo_url);
             } else {
-                log::info!("Repo {} was mined from a different source. Adding current source.", &repo_url);
+                log::info!(
+                    "Repo {} was mined from a different source. Adding current source.",
+                    &repo_url
+                );
                 project.sources.insert(source.to_string());
             }
             continue;
@@ -278,7 +281,7 @@ pub fn mine_repository(db: &mut Database, repo_source: &str, repo_url: &str) -> 
         Err(message) => {
             log::error!("Could not get all file paths for {}!", repo_dir);
             return mined_repos_urls;
-        },
+        }
     };
     for file_path in &repo_file_paths {
         if !file_path.is_file() {

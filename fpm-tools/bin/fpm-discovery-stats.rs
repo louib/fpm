@@ -9,7 +9,7 @@ fn main() {
     fpm::logger::init();
     let db = fpm::db::Database::get_database();
 
-    let mut app_ids_to_sources: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    let mut app_ids_to_sources: BTreeMap<String, HashSet<String>> = BTreeMap::new();
     let mut sources_repos_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut sources_repos_with_manifests_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut sources_manifests_count: BTreeMap<String, i64> = BTreeMap::new();
@@ -21,42 +21,61 @@ fn main() {
     }
 
     for (project_id, project) in &db.indexed_projects {
-        // We're only interested in having stats for the projects supporting Flatpak.
-        if !project.supports_flatpak() {
-            continue;
-        }
-
         log::info!("Processing project {}...", project_id);
-        let repo_url = project.get_main_vcs_url();
+        for source in &project.sources {
+            let new_repos_count = sources_repos_count.get(source).unwrap_or(&0) + 1;
+            sources_repos_count.insert(source.to_string(), new_repos_count);
 
-        let repo_dir = match fpm::utils::clone_git_repo(&repo_url) {
-            Ok(d) => d,
-            Err(e) => {
-                eprintln!("Could not clone repo {}: {}", &repo_url, e);
-                continue;
+            if project.flatpak_app_manifests.len() > 0 {
+                let new_repos_with_manifest_count =
+                    sources_repos_with_manifests_count.get(source).unwrap_or(&0) + 1;
+                sources_repos_with_manifests_count.insert(source.to_string(), new_repos_with_manifest_count);
+
+                let new_manifest_count =
+                    sources_manifests_count.get(source).unwrap_or(&0) + 1;
+                sources_manifests_count.insert(source.to_string(), new_manifest_count);
+
             }
-        };
 
-        for manifest_path in &project.flatpak_app_manifests {
-            let absolute_manifest_path = repo_dir.to_string() + manifest_path;
+            if project.flatpak_module_manifests.len() > 0 {
+                let new_repos_with_module_count =
+                    sources_repos_with_modules_count.get(source).unwrap_or(&0) + 1;
+                sources_repos_with_modules_count.insert(source.to_string(), new_repos_with_module_count);
 
-            let flatpak_manifest = match FlatpakManifest::load_from_file(absolute_manifest_path.to_string()) {
-                Some(m) => m,
-                None => {
-                    log::warn!(
-                        "Could not parse Flatpak manifest at {}!!!",
-                        absolute_manifest_path
-                    );
-                    continue;
-                }
-            };
+                let new_module_count =
+                    sources_modules_count.get(source).unwrap_or(&0) + 1;
+                sources_modules_count.insert(source.to_string(), new_module_count);
+            }
 
-            // app_ids.insert(flatpak_manifest.get_id());
+            if !app_ids_to_sources.get(source).is_some() {
+                app_ids_to_sources.insert(source.to_string(), HashSet::new());
+            }
+            app_ids_to_sources.get_mut(source).unwrap().insert(source.to_string());
+
         }
+    }
 
-        for manifest_path in &project.flatpak_module_manifests {
-            let absolute_manifest_path = repo_dir.to_string() + manifest_path;
-            let module_description = FlatpakModuleDescription::load_from_file(absolute_manifest_path).unwrap();
-        }
+
+    for (source_name, source_repos_count) in sources_repos_count {
+        let repos_with_manifests_count = sources_repos_with_manifests_count.get(&source_name).unwrap_or(&0);
+        let repos_with_modules_count = sources_repos_with_modules_count.get(&source_name).unwrap_or(&0);
+        let manifests_count = sources_manifests_count.get(&source_name).unwrap_or(&0);
+        let modules_count = sources_modules_count.get(&source_name).unwrap_or(&0);
+
+        println!("===== {} =====", source_name);
+        println!(
+            "Repositories with Flatpak app manifests: {:.2}% ({}/{})",
+            (*repos_with_manifests_count as f64 / source_repos_count as f64) * 100.0,
+            repos_with_manifests_count,
+            source_repos_count,
+        );
+        println!(
+            "Repositories with Flatpak module manifests: {:.2}% ({}/{})",
+            (*repos_with_modules_count as f64 / source_repos_count as f64) * 100.0,
+            repos_with_modules_count,
+            source_repos_count,
+        );
+        println!("=====================");
+        println!("\n");
     }
 }

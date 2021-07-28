@@ -244,7 +244,7 @@ impl FlatpakManifest {
                 Err(e) => {
                     log::error!("Could not read file {}: {}!", file_path.to_str().unwrap(), e);
                     return None;
-                },
+                }
             };
             log::debug!("Parsing Flatpak manifest file {}", &path);
             let manifest = match FlatpakManifest::parse(&path, &manifest_content) {
@@ -622,7 +622,7 @@ impl FlatpakModuleDescription {
                 Err(e) => {
                     log::error!("Could not read file {}: {}!", file_path.to_str().unwrap(), e);
                     return None;
-                },
+                }
             };
             log::debug!("Parsing Flatpak module file {}", &path);
             let module = match FlatpakModuleDescription::parse(&path, &module_content) {
