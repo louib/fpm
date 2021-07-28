@@ -220,10 +220,10 @@ pub fn mine_repositories(source: &str, repos_urls: HashSet<String>) {
 
         let project_id = fpm::utils::repo_url_to_reverse_dns(&repo_url);
         if let Some(project) = Database::get_database().get_project(&project_id) {
-            if project.sources.contains(source.to_string()) {
+            if project.sources.contains(source) {
                 log::info!("Repo {} was already mined", &repo_url);
             } else {
-                log::info!("Repo {} was mined from a different source. Adding current source.");
+                log::info!("Repo {} was mined from a different source. Adding current source.", &repo_url);
                 project.sources.insert(source.to_string());
             }
             continue;
