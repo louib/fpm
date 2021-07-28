@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::collections::HashSet;
 use std::env;
 use std::fs;
@@ -17,12 +18,20 @@ fn main() {
     let sources = &args[1];
 
     let mut repos_urls: String = "".to_string();
+    let mut repos_by_source: BTreeMap<String, HashSet<String>> = BTreeMap::new();
 
     if sources.contains("github-flathub-org") || sources.eq("all") {
-        repos_urls += &match get_github_org_repos("flathub") {
+        repos_by_source.insert("github-flathub-org".to_string(), HashSet::new());
+        let repos_urls = &match get_github_org_repos("flathub") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
+        for repo_url in repos_urls.split("\n") {
+            repos_by_source
+                .get_mut("github-flathub-org")
+                .unwrap()
+                .insert(repo_url.to_string());
+        }
     }
 
     if sources.contains("github-elementary-org") || sources.eq("all") {
