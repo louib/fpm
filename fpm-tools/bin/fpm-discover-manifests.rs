@@ -200,6 +200,12 @@ pub fn mine_repositories(db: &mut Database, source: &str, repos_urls: HashSet<St
             continue;
         }
 
+        // Found when searching for `flathub` on GitHub.com
+        // Too big to be processed.
+        if repo_url.contains("usrbinkat/ocp-mini-stack") {
+            continue;
+        }
+
         // Found when searching for `flatpak` on GitHub.com
         // Too big to be processed.
         if repo_url.contains("/ostree") {
