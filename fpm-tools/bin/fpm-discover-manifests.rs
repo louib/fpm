@@ -5,8 +5,8 @@ use std::fs;
 use std::path;
 use std::process::exit;
 
-use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
 use fpm::db::Database;
+use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
 
 fn main() {
     fpm::logger::init();
@@ -443,11 +443,7 @@ pub fn search_github(search_term: &str) -> Result<String, String> {
 
 /// Gets all the repositories' URLs associated with a specific Debian (apt) repository.
 pub fn get_debian_repos(debian_repo_name: &str, debian_sources_url: &str) -> Result<String, String> {
-    let debian_repos_dump_path = format!(
-        "{}/{}.txt",
-        Database::get_repos_db_path(),
-        debian_repo_name
-    );
+    let debian_repos_dump_path = format!("{}/{}.txt", Database::get_repos_db_path(), debian_repo_name);
     let debian_repos_dump_path = path::Path::new(&debian_repos_dump_path);
 
     // Reuse the dump if it exists.
