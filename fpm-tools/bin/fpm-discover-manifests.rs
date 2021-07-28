@@ -181,12 +181,22 @@ fn main() {
     let db = fpm::db::Database::get_database();
     let mut mined_repos: HashSet<String> = HashSet::new();
 
-    mine_repositories(repos_urls.split('\n').collect(), db, &mut mined_repos, "temp_source");
+    mine_repositories(
+        repos_urls.split('\n').collect(),
+        db,
+        &mut mined_repos,
+        "temp_source",
+    );
 
     exit(0);
 }
 
-pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined_repos: &mut HashSet<String>, source: &str) {
+pub fn mine_repositories(
+    repos_urls: Vec<&str>,
+    mut db: fpm::db::Database,
+    mined_repos: &mut HashSet<String>,
+    source: &str,
+) {
     let mut next_repos_urls_to_mine: Vec<String> = vec![];
 
     for repo_url in repos_urls {
@@ -244,7 +254,12 @@ pub fn mine_repositories(repos_urls: Vec<&str>, mut db: fpm::db::Database, mined
             next_repos_urls_to_mine_str.push(url);
         }
 
-        mine_repositories(next_repos_urls_to_mine_str, db, mined_repos, "recursive_discovery");
+        mine_repositories(
+            next_repos_urls_to_mine_str,
+            db,
+            mined_repos,
+            "recursive_discovery",
+        );
     }
 }
 
