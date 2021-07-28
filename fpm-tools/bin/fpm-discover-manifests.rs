@@ -180,13 +180,13 @@ fn main() {
     }
 
     for (repo_source, repos_urls) in repos_by_source {
-        mine_repositories(repos_urls, &repo_source);
+        mine_repositories(&repo_source, repos_urls);
     }
 
     exit(0);
 }
 
-pub fn mine_repositories(repos_urls: HashSet<String>, source: &str) {
+pub fn mine_repositories(source: &str, repos_urls: HashSet<String>) {
     let mut next_repos_urls_to_mine: HashSet<String> = HashSet::new();
 
     for repo_url in repos_urls {
@@ -238,7 +238,7 @@ pub fn mine_repositories(repos_urls: HashSet<String>, source: &str) {
             "There are {} other repositories to mine!!!",
             next_repos_urls_to_mine.len()
         );
-        mine_repositories(next_repos_urls_to_mine, "recursive_discovery");
+        mine_repositories("recursive_discovery", next_repos_urls_to_mine);
     }
 }
 
