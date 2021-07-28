@@ -18,49 +18,49 @@ fn main() {
 
     let mut repos_urls: String = "".to_string();
 
-    if sources.contains("github-flathub-org") {
+    if sources.contains("github-flathub-org") || sources.eq("all") {
         repos_urls += &match get_github_org_repos("flathub") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
     }
 
-    if sources.contains("github-elementary-org") {
+    if sources.contains("github-elementary-org") || sources.eq("all") {
         repos_urls += &match get_github_org_repos("elementary") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
     }
 
-    if sources.contains("gnome-gitlab-instance") {
+    if sources.contains("gnome-gitlab-instance") || sources.eq("all") {
         repos_urls += &match get_gitlab_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
     }
 
-    if sources.contains("purism-gitlab-instance") {
+    if sources.contains("purism-gitlab-instance") || sources.eq("all") {
         repos_urls += &match get_gitlab_repos("source.puri.sm", "FPM_PURISM_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
     }
 
-    if sources.contains("debian-gitlab-instance") {
+    if sources.contains("debian-gitlab-instance") || sources.eq("all") {
         repos_urls += &match get_gitlab_repos("salsa.debian.org", "FPM_DEBIAN_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
     }
 
-    if sources.contains("xdg-gitlab-instance") {
+    if sources.contains("xdg-gitlab-instance") || sources.eq("all") {
         repos_urls += &match get_gitlab_repos("gitlab.freedesktop.org", "FPM_XDG_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
     }
 
-    if sources.contains("kde-gitlab-instance") {
+    if sources.contains("kde-gitlab-instance") || sources.eq("all") {
         repos_urls += &match get_gitlab_repos("invent.kde.org", "FPM_KDE_GITLAB_TOKEN") {
             Ok(r) => r,
             Err(e) => panic!(e),
@@ -71,28 +71,28 @@ fn main() {
     // TODO also get gitlab.haskell.org ??
     // TODO also get devel.trisquel.info ??
 
-    if sources.contains("gitlab-search-flatpak") {
+    if sources.contains("gitlab-search-flatpak") || sources.eq("all") {
         repos_urls += &match search_gitlab("flatpak") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
     }
 
-    if sources.contains("gitlab-search-flathub") {
+    if sources.contains("gitlab-search-flathub") || sources.eq("all") {
         repos_urls += &match search_gitlab("flathub") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
     }
 
-    if sources.contains("github-search-flatpak") {
+    if sources.contains("github-search-flatpak") || sources.eq("all") {
         repos_urls += &match search_github("flatpak") {
             Ok(r) => r,
             Err(e) => panic!(e),
         };
     }
 
-    if sources.contains("github-search-flathub") {
+    if sources.contains("github-search-flathub") || sources.eq("all") {
         repos_urls += &match search_github("flathub") {
             Ok(r) => r,
             Err(e) => panic!(e),
