@@ -242,13 +242,14 @@ pub fn mine_repositories(source: &str, repos_urls: HashSet<String>) {
 }
 
 pub fn mine_repository(repo_source: &str, repo_url: &str) -> Vec<String> {
+    log::info!("Mining repo at {} from {}.", repo_url, repo_source);
+
     let mut software_project = fpm::projects::SoftwareProject::default();
     software_project.id = fpm::utils::repo_url_to_reverse_dns(repo_url);
     software_project.vcs_urls.insert(repo_url.to_string());
     software_project.sources.insert(repo_source.to_string());
 
     let mut mined_repos_urls: Vec<String> = vec![];
-    let mut repo_manifest_count = 0;
     let repo_dir = match fpm::utils::clone_git_repo(&repo_url) {
         Ok(d) => d,
         Err(e) => {
@@ -264,10 +265,7 @@ pub fn mine_repository(repo_source: &str, repo_url: &str) -> Vec<String> {
     // TODO we should also rewind on all the commits of that repo?
     let repo_file_paths = match fpm::utils::get_all_paths(path::Path::new(&repo_dir)) {
         Ok(paths) => paths,
-        Err(message) => {
-            log::error!("Could not get the file paths for {} :sad: {}", repo_dir, message);
-            return mined_repos_urls;
-        }
+        Err(message) => panic!(message),
     };
     for file_path in &repo_file_paths {
         if !file_path.is_file() {
@@ -284,7 +282,7 @@ pub fn mine_repository(repo_source: &str, repo_url: &str) -> Vec<String> {
         }
 
         if let Some(build_system) = fpm::build_systems::get_build_system(file_path.to_string()) {
-            log::info!("Detected buildsystem {} for repo {}", build_system, repo_url);
+            log::debug!("Detected buildsystem {} for repo {}", build_system, repo_url);
             software_project.build_systems.insert(build_system);
         }
 
@@ -293,9 +291,6 @@ pub fn mine_repository(repo_source: &str, repo_url: &str) -> Vec<String> {
             software_project
                 .flatpak_app_manifests
                 .insert(flatpak_manifest_path);
-
-            repo_manifest_count += 1;
-            log::info!("Parsed a Flatpak manifest at {}", file_path.to_string());
 
             for module in &flatpak_manifest.modules {
                 for url in module.get_all_repos_urls() {
@@ -323,16 +318,6 @@ pub fn mine_repository(repo_source: &str, repo_url: &str) -> Vec<String> {
     }
 
     Database::get_database().add_project(software_project);
-
-    if repo_manifest_count == 0 {
-        log::info!("Repo at {} had no Flatpak manifest.", repo_url);
-    } else {
-        log::info!(
-            "Repo at {} had {} Flatpak manifests.",
-            repo_url,
-            repo_manifest_count
-        );
-    }
     return mined_repos_urls;
 }
 
