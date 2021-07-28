@@ -10,6 +10,7 @@ fn main() {
     let db = fpm::db::Database::get_database();
 
     let mut app_ids_to_sources: BTreeMap<String, HashSet<String>> = BTreeMap::new();
+    let mut app_ids_sources_count: BTreeMap<i64, i64> = BTreeMap::new();
     let mut sources_repos_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut sources_repos_with_manifests_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut sources_manifests_count: BTreeMap<String, i64> = BTreeMap::new();
@@ -52,6 +53,20 @@ fn main() {
                 .unwrap()
                 .insert(source.to_string());
         }
+    }
+
+    for (_, sources) in app_ids_to_sources {
+        let new_sources_count = app_ids_sources_count.get(&(sources.len() as i64)).unwrap_or(&0) + 1;
+        app_ids_sources_count.insert(sources.len() as i64, new_sources_count);
+
+    }
+
+    for (source_count, app_ids_count) in app_ids_sources_count {
+        println!(
+            "App IDs discovered from {} sources: {}",
+            source_count,
+            app_ids_count,
+        );
     }
 
     for (source_name, source_repos_count) in sources_repos_count {
