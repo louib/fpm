@@ -32,7 +32,7 @@ fn main() {
                     sources_repos_with_manifests_count.get(source).unwrap_or(&0) + 1;
                 sources_repos_with_manifests_count.insert(source.to_string(), new_repos_with_manifest_count);
 
-                let new_manifest_count = sources_manifests_count.get(source).unwrap_or(&0) + project.flatpak_app_manifests.len();
+                let new_manifest_count = sources_manifests_count.get(source).unwrap_or(&0) + project.flatpak_app_manifests.len() as i64;
                 sources_manifests_count.insert(source.to_string(), new_manifest_count);
             }
 
@@ -41,7 +41,7 @@ fn main() {
                     sources_repos_with_modules_count.get(source).unwrap_or(&0) + 1;
                 sources_repos_with_modules_count.insert(source.to_string(), new_repos_with_module_count);
 
-                let new_module_count = sources_modules_count.get(source).unwrap_or(&0) + project.flatpak_module_manifests.len();
+                let new_module_count = sources_modules_count.get(source).unwrap_or(&0) + project.flatpak_module_manifests.len() as i64;
                 sources_modules_count.insert(source.to_string(), new_module_count);
             }
 
