@@ -88,7 +88,8 @@ fn main() {
             repos_with_modules_count,
             source_repos_count,
         );
-        println!("=====================");
-        println!("\n");
+        println!("App manifests count: {}", manifests_count);
+        println!("Modules manifests count: {}", modules_count);
+        println!("=====================\n");
     }
 }
