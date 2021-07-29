@@ -17,6 +17,11 @@ fn main() {
     let mut sources_repos_with_modules_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut sources_modules_count: BTreeMap<String, i64> = BTreeMap::new();
 
+    let mut projects_with_app_manifests_count: i64 = 0;
+    let mut projects_with_module_manifests_count: i64 = 0;
+    let mut app_manifests_count: i64 = 0;
+    let mut module_manifests_count: i64 = 0;
+
     if db.indexed_projects.len() == 0 {
         panic!("There are no projects in the database!");
     }
@@ -55,6 +60,16 @@ fn main() {
                 .unwrap()
                 .insert(source.to_string());
         }
+
+        if project.flatpak_app_manifests.len() > 0 {
+            projects_with_app_manifests_count += 1;
+            app_manifests_count += project.flatpak_app_manifests.len() as i64;
+        }
+        if project.flatpak_module_manifests.len() > 0 {
+            projects_with_module_manifests_count += 1;
+            module_manifests_count += project.flatpak_module_manifests.len() as i64;
+        }
+
     }
 
     for (_, sources) in app_ids_to_sources {
@@ -92,4 +107,22 @@ fn main() {
         println!("Modules manifests count: {}", modules_count);
         println!("=====================\n");
     }
+
+    println!("===== Total =====");
+    println!(
+        "Repositories with Flatpak app manifests: {:.2}% ({}/{})",
+        (projects_with_app_manifests_count as f64 / db.indexed_projects.len() as f64) * 100.0,
+        projects_with_app_manifests_count,
+        db.indexed_projects.len(),
+    );
+    println!(
+        "Repositories with Flatpak module manifests: {:.2}% ({}/{})",
+        (projects_with_module_manifests_count as f64 / db.indexed_projects.len() as f64) * 100.0,
+        projects_with_module_manifests_count,
+        db.indexed_projects.len(),
+    );
+    println!("App manifests count: {}", app_manifests_count);
+    println!("Modules manifests count: {}", module_manifests_count);
+    println!("=====================");
+
 }
