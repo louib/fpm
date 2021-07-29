@@ -14,5 +14,17 @@ fpm is a CLI tool for managing Flatpak manifests and workspaces.
 ## Database
 The fpm database is also tracked using git and can be found at https://github.com/louib/fpm-db/
 
+## Installing
+### Dependencies
+* libssl-dev
+* pkg-config
+
+### Building with Cargo
+```
+git clone git@github.com:louib/fpm.git
+cd fpm/
+cargo install --path .
+```
+
 ## License
 MIT
