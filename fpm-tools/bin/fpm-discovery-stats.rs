@@ -105,7 +105,7 @@ fn main() {
         app_ids_sources_count.insert(sources.len() as i64, new_sources_count);
     }
 
-    println!("===== App IDs stats =====", source_name);
+    println!("===== App IDs stats =====");
     for (source_count, app_ids_count) in app_ids_sources_count {
         println!(
             "App IDs discovered from {} source(s): {}",

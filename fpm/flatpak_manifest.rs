@@ -387,6 +387,10 @@ impl FlatpakManifest {
         }
         false
     }
+
+    pub fn get_all_modules_recursively(&self) -> Vec<FlatpakModule> {
+        vec![]
+    }
 }
 
 // Each module item can be either a path to a module description file,
