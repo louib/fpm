@@ -105,12 +105,14 @@ fn main() {
         app_ids_sources_count.insert(sources.len() as i64, new_sources_count);
     }
 
+    println!("===== App IDs stats =====", source_name);
     for (source_count, app_ids_count) in app_ids_sources_count {
         println!(
             "App IDs discovered from {} source(s): {}",
             source_count, app_ids_count,
         );
     }
+    println!("=====================");
 
     for (source_name, source_repos_count) in sources_repos_count {
         let repos_with_manifests_count = sources_repos_with_manifests_count.get(&source_name).unwrap_or(&0);
