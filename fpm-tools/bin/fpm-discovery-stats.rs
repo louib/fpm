@@ -28,6 +28,33 @@ fn main() {
 
     for (project_id, project) in &db.indexed_projects {
         log::info!("Processing project {}...", project_id);
+
+        let mut app_ids: HashSet<String> = HashSet::new();
+        let repo_url = project.get_main_vcs_url();
+
+        let repo_dir = match fpm::utils::clone_git_repo(&repo_url) {
+            Ok(d) => d,
+            Err(e) => {
+                eprintln!("Could not clone repo {}: {}", &repo_url, e);
+                continue;
+            }
+        };
+        for manifest_path in &project.flatpak_app_manifests {
+            let absolute_manifest_path = repo_dir.to_string() + manifest_path;
+
+            let flatpak_manifest = match FlatpakManifest::load_from_file(absolute_manifest_path.to_string()) {
+                Some(m) => m,
+                None => {
+                    log::warn!(
+                        "Could not parse Flatpak manifest at {}!!!",
+                        absolute_manifest_path
+                    );
+                    continue;
+                }
+            };
+            app_ids.insert(flatpak_manifest.get_id());
+        }
+
         for source in &project.sources {
             let new_repos_count = sources_repos_count.get(source).unwrap_or(&0) + 1;
             sources_repos_count.insert(source.to_string(), new_repos_count);
@@ -52,15 +79,15 @@ fn main() {
                 sources_modules_count.insert(source.to_string(), new_module_count);
             }
 
-            // FIXME we actually need to use the app id here, not the source!!
-            // But we need to load the manifest for that :(
-            if !app_ids_to_sources.get(source).is_some() {
-                app_ids_to_sources.insert(source.to_string(), HashSet::new());
+            for app_id in &app_ids {
+                if !app_ids_to_sources.get(app_id).is_some() {
+                    app_ids_to_sources.insert(app_id.to_string(), HashSet::new());
+                }
+                app_ids_to_sources
+                    .get_mut(app_id)
+                    .unwrap()
+                    .insert(source.to_string());
             }
-            app_ids_to_sources
-                .get_mut(source)
-                .unwrap()
-                .insert(source.to_string());
         }
 
         if project.flatpak_app_manifests.len() > 0 {
