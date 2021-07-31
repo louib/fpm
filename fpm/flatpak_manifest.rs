@@ -2150,6 +2150,7 @@ mod tests {
             Ok(manifest) => {
                 assert_eq!(manifest.app_id, "com.georgefb.haruna");
                 assert_eq!(manifest.get_max_depth(), 3);
+                assert_eq!(manifest.modules.len(), 1);
                 assert_eq!(manifest.get_all_modules_recursively().len(), 12);
             }
         }
