@@ -22,8 +22,8 @@ name = "fpm-discovery-stats"
 path = "bin/fpm-discovery-stats.rs"
 
 [[bin]]
-name = "fpm-stats"
-path = "bin/fpm-stats.rs"
+name = "fpm-manifests-stats"
+path = "bin/fpm-manifests-stats.rs"
 
 [[bin]]
 name = "fpm-extract-urls-from-manifests"
