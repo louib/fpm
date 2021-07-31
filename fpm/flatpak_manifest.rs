@@ -388,8 +388,25 @@ impl FlatpakManifest {
         false
     }
 
-    pub fn get_all_modules_recursively(&self) -> Vec<FlatpakModule> {
-        vec![]
+    pub fn get_all_modules_recursively(&self) -> Vec<&FlatpakModule> {
+        let mut all_modules: Vec<&FlatpakModule> = vec![];
+        let mut next_modules: Vec<&FlatpakModule> = vec![];
+        for module in &self.modules {
+            next_modules.push(module);
+        }
+        while !next_modules.is_empty() {
+            let module = next_modules.pop().unwrap();
+            all_modules.push(module);
+
+            let module = match module {
+                FlatpakModule::Description(d) => d,
+                FlatpakModule::Path(_) => continue,
+            };
+            for next_module in &module.modules {
+                next_modules.push(next_module);
+            }
+        }
+        all_modules
     }
 }
 
@@ -1944,6 +1961,196 @@ mod tests {
             Ok(manifest) => {
                 assert_eq!(manifest.id, "org.freedesktop.Platform.Icontheme.Paper");
                 assert_eq!(manifest.get_id(), "org.freedesktop.Platform.Icontheme.Paper");
+            }
+        }
+    }
+
+    #[test]
+    pub fn test_parse_recursive_modules() {
+        match FlatpakManifest::parse(
+            "manifest.yaml",
+            r###"
+            app-id: com.georgefb.haruna
+            runtime: org.kde.Platform
+            runtime-version: '5.15'
+            sdk: org.kde.Sdk
+            command: haruna
+            finish-args:
+              - '--share=ipc'
+              - '--share=network'
+              - '--socket=x11'
+              - '--socket=wayland'
+              - '--socket=pulseaudio'
+              - '--device=dri'
+              - '--filesystem=host'
+              - '--talk-name=ca.desrt.dconf'
+              - '--talk-name=org.freedesktop.ScreenSaver'
+              - '--own-name=org.mpris.MediaPlayer2.haruna'
+              - '--env=DCONF_USER_CONFIG_DIR=.config/dconf'
+              - '--env=LC_NUMERIC=C'
+              - '--env=XDG_DATA_DIRS=/usr/share:/app/share/'
+            modules:
+              - name: haruna
+                buildsystem: cmake-ninja
+                sources:
+                  - type: archive
+                    url: 'https://github.com/g-fb/haruna/archive/refs/tags/0.6.3.tar.gz'
+                    sha256: 'c79ec1e351f47faf9a58a6ba7ec3cc05cfdc5423fde0584f2d4081f5058363e3'
+                modules:
+                  - name: taglib
+                    buildsystem: cmake-ninja
+                    config-opts:
+                    - '-DBUILD_SHARED_LIBS=ON'
+                    sources:
+                    - type: archive
+                      url: 'https://github.com/taglib/taglib/releases/download/v1.12/taglib-1.12.tar.gz'
+                      sha256: '7fccd07669a523b07a15bd24c8da1bbb92206cb19e9366c3692af3d79253b703'
+                  - name: ffmpegthumbs
+                    buildsystem: cmake-ninja
+                    sources:
+                    - type: archive
+                      url: 'https://invent.kde.org/multimedia/ffmpegthumbs/-/archive/v20.12.3/ffmpegthumbs-v20.12.3.tar.gz'
+                      sha256: '9292a503808688b37e45ee336efcd28c39035d49c96e1df466b091f2eaf7a529'
+                  - name: kio-extras
+                    buildsystem: cmake-ninja
+                    sources:
+                    - type: archive
+                      url: 'https://invent.kde.org/network/kio-extras/-/archive/v20.12.3/kio-extras-v20.12.3.tar.gz'
+                      sha256: 'bedccdbf3664f2669270c2864c6f7c0e73237d18fae04067bc21ae5e12716b0b'
+                  - name: libmpv
+                    cleanup:
+                      - /include
+                      - /lib/pkgconfig
+                      - /share/man
+                    buildsystem: simple
+                    build-commands:
+                      - python3 waf configure --prefix=/app --enable-libmpv-shared --disable-cplayer --disable-build-date --disable-alsa
+                      - python3 waf build
+                      - python3 waf install
+                    sources:
+                      - type: archive
+                        url: 'https://github.com/mpv-player/mpv/archive/v0.33.1.tar.gz'
+                        sha256: '100a116b9f23bdcda3a596e9f26be3a69f166a4f1d00910d1789b6571c46f3a9'
+                      - type: file
+                        url: 'https://waf.io/waf-2.0.21'
+                        sha256: '7cebf2c5efe53cbb9a4b5bdc4b49ae90ecd64a8fce7a3222d58e591b58215306'
+                        dest-filename: waf
+                    modules:
+                      - name: luajit
+                        no-autogen: true
+                        cleanup:
+                          - /bin
+                          - /lib/*.a
+                          - /include
+                          - /lib/pkgconfig
+                          - /share/man
+                        sources:
+                          - type: archive
+                            url: 'http://luajit.org/download/LuaJIT-2.1.0-beta3.tar.gz'
+                            sha256: '1ad2e34b111c802f9d0cdf019e986909123237a28c746b21295b63c9e785d9c3'
+                          - type: shell
+                            commands:
+                              - sed -i 's|/usr/local|/app|' ./Makefile
+                      - name: libv4l2
+                        cleanup:
+                          - /sbin
+                          - /bin
+                          - /include
+                          - /lib/*.la
+                          - /lib/*/*.la
+                          - /lib*/*/*/*.la
+                          - /lib/pkgconfig
+                          - /share/man
+                        config-opts:
+                          - '--disable-static'
+                          - '--disable-bpf'
+                          - '--with-udevdir=/app/lib/udev'
+                        sources:
+                          - type: archive
+                            url: 'https://linuxtv.org/downloads/v4l-utils/v4l-utils-1.20.0.tar.bz2'
+                            sha256: '956118713f7ccb405c55c7088a6a2490c32d54300dd9a30d8d5008c28d3726f7'
+                      - name: nv-codec-headers
+                        cleanup:
+                          - '*'
+                        no-autogen: true
+                        make-install-args:
+                          - PREFIX=/app
+                        sources:
+                          - type: archive
+                            url: 'https://github.com/FFmpeg/nv-codec-headers/releases/download/n11.0.10.0/nv-codec-headers-11.0.10.0.tar.gz'
+                            sha256: 'e5d1fe6b18254a3c8747a38714564030e4fda506961a11a7eafb94f2400419bb'
+                      - name: ffmpeg
+                        cleanup:
+                          - /include
+                          - /lib/pkgconfig
+                          - /share/ffmpeg/examples
+                        config-opts:
+                          - '--enable-shared'
+                          - '--disable-static'
+                          - '--enable-gnutls'
+                          - '--enable-gpl'
+                          - '--disable-doc'
+                          - '--disable-programs'
+                          - '--disable-encoders'
+                          - '--disable-muxers'
+                          - '--enable-encoder=png,libwebp'
+                          - '--enable-libv4l2'
+                          - '--enable-libdav1d'
+                          - '--enable-libfontconfig'
+                          - '--enable-libfreetype'
+                          - '--enable-libopus'
+                          - '--enable-librsvg'
+                          - '--enable-libvpx'
+                          - '--enable-libmp3lame'
+                          - '--enable-libwebp'
+                        sources:
+                          - type: archive
+                            url: 'https://ffmpeg.org/releases/ffmpeg-4.3.2.tar.xz'
+                            sha256: '46e4e64f1dd0233cbc0934b9f1c0da676008cad34725113fb7f802cfa84ccddb'
+                      - name: libass
+                        cleanup:
+                          - /include
+                          - /lib/*.la
+                          - /lib/pkgconfig
+                        config-opts:
+                          - '--disable-static'
+                        sources:
+                          - type: archive
+                            url: 'https://github.com/libass/libass/releases/download/0.15.0/libass-0.15.0.tar.gz'
+                            sha256: '9cbddee5e8c87e43a5fe627a19cd2aa4c36552156eb4edcf6c5a30bd4934fe58'
+                      - name: uchardet
+                        buildsystem: cmake-ninja
+                        config-opts:
+                          - '-DCMAKE_BUILD_TYPE=Release'
+                          - '-DBUILD_STATIC=0'
+                        cleanup:
+                          - /bin
+                          - /include
+                          - /lib/pkgconfig
+                          - /share/man
+                        sources:
+                          - type: archive
+                            url: 'https://gitlab.freedesktop.org/uchardet/uchardet/-/archive/v0.0.7/uchardet-v0.0.7.tar.gz'
+                            sha256: 'f3635d1d10e1470452bc42c1bf509451a9926b399a11740a9949e86069d69f58'
+                  - name: youtube-dl
+                    no-autogen: true
+                    no-make-install: true
+                    make-args:
+                      - youtube-dl
+                      - PYTHON=/usr/bin/python3
+                    post-install:
+                      - install youtube-dl /app/bin
+                    sources:
+                      - type: archive
+                        url: 'https://github.com/ytdl-org/youtube-dl/archive/2021.04.26.tar.gz'
+                        sha256: 'd80023ab221b3cb89229b632e247035a22c5afaee9a7b3c653bbd702f71c1083'
+            "###,
+        ) {
+            Err(e) => panic!(e),
+            Ok(manifest) => {
+                assert_eq!(manifest.app_id, "com.georgefb.haruna");
+                assert_eq!(manifest.get_max_depth(), 3);
+                assert_eq!(manifest.get_all_modules_recursively().len(), 12);
             }
         }
     }
