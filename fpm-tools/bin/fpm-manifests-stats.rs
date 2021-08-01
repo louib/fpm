@@ -119,6 +119,9 @@ fn main() {
                 if permission_name.starts_with("--sdk") {
                     continue;
                 }
+                if permission_name.starts_with("--extension") {
+                    continue;
+                }
                 if permission_name.starts_with("--talk-name") {
                     continue;
                 }
@@ -140,6 +143,8 @@ fn main() {
                     normalized_permission_name = "Filesystem (all Host machine)".to_string();
                 } else if permission_name.starts_with("--filesystem") {
                     normalized_permission_name = "Filesystem (specific path)".to_string();
+                } else if permission_name.starts_with("--persist") {
+                    normalized_permission_name = "Filesystem (with --persist)".to_string();
                 }
 
                 manifest_permissions.insert(normalized_permission_name);
