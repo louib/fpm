@@ -94,11 +94,26 @@ fn main() {
                     continue;
                 }
 
+                let mut normalized_permission_name = permission_name.to_string();
+
                 if permission_name.starts_with("--env") {
                     continue;
                 }
+                if permission_name.starts_with("--extra-data") {
+                    continue;
+                }
                 // TODO ignore also metadata?
-                let new_count = permissions_count.get(permission_name).unwrap_or(&0) + 1;
+                if permission_name.starts_with("--filesystem=xdg-") {
+                    normalized_permission_name = "Filesystem using XDG name".to_string();
+                } else if permission_name.starts_with("--filesystem=home") {
+                    normalized_permission_name = "Filesystem (all home directory)".to_string();
+                } else if permission_name.starts_with("--filesystem=host") {
+                    normalized_permission_name = "Filesystem (all Host machine)".to_string();
+                } else if permission_name.starts_with("--filesystem") {
+                    normalized_permission_name = "Filesystem (specific path)".to_string();
+                }
+
+                let new_count = permissions_count.get(&normalized_permission_name).unwrap_or(&0) + 1;
                 permissions_count.insert(permission_name.to_string(), new_count);
             }
 
