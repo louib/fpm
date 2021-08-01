@@ -99,6 +99,12 @@ fn main() {
                 if permission_name.starts_with("--env") {
                     continue;
                 }
+                if permission_name.starts_with("--unset-env") {
+                    continue;
+                }
+                if permission_name.starts_with("--metadata") {
+                    continue;
+                }
                 if permission_name.starts_with("--extra-data") {
                     continue;
                 }
@@ -114,7 +120,7 @@ fn main() {
                 }
 
                 let new_count = permissions_count.get(&normalized_permission_name).unwrap_or(&0) + 1;
-                permissions_count.insert(permission_name.to_string(), new_count);
+                permissions_count.insert(normalized_permission_name.to_string(), new_count);
             }
 
             for extension_name in &flatpak_manifest.sdk_extensions {
