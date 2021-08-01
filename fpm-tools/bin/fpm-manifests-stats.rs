@@ -306,7 +306,6 @@ fn main() {
     println!("=====================");
     println!("\n");
 
-
     println!("===== Modules =====");
     println!("Total count: {}", modules_count);
     println!("Standalone modules: {}", standalone_modules_count);
