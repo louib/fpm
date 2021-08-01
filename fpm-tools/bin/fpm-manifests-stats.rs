@@ -107,6 +107,27 @@ fn main() {
                 if permission_name.starts_with("--metadata") {
                     continue;
                 }
+                if permission_name.starts_with("--add-policy") {
+                    continue;
+                }
+                if permission_name.starts_with("--require-version") {
+                    continue;
+                }
+                if permission_name.starts_with("--own-name") {
+                    continue;
+                }
+                if permission_name.starts_with("--sdk") {
+                    continue;
+                }
+                if permission_name.starts_with("--talk-name") {
+                    continue;
+                }
+                if permission_name.starts_with("--system-talk-name") {
+                    continue;
+                }
+                if permission_name.starts_with("--runtime") {
+                    continue;
+                }
                 if permission_name.starts_with("--extra-data") {
                     continue;
                 }
