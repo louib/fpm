@@ -128,6 +128,9 @@ fn main() {
                 if permission_name.starts_with("--system-talk-name") {
                     continue;
                 }
+                if permission_name.starts_with("--system-own-name") {
+                    continue;
+                }
                 if permission_name.starts_with("--runtime") {
                     continue;
                 }
