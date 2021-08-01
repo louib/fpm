@@ -89,6 +89,8 @@ fn main() {
                 non_extension_manifests_count += 1;
             }
 
+            // We use a set to make sure every possible permission in counted once per manifest.
+            let mut manifest_permissions: HashSet<String> = HashSet::new();
             for permission_name in &flatpak_manifest.finish_args {
                 if flatpak_manifest.is_extension() {
                     continue;
@@ -119,8 +121,11 @@ fn main() {
                     normalized_permission_name = "Filesystem (specific path)".to_string();
                 }
 
-                let new_count = permissions_count.get(&normalized_permission_name).unwrap_or(&0) + 1;
-                permissions_count.insert(normalized_permission_name.to_string(), new_count);
+                manifest_permissions.insert(normalized_permission_name);
+            }
+            for permission_name in manifest_permissions {
+                let new_count = permissions_count.get(&permission_name).unwrap_or(&0) + 1;
+                permissions_count.insert(permission_name.to_string(), new_count);
             }
 
             for extension_name in &flatpak_manifest.sdk_extensions {
