@@ -35,7 +35,9 @@ fn main() {
     let mut manifests_max_depth: BTreeMap<i32, i64> = BTreeMap::new();
     let mut manifests_count: i64 = 0;
     let mut extension_manifests_count: i64 = 0;
+    let mut non_extension_manifests_count: i64 = 0;
     let mut extensions_count: BTreeMap<String, i64> = BTreeMap::new();
+    let mut permissions_count: BTreeMap<String, i64> = BTreeMap::new();
     let mut no_extensions_count: i64 = 0;
     let mut patched_modules_count: i64 = 0;
     let mut modules_urls_count: i64 = 0;
@@ -83,6 +85,21 @@ fn main() {
 
             if flatpak_manifest.is_extension() {
                 extension_manifests_count += 1;
+            } else {
+                non_extension_manifests_count += 1;
+            }
+
+            for permission_name in &flatpak_manifest.finish_args {
+                if flatpak_manifest.is_extension() {
+                    continue;
+                }
+
+                if permission_name.starts_with("--env") {
+                    continue;
+                }
+                // TODO ignore also metadata?
+                let new_count = permissions_count.get(permission_name).unwrap_or(&0) + 1;
+                permissions_count.insert(permission_name.to_string(), new_count);
             }
 
             for extension_name in &flatpak_manifest.sdk_extensions {
@@ -277,8 +294,18 @@ fn main() {
         no_extensions_count,
         manifests_count,
     );
+    for (permission_name, count) in permissions_count {
+        println!(
+            "Permissions {}: {:.2}% ({}/{})",
+            permission_name,
+            (count as f64 / non_extension_manifests_count as f64) * 100.0,
+            count,
+            non_extension_manifests_count,
+        );
+    }
     println!("=====================");
     println!("\n");
+
 
     println!("===== Modules =====");
     println!("Total count: {}", modules_count);
