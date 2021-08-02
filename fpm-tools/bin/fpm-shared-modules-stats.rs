@@ -2,9 +2,7 @@ use std::collections::BTreeMap;
 use std::collections::HashSet;
 use std::path;
 
-use fpm::flatpak_manifest::{
-    FlatpakManifest, FlatpakModule, FlatpakModuleDescription,
-};
+use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
 
 const SHARED_MODULES_URL: &str = "https://github.com/flathub/shared-modules.git";
 
