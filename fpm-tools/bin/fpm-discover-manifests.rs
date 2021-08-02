@@ -118,10 +118,6 @@ fn main() {
         }
     }
 
-    // TODO also get code.videolan.org ??
-    // TODO also get gitlab.haskell.org ??
-    // TODO also get devel.trisquel.info ??
-
     if sources.contains("gitlab-search-flatpak") || sources.eq("all") {
         repos_by_source.insert("gitlab-search-flatpak".to_string(), HashSet::new());
         let repos_urls = &match search_gitlab("flatpak") {
@@ -191,6 +187,11 @@ pub fn mine_repositories(db: &mut Database, source: &str, repos_urls: HashSet<St
 
     for repo_url in repos_urls {
         if repo_url.trim().is_empty() {
+            continue;
+        }
+
+        // We handle the shared modules separately.
+        if repo_url.contains("flathub/shared-modules") {
             continue;
         }
 

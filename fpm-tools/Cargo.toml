@@ -26,6 +26,10 @@ name = "fpm-manifests-stats"
 path = "bin/fpm-manifests-stats.rs"
 
 [[bin]]
+name = "fpm-shared-modules-stats"
+path = "bin/fpm-shared-modules-stats.rs"
+
+[[bin]]
 name = "fpm-extract-urls-from-manifests"
 path = "bin/fpm-extract-urls-from-manifests.rs"
 
