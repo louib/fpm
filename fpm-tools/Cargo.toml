@@ -30,8 +30,8 @@ name = "fpm-shared-modules-stats"
 path = "bin/fpm-shared-modules-stats.rs"
 
 [[bin]]
-name = "fpm-extract-urls-from-manifests"
-path = "bin/fpm-extract-urls-from-manifests.rs"
+name = "fpm-domain-stats"
+path = "bin/fpm-domain-stats.rs"
 
 [[bin]]
 name = "fpm-map-archives-to-repos"
