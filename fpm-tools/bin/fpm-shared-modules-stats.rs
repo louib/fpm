@@ -77,6 +77,7 @@ fn main() {
                 }
             };
 
+            manifests_count += 1;
             let mut manifest_uses_shared_modules = false;
             let mut manifest_uses_local_shared_modules = false;
 
@@ -128,5 +129,18 @@ fn main() {
         manifests_count,
     );
 
+    println!("Total module count: {}", manifests_count);
+    println!(
+        "Modules using a file path: {:.2}% ({}/{})",
+        (path_modules_count as f64 / modules_count as f64) * 100.0,
+        path_modules_count,
+        modules_count,
+    );
+    println!(
+        "Modules that are shared modules: {:.2}% ({}/{})",
+        (shared_modules_count as f64 / modules_count as f64) * 100.0,
+        shared_modules_count,
+        modules_count,
+    );
     println!("=====================");
 }
