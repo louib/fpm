@@ -390,20 +390,15 @@ impl FlatpakManifest {
 
     pub fn get_all_modules_recursively(&self) -> Vec<&FlatpakModule> {
         let mut all_modules: Vec<&FlatpakModule> = vec![];
-        let mut next_modules: Vec<&FlatpakModule> = vec![];
         for module in &self.modules {
-            next_modules.push(module);
-        }
-        while !next_modules.is_empty() {
-            let module = next_modules.pop().unwrap();
             all_modules.push(module);
 
             let module = match module {
                 FlatpakModule::Description(d) => d,
                 FlatpakModule::Path(_) => continue,
             };
-            for next_module in &module.modules {
-                next_modules.push(next_module);
+            for child_module in module.get_all_modules_recursively() {
+                all_modules.push(child_module);
             }
         }
         all_modules
@@ -785,6 +780,27 @@ impl FlatpakModuleDescription {
             Some(s) => Some(s.to_string()),
             None => None,
         }
+    }
+
+    pub fn get_all_modules_recursively(&self) -> Vec<&FlatpakModule> {
+        let mut all_modules: Vec<&FlatpakModule> = vec![];
+        let mut next_modules: Vec<&FlatpakModule> = vec![];
+        for module in &self.modules {
+            next_modules.push(module);
+        }
+        while !next_modules.is_empty() {
+            let module = next_modules.pop().unwrap();
+            all_modules.push(module);
+
+            let module = match module {
+                FlatpakModule::Description(d) => d,
+                FlatpakModule::Path(_) => continue,
+            };
+            for next_module in &module.modules {
+                next_modules.push(next_module);
+            }
+        }
+        all_modules
     }
 }
 

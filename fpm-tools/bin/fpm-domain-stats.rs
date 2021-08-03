@@ -15,9 +15,8 @@ fn main() {
     let mut git_urls_domains: BTreeMap<String, i64> = BTreeMap::new();
     let mut archive_urls_domains: BTreeMap<String, i64> = BTreeMap::new();
     let mut all_urls_domains: BTreeMap<String, i64> = BTreeMap::new();
-
-    let mut all_git_urls_from_manifests: HashSet<String> = HashSet::new();
-    let mut all_archive_urls: HashSet<String> = HashSet::new();
+    let mut git_urls_count: i64 = 0;
+    let mut archive_urls_count: i64 = 0;
 
     for (project_id, project) in &db.indexed_projects {
         // We're only interested in having stats for the projects supporting Flatpak.
@@ -57,10 +56,10 @@ fn main() {
                 };
 
                 for git_url in module_description.get_all_git_urls() {
-                    all_git_urls_from_manifests.insert(git_url.to_string());
+                    git_urls_count += 1;
                 }
                 for archive_url in module_description.get_all_archive_urls() {
-                    all_archive_urls.insert(archive_url.to_string());
+                    archive_urls_count += 1;
                 }
             }
         }
@@ -71,20 +70,20 @@ fn main() {
 
             // FIXME this should also get the sub-modules recursively.
             for git_url in module_description.get_all_git_urls() {
-                all_git_urls_from_manifests.insert(git_url.to_string());
+                git_urls_count += 1;
             }
             for archive_url in module_description.get_all_archive_urls() {
-                all_archive_urls.insert(archive_url.to_string());
+                archive_urls_count += 1;
             }
         }
     }
 
     log::info!(
         "Extracted {} git urls from the manifests",
-        all_git_urls_from_manifests.len()
+        git_urls_count,
     );
     log::info!(
         "Extracted {} archive urls from the manifests",
-        all_archive_urls.len()
+        archive_urls_count,
     );
 }
