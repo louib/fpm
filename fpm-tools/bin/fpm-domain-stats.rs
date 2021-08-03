@@ -57,9 +57,15 @@ fn main() {
 
                 for git_url in module_description.get_all_git_urls() {
                     git_urls_count += 1;
+                    let domain = fpm::utils::url_to_domain(&git_url);
+                    let new_count = git_urls_domains.get(&domain).unwrap_or(&0) + 1;
+                    git_urls_domains.insert(domain.to_string(), new_count);
                 }
                 for archive_url in module_description.get_all_archive_urls() {
                     archive_urls_count += 1;
+                    let domain = fpm::utils::url_to_domain(&archive_url);
+                    let new_count = archive_urls_domains.get(&domain).unwrap_or(&0) + 1;
+                    archive_urls_domains.insert(domain.to_string(), new_count);
                 }
             }
         }
@@ -74,12 +80,17 @@ fn main() {
 
             let module_description = FlatpakModuleDescription::load_from_file(absolute_manifest_path).unwrap();
 
-            // FIXME this should also get the sub-modules recursively.
             for git_url in module_description.get_all_git_urls() {
                 git_urls_count += 1;
+                let domain = fpm::utils::url_to_domain(&git_url);
+                let new_count = git_urls_domains.get(&domain).unwrap_or(&0) + 1;
+                git_urls_domains.insert(domain.to_string(), new_count);
             }
             for archive_url in module_description.get_all_archive_urls() {
                 archive_urls_count += 1;
+                let domain = fpm::utils::url_to_domain(&archive_url);
+                let new_count = archive_urls_domains.get(&domain).unwrap_or(&0) + 1;
+                archive_urls_domains.insert(domain.to_string(), new_count);
             }
 
             for module in module_description.get_all_modules_recursively() {
@@ -90,9 +101,15 @@ fn main() {
 
                 for git_url in module_description.get_all_git_urls() {
                     git_urls_count += 1;
+                    let domain = fpm::utils::url_to_domain(&git_url);
+                    let new_count = git_urls_domains.get(&domain).unwrap_or(&0) + 1;
+                    git_urls_domains.insert(domain.to_string(), new_count);
                 }
                 for archive_url in module_description.get_all_archive_urls() {
                     archive_urls_count += 1;
+                    let domain = fpm::utils::url_to_domain(&archive_url);
+                    let new_count = archive_urls_domains.get(&domain).unwrap_or(&0) + 1;
+                    archive_urls_domains.insert(domain.to_string(), new_count);
                 }
             }
         }
@@ -101,5 +118,19 @@ fn main() {
     println!("===== Domain stats =====");
     println!("Extracted {} git urls from the manifests", git_urls_count,);
     println!("Extracted {} archive urls from the manifests", archive_urls_count,);
+    for (domain, count) in git_urls_domains {
+        let percentage = (count as f64 / git_urls_count as f64) * 100.0;
+        if percentage < 1.0 {
+            // TODO merge those.
+            continue;
+        }
+        println!(
+            "Git URLS with domain {}: {:.2}% ({}/{})",
+            domain,
+            percentage,
+            count,
+            git_urls_count,
+        );
+    }
     println!("=====================");
 }
