@@ -78,6 +78,8 @@ fn main() {
         }
     }
 
+    println!("===== Domain stats =====");
     log::info!("Extracted {} git urls from the manifests", git_urls_count,);
     log::info!("Extracted {} archive urls from the manifests", archive_urls_count,);
+    println!("=====================");
 }
