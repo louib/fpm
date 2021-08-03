@@ -130,7 +130,7 @@ fn main() {
         manifests_count,
     );
 
-    println!("Total module count: {}", modules_count);
+    println!("Total top-level module count: {}", modules_count);
     println!(
         "Path modules: {:.2}% ({}/{})",
         (path_modules_count as f64 / modules_count as f64) * 100.0,
