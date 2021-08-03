@@ -9,8 +9,8 @@ const SHARED_MODULES_URL: &str = "https://github.com/flathub/shared-modules.git"
 fn main() {
     fpm::logger::init();
     let db = fpm::db::Database::get_database();
-    let mut shared_module_names: Vec<String> = vec![];
 
+    let mut shared_module_names: Vec<String> = vec![];
     let mut manifests_count: i64 = 0;
     let mut manifests_using_shared_modules_count: i64 = 0;
     let mut manifests_using_local_shared_modules_count: i64 = 0;
@@ -115,6 +115,7 @@ fn main() {
     }
 
     println!("===== Shared modules stats =====");
+    println!("Total shared modules count: {}", shared_module_names.len());
     println!("Total manifest count: {}", manifests_count);
     println!(
         "Manifests using shared modules: {:.2}% ({}/{})",
@@ -129,15 +130,15 @@ fn main() {
         manifests_count,
     );
 
-    println!("Total module count: {}", manifests_count);
+    println!("Total module count: {}", modules_count);
     println!(
-        "Modules using a file path: {:.2}% ({}/{})",
+        "Path modules: {:.2}% ({}/{})",
         (path_modules_count as f64 / modules_count as f64) * 100.0,
         path_modules_count,
         modules_count,
     );
     println!(
-        "Modules that are shared modules: {:.2}% ({}/{})",
+        "Shared modules: {:.2}% ({}/{})",
         (shared_modules_count as f64 / modules_count as f64) * 100.0,
         shared_modules_count,
         modules_count,
