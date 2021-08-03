@@ -748,9 +748,6 @@ impl FlatpakModuleDescription {
                 None => continue,
             };
 
-            if git_url.starts_with("file:///") {
-                continue;
-            }
             all_git_urls.push(git_url.to_string());
         }
         all_git_urls
