@@ -458,6 +458,35 @@ pub fn get_next_page_url(link_header: &str) -> Option<String> {
 }
 
 ///```
+///let mut domain = fpm::utils::url_to_domain("https://github.com/louib/fpm.git");
+///assert_eq!(domain, "github.com");
+///domain = fpm::utils::url_to_domain("https://gitlab.com/louib/fpm.git");
+///assert_eq!(domain, "gitlab.com");
+///domain = fpm::utils::url_to_domain("https://libopenraw.freedesktop.org/download/exempi-2.5.2.tar.bz2");
+///assert_eq!(domain, "freedesktop.org");
+///```
+pub fn url_to_domain(repo_url: &str) -> String {
+    let url_parts: Vec<&str> = repo_url.split("://").collect();
+    if url_parts.len() != 2 {
+        panic!("Malformed URL {}", repo_url);
+    }
+
+    let mut sanitized_url = url_parts.last().unwrap();
+    let url_parts: Vec<&str> = sanitized_url.split("/").collect();
+    let mut sanitized_url = url_parts.first().unwrap();
+
+    let mut url_parts: Vec<&str> = sanitized_url.split(".").collect();
+    if url_parts.len() < 2 {
+        panic!("Malformed URL {}", repo_url);
+    }
+
+    let tld = url_parts.pop().unwrap();
+    let domain = url_parts.pop().unwrap();
+
+    format!("{}.{}", domain, tld)
+}
+
+///```
 ///let mut reverse_dns = fpm::utils::repo_url_to_reverse_dns("https://github.com/louib/fpm.git");
 ///assert_eq!(reverse_dns, "com.github.louib.fpm");
 ///reverse_dns = fpm::utils::repo_url_to_reverse_dns("https://gitlab.com/louib/fpm.git");

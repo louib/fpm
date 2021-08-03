@@ -316,6 +316,12 @@ fn main() {
 
         for manifest_path in &project.flatpak_module_manifests {
             let absolute_manifest_path = repo_dir.to_string() + manifest_path;
+            // We don't want to include the shared modules here, because otherwise we would be
+            // counting multiple times the same modules.
+            if absolute_manifest_path.contains("shared-modules") {
+                continue;
+            }
+
             let module_description = FlatpakModuleDescription::load_from_file(absolute_manifest_path).unwrap();
             standalone_modules_count += 1;
         }
