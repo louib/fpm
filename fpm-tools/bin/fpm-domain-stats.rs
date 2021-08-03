@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use std::fs;
+use std::collections::BTreeMap;
 use std::path;
 
 use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
@@ -11,6 +11,10 @@ fn main() {
     if db.indexed_projects.len() == 0 {
         panic!("There are no projects in the database!");
     }
+
+    let mut git_urls_domains: BTreeMap<String, i64> = BTreeMap::new();
+    let mut archive_urls_domains: BTreeMap<String, i64> = BTreeMap::new();
+    let mut all_urls_domains: BTreeMap<String, i64> = BTreeMap::new();
 
     let mut all_git_urls_from_manifests: HashSet<String> = HashSet::new();
     let mut all_archive_urls: HashSet<String> = HashSet::new();
@@ -46,8 +50,7 @@ fn main() {
                 }
             };
 
-            // FIXME we should get the modules recursively here!!!
-            for module in &flatpak_manifest.modules {
+            for module in &flatpak_manifest.get_all_modules_recursively() {
                 let module_description = match &module {
                     FlatpakModule::Path(_) => continue,
                     FlatpakModule::Description(d) => d,
@@ -65,6 +68,8 @@ fn main() {
         for manifest_path in &project.flatpak_module_manifests {
             let absolute_manifest_path = repo_dir.to_string() + manifest_path;
             let module_description = FlatpakModuleDescription::load_from_file(absolute_manifest_path).unwrap();
+
+            // FIXME this should also get the sub-modules recursively.
             for git_url in module_description.get_all_git_urls() {
                 all_git_urls_from_manifests.insert(git_url.to_string());
             }
@@ -82,35 +87,4 @@ fn main() {
         "Extracted {} archive urls from the manifests",
         all_archive_urls.len()
     );
-
-    let mut git_urls_dump = "".to_string();
-    for git_url in &all_git_urls_from_manifests {
-        git_urls_dump += &format!("{}\n", git_url);
-    }
-    let git_urls_dump_path = format!("{}/git_urls_from_manifests.txt", fpm::db::Database::get_db_path());
-    let git_urls_dump_path = path::Path::new(&git_urls_dump_path);
-    if let Err(e) = fs::write(git_urls_dump_path, &git_urls_dump) {
-        log::warn!(
-            "Could not save the dump for git URLs to {}: {}.",
-            git_urls_dump_path.display(),
-            e
-        );
-    };
-
-    let mut archive_urls_dump = "".to_string();
-    for archive_url in &all_archive_urls {
-        archive_urls_dump += &format!("{}\n", archive_url);
-    }
-    let archive_urls_dump_path = format!(
-        "{}/archive_urls_from_manifests.txt",
-        fpm::db::Database::get_db_path()
-    );
-    let archive_urls_dump_path = path::Path::new(&archive_urls_dump_path);
-    if let Err(e) = fs::write(archive_urls_dump_path, &archive_urls_dump) {
-        log::warn!(
-            "Could not save the dump for archive URLS {}: {}.",
-            archive_urls_dump_path.display(),
-            e
-        );
-    };
 }
