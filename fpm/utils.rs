@@ -468,7 +468,7 @@ pub fn get_next_page_url(link_header: &str) -> Option<String> {
 pub fn url_to_domain(repo_url: &str) -> String {
     let url_parts: Vec<&str> = repo_url.split("://").collect();
     if url_parts.len() != 2 {
-        panic!("Malformed URL {}", repo_url);
+        return "Malformed URL".to_string();
     }
 
     let mut sanitized_url = url_parts.last().unwrap();
@@ -477,7 +477,7 @@ pub fn url_to_domain(repo_url: &str) -> String {
 
     let mut url_parts: Vec<&str> = sanitized_url.split(".").collect();
     if url_parts.len() < 2 {
-        panic!("Malformed URL {}", repo_url);
+        return "Malformed URL".to_string();
     }
 
     let tld = url_parts.pop().unwrap();
