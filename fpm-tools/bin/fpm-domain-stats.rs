@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use std::collections::BTreeMap;
+use std::collections::HashSet;
 use std::path;
 
 use fpm::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
@@ -78,12 +78,6 @@ fn main() {
         }
     }
 
-    log::info!(
-        "Extracted {} git urls from the manifests",
-        git_urls_count,
-    );
-    log::info!(
-        "Extracted {} archive urls from the manifests",
-        archive_urls_count,
-    );
+    log::info!("Extracted {} git urls from the manifests", git_urls_count,);
+    log::info!("Extracted {} archive urls from the manifests", archive_urls_count,);
 }
