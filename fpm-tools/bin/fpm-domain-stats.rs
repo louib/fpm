@@ -75,11 +75,25 @@ fn main() {
             for archive_url in module_description.get_all_archive_urls() {
                 archive_urls_count += 1;
             }
+
+            for module in module_description.get_all_modules_recursively() {
+                let module_description = match module {
+                    FlatpakModule::Description(d) => d,
+                    FlatpakModule::Path(_) => continue,
+                };
+
+                for git_url in module_description.get_all_git_urls() {
+                    git_urls_count += 1;
+                }
+                for archive_url in module_description.get_all_archive_urls() {
+                    archive_urls_count += 1;
+                }
+            }
         }
     }
 
     println!("===== Domain stats =====");
-    log::info!("Extracted {} git urls from the manifests", git_urls_count,);
-    log::info!("Extracted {} archive urls from the manifests", archive_urls_count,);
+    println!("Extracted {} git urls from the manifests", git_urls_count,);
+    println!("Extracted {} archive urls from the manifests", archive_urls_count,);
     println!("=====================");
 }
