@@ -48,6 +48,20 @@ fn main() {
         }
     }
 
+    if sources.contains("github-endless-org") || sources.eq("all") {
+        repos_by_source.insert("github-endless-org".to_string(), HashSet::new());
+        let repos_urls = &match get_github_org_repos("endlessm") {
+            Ok(r) => r,
+            Err(e) => panic!(e),
+        };
+        for repo_url in repos_urls.split("\n") {
+            repos_by_source
+                .get_mut("github-endless-org")
+                .unwrap()
+                .insert(repo_url.to_string());
+        }
+    }
+
     if sources.contains("gnome-gitlab-instance") || sources.eq("all") {
         repos_by_source.insert("gnome-gitlab-instance".to_string(), HashSet::new());
         let repos_urls = &match get_gitlab_repos("gitlab.gnome.org", "FPM_GNOME_GITLAB_TOKEN") {
