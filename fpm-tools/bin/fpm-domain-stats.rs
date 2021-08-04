@@ -126,10 +126,7 @@ fn main() {
         }
         println!(
             "Git URLS with domain {}: {:.2}% ({}/{})",
-            domain,
-            percentage,
-            count,
-            git_urls_count,
+            domain, percentage, count, git_urls_count,
         );
     }
     println!("=====================");
