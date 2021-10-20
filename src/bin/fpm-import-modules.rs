@@ -45,6 +45,5 @@ fn main() {
 
         // TODO also import sources?
         // FlatpakSourceDescription::load_from_file(file_path.to_string())
-
     }
 }
