@@ -77,7 +77,7 @@ pub fn read_config() -> Result<WorkspaceConfig, String> {
     Ok(config)
 }
 
-pub fn load_manifest_from_config() -> Option<crate::flatpak_manifest::FlatpakManifest> {
+pub fn load_manifest_from_config() -> Option<flatpak_rs::flatpak_manifest::FlatpakManifest> {
     let config = match read_or_init_config() {
         Ok(c) => c,
         Err(e) => {
@@ -105,7 +105,7 @@ pub fn load_manifest_from_config() -> Option<crate::flatpak_manifest::FlatpakMan
     let manifest_file_path = config.workspaces.get(workspace_name).unwrap().to_string();
     log::debug!("Using manifest file {}.", &manifest_file_path);
 
-    crate::flatpak_manifest::FlatpakManifest::load_from_file(manifest_file_path.to_string())
+    flatpak_rs::flatpak_manifest::FlatpakManifest::load_from_file(manifest_file_path.to_string())
 }
 
 pub fn read_or_init_config() -> Result<WorkspaceConfig, String> {

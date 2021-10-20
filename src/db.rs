@@ -3,7 +3,9 @@ use std::env;
 use std::fs;
 use std::path;
 
-use crate::flatpak_manifest::FlatpakModuleDescription;
+use flatpak_rs::flatpak_manifest::FlatpakModuleDescription;
+use uuid::Uuid;
+
 use crate::projects::SoftwareProject;
 
 pub const DEFAULT_DB_PATH: &str = ".fpm-db";
@@ -152,9 +154,9 @@ impl Database {
     pub fn remove_module() {}
 
     pub fn add_module(&mut self, new_module: FlatpakModuleDescription) {
-        let module_hash = new_module.get_hash();
+        let module_id = Uuid::new_v4();
         let modules_path = Database::get_modules_db_path();
-        let new_module_path = format!("{}/{}.yaml", modules_path, module_hash,);
+        let new_module_path = format!("{}/{}.yaml", modules_path, module_id);
         log::info!("Adding module at {}", new_module_path);
         let new_module_fs_path = path::Path::new(&new_module_path);
         if new_module_fs_path.exists() {

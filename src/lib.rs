@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 pub mod build_systems;
 pub mod db;
-pub mod flatpak_manifest;
 pub mod logger;
 pub mod projects;
 pub mod utils;
@@ -10,7 +9,7 @@ pub mod utils;
 mod config;
 mod version;
 
-pub use flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
+use flatpak_rs::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
 pub use projects::SoftwareProject;
 
 use std::fs;
@@ -147,10 +146,10 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         }
         // TODO get the manifest path using the current workspace in the config.
 
-        match crate::flatpak_manifest::run_build(manifest_path) {
-            Ok(_) => return 0,
-            Err(_) => return 1,
-        };
+        //match run_build(manifest_path) {
+            //Ok(_) => return 0,
+            //Err(_) => return 1,
+        //};
     }
 
     if command_name == "run" {}
