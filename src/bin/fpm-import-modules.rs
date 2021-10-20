@@ -37,7 +37,9 @@ fn main() {
             eprintln!("Importing modules from app manifest at {}.", &file_path);
         }
 
-        let let Some(flatpak_module) = FlatpakModuleDescription::load_from_file(file_path.to_string()) {
+        if let Some(flatpak_module) =
+            flatpak_rs::flatpak_manifest::FlatpakModuleDescription::load_from_file(file_path.to_string())
+        {
             eprintln!("Importing modules from module manifest at {}.", &file_path);
         }
 
