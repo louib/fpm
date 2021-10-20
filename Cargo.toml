@@ -1,6 +1,37 @@
-[workspace]
-
-members = [
-    "fpm",
-    "fpm-tools",
+[package]
+name = "fpm"
+version = "0.0.1"
+authors = ["louib <code@louib.net>"]
+edition = "2018"
+description = "CLI tool for managing Flatpak manifests and workspaces."
+license = "MIT"
+repository = "https://github.com/louib/fpm/"
+readme = "README.md"
+keywords = [
+  "flatpak",
+  "manifest",
+  "modules",
+  "workspace",
 ]
+
+[[bin]]
+name = "fpm"
+path = "src/main.rs"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+clap = {version = "2.33.1", features = ["yaml"]}
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.8"
+
+regex = "1.5.4"
+
+log = "0.4"
+simple-logging = "2.0.2"
+
+lazy_static = "1.4.0"
+
+uuid = { version = "0.4", features = ["serde", "v4"] }
