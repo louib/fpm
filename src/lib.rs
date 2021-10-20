@@ -147,8 +147,8 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         // TODO get the manifest path using the current workspace in the config.
 
         //match run_build(manifest_path) {
-            //Ok(_) => return 0,
-            //Err(_) => return 1,
+        //Ok(_) => return 0,
+        //Err(_) => return 1,
         //};
     }
 
