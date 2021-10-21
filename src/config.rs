@@ -4,8 +4,10 @@ use std::path;
 
 use serde::{Deserialize, Serialize};
 
-// Make that more robust maybe?
-pub const DEFAULT_CACHE_DIR: &str = ".fpm/";
+// Re-using the git cache directory so that the user doesn't have to worry
+// about ignoring an additional directory.
+pub const DEFAULT_CACHE_DIR: &str = ".git/";
+pub const DEFAULT_CONFIG_FILE_NAME: &str = ".fpm-config.yaml";
 
 #[derive(Deserialize, Serialize, Debug, Default)]
 #[serde(default)]
@@ -33,7 +35,7 @@ pub fn write_config(config: &WorkspaceConfig) -> Result<WorkspaceConfig, String>
         Err(e) => return Err(format!("Failed to dump the config {}", e)),
     };
 
-    let config_path = DEFAULT_CACHE_DIR.to_owned() + "config.yaml";
+    let config_path = DEFAULT_CACHE_DIR.to_owned() + DEFAULT_CONFIG_FILE_NAME;
     let config_path = path::Path::new(&config_path);
     match fs::write(config_path, config_content) {
         Ok(m) => m,
@@ -51,7 +53,7 @@ pub fn write_config(config: &WorkspaceConfig) -> Result<WorkspaceConfig, String>
 
 pub fn read_config() -> Result<WorkspaceConfig, String> {
     // Make that more robust maybe?
-    let config_path = DEFAULT_CACHE_DIR.to_owned() + "config.yaml";
+    let config_path = DEFAULT_CACHE_DIR.to_owned() + DEFAULT_CONFIG_FILE_NAME;
     let config_path = path::Path::new(&config_path);
     let config_content = match fs::read_to_string(config_path) {
         Ok(m) => m,
