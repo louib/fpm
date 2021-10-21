@@ -82,7 +82,7 @@ fn main() {
                 None => {
                     log::error!("Could not convert git url to https url {}", git_url);
                     continue;
-                },
+                }
             }
         }
         let mut project = fpm::projects::SoftwareProject::default();

@@ -55,8 +55,7 @@ lazy_static! {
 }
 
 lazy_static! {
-    static ref GIT_URL_REGEX: Regex =
-        Regex::new(r"git@(.+):(.+)").unwrap();
+    static ref GIT_URL_REGEX: Regex = Regex::new(r"git@(.+):(.+)").unwrap();
 }
 
 pub fn get_assets_dir() -> String {
