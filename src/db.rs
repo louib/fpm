@@ -1,6 +1,8 @@
 use std::collections::BTreeMap;
+use std::collections::hash_map::DefaultHasher;
 use std::env;
 use std::fs;
+use std::hash::{Hash, Hasher};
 use std::path;
 
 use flatpak_rs::flatpak_manifest::FlatpakModuleDescription;
@@ -146,9 +148,12 @@ impl Database {
     pub fn remove_module() {}
 
     pub fn add_module(&mut self, new_module: FlatpakModuleDescription) {
-        let module_id = Uuid::new_v4();
+        let mut s = DefaultHasher::new();
+        new_module.hash(&mut s);
+        let module_hash = s.finish();
+
         let modules_path = Database::get_modules_db_path();
-        let new_module_path = format!("{}/{}.yaml", modules_path, module_id);
+        let new_module_path = format!("{}/{}.yaml", modules_path, module_hash);
         log::info!("Adding module at {}", new_module_path);
         let new_module_fs_path = path::Path::new(&new_module_path);
         if new_module_fs_path.exists() {
