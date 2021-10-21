@@ -31,9 +31,18 @@ fn main() {
             continue;
         }
 
+        let mut db = fpm::db::Database::get_database();
+
         if let Ok(flatpak_manifest) =
             flatpak_rs::flatpak_manifest::FlatpakManifest::load_from_file(file_path.to_string())
         {
+            for module in flatpak_manifest.get_all_modules_recursively() {
+                let mut m = match module {
+                    flatpak_rs::flatpak_manifest::FlatpakModule::Description(m) => m,
+                    flatpak_rs::flatpak_manifest::FlatpakModule::Path(_) => continue,
+                };
+                db.add_module(m.clone());
+            }
             eprintln!("Importing modules from app manifest at {}.", &file_path);
         }
 
