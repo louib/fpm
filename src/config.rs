@@ -85,7 +85,11 @@ pub fn load_manifest_from_config() -> Result<flatpak_rs::flatpak_manifest::Flatp
 
     let workspace_name = match &config.current_workspace {
         Some(w) => w,
-        None => return Err(format!("Not currently in a workspace. Use `ls` to list the available workspaces and manifests.")),
+        None => {
+            return Err(format!(
+                "Not currently in a workspace. Use `ls` to list the available workspaces and manifests."
+            ))
+        }
     };
 
     if !config.workspaces.contains_key(workspace_name) {

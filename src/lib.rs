@@ -43,7 +43,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             Err(e) => {
                 eprintln!("Could not parse manifest file at {}: {}.", manifest_file_path, e);
                 return 1;
-            },
+            }
         };
 
         let manifest_dump = match flatpak_manifest.dump() {
@@ -73,7 +73,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             Err(e) => {
                 eprintln!("Could not parse manifest file at {}: {}.", manifest_file_path, e);
                 return 1;
-            },
+            }
         };
 
         let mut separator = DEFAULT_PACKAGE_LIST_SEP;
