@@ -9,7 +9,9 @@ pub mod utils;
 mod config;
 mod version;
 
-use flatpak_rs::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription, FlatpakSourceDescription};
+use flatpak_rs::flatpak_manifest::{
+    FlatpakManifest, FlatpakModule, FlatpakModuleDescription, FlatpakSourceDescription,
+};
 pub use projects::SoftwareProject;
 
 use std::fs;
