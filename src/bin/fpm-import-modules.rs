@@ -72,11 +72,11 @@ fn main() {
 
     // TODO here we should normalize using either https or git urls.
     for git_url in &git_urls {
-        if !(git_url.starts_with("https://") || git_url.starts_with("git://")) {
+        if !(git_url.starts_with("https") || git_url.starts_with("git")) {
             continue;
         }
         let mut git_url = git_url.to_string();
-        if git_url.starts_with("git://") {
+        if git_url.starts_with("git") {
             git_url = match fpm::utils::git_url_to_https_url(&git_url) {
                 Some(u) => u,
                 None => {

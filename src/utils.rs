@@ -55,7 +55,10 @@ lazy_static! {
 }
 
 lazy_static! {
-    static ref GIT_URL_REGEX: Regex = Regex::new(r"git@(.+):(.+)").unwrap();
+    static ref GIT_URL_REGEX: Regex = Regex::new(r"git://(.+)").unwrap();
+    // FIXME not sure why GitHub has a different scheme for the git URL. Are there other
+    // providers that use this scheme?
+    static ref GITHUB_URL_REGEX: Regex = Regex::new(r"git@(.+):(.+)").unwrap();
 }
 
 pub fn get_assets_dir() -> String {
@@ -870,16 +873,30 @@ pub fn get_bitbucket_url_from_archive_url(archive_url: &str) -> Option<String> {
 ///);
 ///assert!(https_url.is_some());
 ///assert_eq!(https_url.unwrap(), "https://github.com/user/my_repo.git");
+///
+///let https_url = fpm::utils::git_url_to_https_url(
+///  "git://git.gnome.org/gtksourceview"
+///);
+///assert!(https_url.is_some());
+///assert_eq!(https_url.unwrap(), "https://git.gnome.org/gtksourceview");
 ///```
 pub fn git_url_to_https_url(git_url: &str) -> Option<String> {
-    let captured_groups = match GIT_URL_REGEX.captures(git_url) {
-        Some(g) => g,
-        None => return None,
-    };
-    if captured_groups.len() == 0 {
-        return None;
+    if let Some(groups) = GITHUB_URL_REGEX.captures(git_url) {
+        if groups.len() == 0 {
+            return None;
+        }
+        let domain: String = groups[1].to_string();
+        let path: String = groups[2].to_string();
+        return Some(format!("https://{}/{}", domain, path));
     }
-    let domain: String = captured_groups[1].to_string();
-    let path: String = captured_groups[2].to_string();
-    Some(format!("https://{}/{}", domain, path))
+
+    if let Some(groups) = GIT_URL_REGEX.captures(git_url) {
+        if groups.len() == 0 {
+            return None;
+        }
+        let path: String = groups[1].to_string();
+        return Some(format!("https://{}", path));
+    }
+
+    None
 }
