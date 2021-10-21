@@ -148,6 +148,7 @@ impl Database {
     pub fn remove_module() {}
 
     pub fn add_module(&mut self, new_module: FlatpakModuleDescription) {
+        // TODO what's the default hasher? Should we use something like keccak?
         let mut s = DefaultHasher::new();
         new_module.hash(&mut s);
         let module_hash = s.finish();
