@@ -254,6 +254,7 @@ impl Database {
             if project.name.contains(&search_term) {
                 projects.push(&project);
             }
+            // Also search in the project name extracted from the URL???
         }
         projects
     }

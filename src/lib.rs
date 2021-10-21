@@ -110,10 +110,14 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         let db = crate::db::Database::get_database();
         let modules: Vec<&FlatpakModuleDescription> = db.search_modules(search_term);
         for module in modules {
+            let main_url = match module.get_main_url() {
+                Some(u) => u,
+                None => continue,
+            };
             println!(
                 "found candidate module {} ({}).",
                 module.name,
-                module.get_main_url().unwrap()
+                main_url,
             );
         }
         let projects: Vec<&SoftwareProject> = db.search_projects(search_term);
