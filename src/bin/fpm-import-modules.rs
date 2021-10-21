@@ -46,8 +46,21 @@ fn main() {
                 if m.sources.len() != 1 {
                     continue;
                 }
-                if !flatpak_rs::flatpak_manifest::CODE_TYPES.contains(&m.sources[0].get_type_name()) {
+                let source_type_name = m.sources[0].get_type_name();
+                if !flatpak_rs::flatpak_manifest::CODE_TYPES.contains(&source_type_name) {
                     continue;
+                }
+
+                if source_type_name == "archive" {
+                    let url = match m.sources[0].get_url() {
+                        Some(u) => u,
+                        None => continue,
+                    };
+                    let url = match fpm::utils::get_git_url_from_archive_url(&url) {
+                        Some(u) => u,
+                        None => continue,
+                    };
+                    git_urls.push(url);
                 }
 
                 db.add_module(m.clone());
