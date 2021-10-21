@@ -114,7 +114,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                 Some(u) => u,
                 None => continue,
             };
-            println!("found candidate module {} ({}).", module.name, main_url,);
+            println!("{} ({}).", module.name, main_url);
         }
         let projects: Vec<&SoftwareProject> = db.search_projects(search_term);
         for project in projects {
