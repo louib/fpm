@@ -40,9 +40,16 @@ fn main() {
             eprintln!("Importing modules from app manifest at {}.", &file_path);
             for module in flatpak_manifest.get_all_modules_recursively() {
                 let mut m = match module {
-                    flatpak_rs::flatpak_manifest::FlatpakModule::Description(m) => m,
                     flatpak_rs::flatpak_manifest::FlatpakModule::Path(_) => continue,
+                    flatpak_rs::flatpak_manifest::FlatpakModule::Description(d) => d,
                 };
+                if m.sources.len() != 1 {
+                    continue;
+                }
+                if !flatpak_rs::flatpak_manifest::CODE_TYPES.contains(&m.sources[0].get_type_name()) {
+                    continue;
+                }
+
                 db.add_module(m.clone());
                 for git_url in m.get_all_git_urls() {
                     git_urls.push(git_url);
