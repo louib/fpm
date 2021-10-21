@@ -40,6 +40,16 @@ impl Database {
     pub fn get_stats(&self) -> String {
         let mut response = "".to_string();
         response += &format!("Modules: {}.\n", self.modules.len());
+
+        let mut updateable_module_count = 0;
+
+        for module in &self.modules {
+            if module.uses_external_data_checker() {
+                updateable_module_count += 1;
+            }
+        }
+        response += &format!("Modules supporting updates: {}.\n", updateable_module_count);
+
         response += &format!("Projects: {}.", self.indexed_projects.len());
         // TODO print type stats.
         // TODO print archive type stats.
