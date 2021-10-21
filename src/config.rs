@@ -77,29 +77,22 @@ pub fn read_config() -> Result<WorkspaceConfig, String> {
     Ok(config)
 }
 
-pub fn load_manifest_from_config() -> Option<flatpak_rs::flatpak_manifest::FlatpakManifest> {
+pub fn load_manifest_from_config() -> Result<flatpak_rs::flatpak_manifest::FlatpakManifest, String> {
     let config = match read_or_init_config() {
         Ok(c) => c,
-        Err(e) => {
-            eprintln!("Could not load or init config: {}", e);
-            return None;
-        }
+        Err(e) => return Err(format!("Could not load or init config: {}", e)),
     };
 
     let workspace_name = match &config.current_workspace {
         Some(w) => w,
-        None => {
-            eprintln!("Not currently in a workspace. Use `ls` to list the available workspaces and manifests.");
-            return None;
-        }
+        None => return Err(format!("Not currently in a workspace. Use `ls` to list the available workspaces and manifests.")),
     };
 
     if !config.workspaces.contains_key(workspace_name) {
-        eprintln!(
+        return Err(format!(
             "Workspace {} does not exist. Use `ls` to list the available workspaces and manifests.",
             workspace_name
-        );
-        return None;
+        ));
     }
 
     let manifest_file_path = config.workspaces.get(workspace_name).unwrap().to_string();

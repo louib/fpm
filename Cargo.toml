@@ -30,7 +30,7 @@ clap = {version = "2.33.1", features = ["yaml"]}
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 
-flatpak-rs = "0.0.1"
+flatpak-rs = "0.0.2"
 
 regex = "1.5.4"
 

@@ -39,8 +39,11 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             .expect("an input file is required!");
 
         let flatpak_manifest = match FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
-            Some(m) => m,
-            None => return 1,
+            Ok(m) => m,
+            Err(e) => {
+                eprintln!("Could not parse manifest file at {}: {}.", manifest_file_path, e);
+                return 1;
+            },
         };
 
         let manifest_dump = match flatpak_manifest.dump() {
@@ -66,8 +69,11 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             .expect("a manifest file is required!");
 
         let flatpak_manifest = match FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
-            Some(m) => m,
-            None => return 1,
+            Ok(m) => m,
+            Err(e) => {
+                eprintln!("Could not parse manifest file at {}: {}.", manifest_file_path, e);
+                return 1;
+            },
         };
 
         let mut separator = DEFAULT_PACKAGE_LIST_SEP;
@@ -144,8 +150,8 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         // make without argument runs the only manifest if there is only one
         let manifest_path = candidate_flatpak_manifests.first().unwrap();
 
-        if FlatpakManifest::load_from_file(manifest_path.to_string()).is_none() {
-            log::error!("Could not parse Flatpak manifest at {}.", manifest_path);
+        if let Err(e) = FlatpakManifest::load_from_file(manifest_path.to_string()) {
+            log::error!("Could not parse Flatpak manifest at {}: {}", manifest_path, e);
             return 1;
         }
         // TODO get the manifest path using the current workspace in the config.
@@ -187,19 +193,19 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                 continue;
             }
 
-            if FlatpakManifest::load_from_file(file_path.to_string()).is_some() {
+            if FlatpakManifest::load_from_file(file_path.to_string()).is_ok() {
                 println!("{} (app manifest)", file_path);
                 found_manifest = true;
             }
 
-            if FlatpakModuleDescription::load_from_file(file_path.to_string()).is_some() {
+            if FlatpakModuleDescription::load_from_file(file_path.to_string()).is_ok() {
                 if file_path.ends_with(FPM_MODULES_MANIFEST_PATH) {
                     continue;
                 }
                 println!("{} (module manifest)", file_path);
             }
 
-            if FlatpakSourceDescription::load_from_file(file_path.to_string()).is_some() {
+            if FlatpakSourceDescription::load_from_file(file_path.to_string()).is_ok() {
                 println!("{} (sources manifest)", file_path);
             }
         }

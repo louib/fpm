@@ -31,13 +31,13 @@ fn main() {
             continue;
         }
 
-        if let Some(flatpak_manifest) =
+        if let Ok(flatpak_manifest) =
             flatpak_rs::flatpak_manifest::FlatpakManifest::load_from_file(file_path.to_string())
         {
             eprintln!("Importing modules from app manifest at {}.", &file_path);
         }
 
-        if let Some(flatpak_module) =
+        if let Ok(flatpak_module) =
             flatpak_rs::flatpak_manifest::FlatpakModuleDescription::load_from_file(file_path.to_string())
         {
             eprintln!("Importing modules from module manifest at {}.", &file_path);
