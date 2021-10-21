@@ -9,13 +9,16 @@ pub mod utils;
 mod config;
 mod version;
 
-use flatpak_rs::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription};
+use flatpak_rs::flatpak_manifest::{FlatpakManifest, FlatpakModule, FlatpakModuleDescription, FlatpakSourceDescription};
 pub use projects::SoftwareProject;
 
 use std::fs;
 use std::path;
 
 const DEFAULT_GIT_CACHE_DIR: &str = ".git/";
+// This might need to become a regex at some point, to allow fpm to manage multiple module
+// manifests at the same time.
+const FPM_MODULES_MANIFEST_PATH: &str = "fpm-modules.yaml";
 const DEFAULT_PACKAGE_LIST_SEP: &str = ",";
 
 pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
@@ -71,8 +74,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         }
 
         let mut output: String = String::from("");
-        // TODO this should get all the modules recursively.
-        for module in &flatpak_manifest.modules {
+        for module in &flatpak_manifest.get_all_modules_recursively() {
             if !output.is_empty() {
                 output.push_str(&separator)
             }
@@ -161,6 +163,9 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             return 1;
         }
 
+        // FIXME only enable with a `-a` option.
+        let list_all = true;
+
         let mut found_manifest = false;
         let file_paths = match utils::get_all_paths(path::Path::new("./")) {
             Ok(paths) => paths,
@@ -170,18 +175,30 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             }
         };
         // TODO print also those already matched to workspaces.
-        for path in file_paths.iter() {
-            let file_path = path;
-            let file_path_str = file_path.to_str().unwrap();
+        for file_path in file_paths.iter() {
             if !file_path.is_file() {
                 continue;
             }
-            // TODO Test that if it starts with the cache directories listed above,
-            // you skip the file.
 
-            if FlatpakManifest::load_from_file(file_path_str.to_string()).is_some() {
-                println!("{}", file_path_str);
+            let file_path = file_path.to_str().unwrap();
+            if file_path.contains(DEFAULT_GIT_CACHE_DIR) {
+                continue;
+            }
+
+            if FlatpakManifest::load_from_file(file_path.to_string()).is_some() {
+                println!("{} (app manifest)", file_path);
                 found_manifest = true;
+            }
+
+            if FlatpakModuleDescription::load_from_file(file_path.to_string()).is_some() {
+                if file_path.ends_with(FPM_MODULES_MANIFEST_PATH) {
+                    continue;
+                }
+                println!("{} (module manifest)", file_path);
+            }
+
+            if FlatpakSourceDescription::load_from_file(file_path.to_string()).is_some() {
+                println!("{} (sources manifest)", file_path);
             }
         }
 
