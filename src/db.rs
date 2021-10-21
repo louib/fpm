@@ -39,7 +39,7 @@ impl Database {
 
     pub fn get_stats(&self) -> String {
         let mut response = "".to_string();
-        response += &format!("Modules: {}.", self.modules.len());
+        response += &format!("Modules: {}.\n", self.modules.len());
         response += &format!("Projects: {}.", self.indexed_projects.len());
         // TODO print type stats.
         // TODO print archive type stats.
