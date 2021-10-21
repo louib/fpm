@@ -18,6 +18,9 @@ fn main() {
             return;
         }
     };
+    let mut git_urls: Vec<String> = vec![];
+    let mut db = fpm::db::Database::get_database();
+
     for file_path in file_paths.iter() {
         if !file_path.is_file() {
             continue;
@@ -31,8 +34,6 @@ fn main() {
             continue;
         }
 
-        let mut db = fpm::db::Database::get_database();
-
         if let Ok(flatpak_manifest) =
             flatpak_rs::flatpak_manifest::FlatpakManifest::load_from_file(file_path.to_string())
         {
@@ -43,6 +44,9 @@ fn main() {
                     flatpak_rs::flatpak_manifest::FlatpakModule::Path(_) => continue,
                 };
                 db.add_module(m.clone());
+                for git_url in m.get_all_git_urls() {
+                    git_urls.push(git_url);
+                }
             }
         }
 
@@ -56,10 +60,21 @@ fn main() {
                     flatpak_rs::flatpak_manifest::FlatpakModule::Path(_) => continue,
                 };
                 db.add_module(m.clone());
+                for git_url in m.get_all_git_urls() {
+                    git_urls.push(git_url);
+                }
             }
         }
 
         // TODO also import sources?
         // FlatpakSourceDescription::load_from_file(file_path.to_string())
+    }
+
+    // TODO here we should normalize using either https or git urls.
+    for git_url in &git_urls {
+        let mut project = fpm::projects::SoftwareProject::default();
+        project.vcs_urls.insert(git_url.to_string());
+        project.id = fpm::utils::repo_url_to_reverse_dns(git_url);
+        db.add_project(project);
     }
 }
