@@ -54,6 +54,11 @@ lazy_static! {
         Regex::new(r"https?://bitbucket.org/([0-9a-zA-Z_-]+)/([0-9a-zA-Z_-]+)").unwrap();
 }
 
+lazy_static! {
+    static ref GIT_URL_REGEX: Regex =
+        Regex::new(r"git@(.+):(.+)").unwrap();
+}
+
 pub fn get_assets_dir() -> String {
     if let Ok(path) = env::var("FPM_ASSETS_DIR") {
         return path.to_string();
@@ -858,4 +863,24 @@ pub fn get_bitbucket_url_from_archive_url(archive_url: &str) -> Option<String> {
     let username: String = captured_groups[1].to_string();
     let project_name: String = captured_groups[2].to_string();
     return Some(format!("https://bitbucket.org/{}/{}.git", username, project_name));
+}
+
+///```
+///let https_url = fpm::utils::git_url_to_https_url(
+///  "git@github.com:user/my_repo.git"
+///);
+///assert!(https_url.is_some());
+///assert_eq!(https_url.unwrap(), "https://github.com/user/my_repo.git");
+///```
+pub fn git_url_to_https_url(git_url: &str) -> Option<String> {
+    let captured_groups = match GIT_URL_REGEX.captures(git_url) {
+        Some(g) => g,
+        None => return None,
+    };
+    if captured_groups.len() == 0 {
+        return None;
+    }
+    let domain: String = captured_groups[1].to_string();
+    let path: String = captured_groups[2].to_string();
+    Some(format!("https://{}/{}", domain, path))
 }

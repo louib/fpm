@@ -72,9 +72,22 @@ fn main() {
 
     // TODO here we should normalize using either https or git urls.
     for git_url in &git_urls {
+        if !(git_url.starts_with("https://") || git_url.starts_with("git://")) {
+            continue;
+        }
+        let mut git_url = git_url.to_string();
+        if git_url.starts_with("git://") {
+            git_url = match fpm::utils::git_url_to_https_url(&git_url) {
+                Some(u) => u,
+                None => {
+                    log::error!("Could not convert git url to https url {}", git_url);
+                    continue;
+                },
+            }
+        }
         let mut project = fpm::projects::SoftwareProject::default();
         project.vcs_urls.insert(git_url.to_string());
-        project.id = fpm::utils::repo_url_to_reverse_dns(git_url);
+        project.id = fpm::utils::repo_url_to_reverse_dns(&git_url);
         db.add_project(project);
     }
 }
