@@ -55,7 +55,8 @@ lazy_static! {
 }
 
 lazy_static! {
-    static ref GIT_URL_REGEX: Regex = Regex::new(r"git://(.+)").unwrap();
+    static ref GIT_URL_COLON_REGEX: Regex = Regex::new(r"git://(.+)").unwrap();
+    static ref GIT_URL_AT_REGEX: Regex = Regex::new(r"git@(.+)").unwrap();
     // FIXME not sure why GitHub has a different scheme for the git URL. Are there other
     // providers that use this scheme?
     static ref GITHUB_URL_REGEX: Regex = Regex::new(r"git@(.+):(.+)").unwrap();
@@ -879,6 +880,12 @@ pub fn get_bitbucket_url_from_archive_url(archive_url: &str) -> Option<String> {
 ///);
 ///assert!(https_url.is_some());
 ///assert_eq!(https_url.unwrap(), "https://git.gnome.org/gtksourceview");
+///
+///let https_url = fpm::utils::git_url_to_https_url(
+///  "git@gitlab.gnome.org/chergert/libpanel.git"
+///);
+///assert!(https_url.is_some());
+///assert_eq!(https_url.unwrap(), "https://gitlab.gnome.org/chergert/libpanel.git");
 ///```
 pub fn git_url_to_https_url(git_url: &str) -> Option<String> {
     if let Some(groups) = GITHUB_URL_REGEX.captures(git_url) {
@@ -890,7 +897,15 @@ pub fn git_url_to_https_url(git_url: &str) -> Option<String> {
         return Some(format!("https://{}/{}", domain, path));
     }
 
-    if let Some(groups) = GIT_URL_REGEX.captures(git_url) {
+    if let Some(groups) = GIT_URL_COLON_REGEX.captures(git_url) {
+        if groups.len() == 0 {
+            return None;
+        }
+        let path: String = groups[1].to_string();
+        return Some(format!("https://{}", path));
+    }
+
+    if let Some(groups) = GIT_URL_AT_REGEX.captures(git_url) {
         if groups.len() == 0 {
             return None;
         }
