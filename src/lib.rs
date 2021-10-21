@@ -305,6 +305,12 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         println!("Workspace {} using {}.", current_workspace, manifest_file_path);
     }
 
+    if command_name == "stats" {
+        let db = crate::db::Database::get_database();
+        println!("{}", db.get_stats());
+        return 0;
+    }
+
     log::debug!("Finishing...");
     return 0;
 }

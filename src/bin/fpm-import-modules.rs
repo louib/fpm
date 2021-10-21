@@ -36,6 +36,7 @@ fn main() {
         if let Ok(flatpak_manifest) =
             flatpak_rs::flatpak_manifest::FlatpakManifest::load_from_file(file_path.to_string())
         {
+            eprintln!("Importing modules from app manifest at {}.", &file_path);
             for module in flatpak_manifest.get_all_modules_recursively() {
                 let mut m = match module {
                     flatpak_rs::flatpak_manifest::FlatpakModule::Description(m) => m,
@@ -43,13 +44,19 @@ fn main() {
                 };
                 db.add_module(m.clone());
             }
-            eprintln!("Importing modules from app manifest at {}.", &file_path);
         }
 
         if let Ok(flatpak_module) =
             flatpak_rs::flatpak_manifest::FlatpakModuleDescription::load_from_file(file_path.to_string())
         {
             eprintln!("Importing modules from module manifest at {}.", &file_path);
+            for module in flatpak_module.get_all_modules_recursively() {
+                let mut m = match module {
+                    flatpak_rs::flatpak_manifest::FlatpakModule::Description(m) => m,
+                    flatpak_rs::flatpak_manifest::FlatpakModule::Path(_) => continue,
+                };
+                db.add_module(m.clone());
+            }
         }
 
         // TODO also import sources?

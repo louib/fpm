@@ -37,6 +37,18 @@ impl Database {
         }
     }
 
+    pub fn get_stats(&self) -> String {
+        let mut response = "".to_string();
+        response += &format!("Modules: {}.", self.modules.len());
+        response += &format!("Projects: {}.", self.indexed_projects.len());
+        // TODO print type stats.
+        // TODO print archive type stats.
+        // TODO print build system stats.
+        // TODO print domain (URL domain) stats.
+        // TODO add the number of archive urls.
+        response
+    }
+
     pub fn get_db_path() -> String {
         if let Ok(path) = env::var("FPM_DB_PATH") {
             return path.to_string();
