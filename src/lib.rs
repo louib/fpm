@@ -106,8 +106,8 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             eprintln!("{} is too short for a search term!", search_term);
             return 1;
         }
-        eprintln!("Search for {} in the projects database.", &search_term);
 
+        log::debug!("Searching for {} in the modules.", &search_term);
         let db = crate::db::Database::get_database();
         let modules: Vec<&FlatpakModuleDescription> = db.search_modules(search_term);
         for module in modules {
@@ -115,8 +115,14 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                 Some(u) => u,
                 None => continue,
             };
-            println!("{} ({}).", module.name, main_url);
+            let mut buildsystem = "none";
+            if module.buildsystem.len() != 0 {
+                buildsystem = &module.buildsystem;
+            }
+            println!("{: <16} {: <10} {}.", module.name, buildsystem, main_url);
         }
+
+        log::debug!("Searching for {} in the projects.", &search_term);
         let projects: Vec<&SoftwareProject> = db.search_projects(search_term);
         for project in projects {
             println!(
