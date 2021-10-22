@@ -145,9 +145,9 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         let modules: Vec<&FlatpakModuleDescription> = db.search_modules(package_name);
         let mut module_to_install: Option<FlatpakModuleDescription> = None;
         for module in modules {
-            println!("{:?}", module);
+            println!("{}", module.dump().unwrap());
             let answer =
-                crate::utils::ask_yes_no_question("Is this the module you want to install [Y/n]?".to_string());
+                crate::utils::ask_yes_no_question("Is this the module you want to install".to_string());
             if answer {
                 module_to_install = Some(module.clone());
                 break;
