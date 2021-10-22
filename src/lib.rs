@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::process::{Command, Stdio};
 
 pub mod build_systems;
 pub mod db;
@@ -156,10 +157,10 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         }
         // TODO get the manifest path using the current workspace in the config.
 
-        //match run_build(manifest_path) {
-        //Ok(_) => return 0,
-        //Err(_) => return 1,
-        //};
+        match run_build(manifest_path) {
+            Ok(_) => return 0,
+            Err(_) => return 1,
+        };
     }
 
     if command_name == "run" {}
@@ -313,4 +314,24 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
 
     log::debug!("Finishing...");
     return 0;
+}
+
+fn run_build(manifest_path: &str) -> Result<(), String> {
+    let output = Command::new("flatpak-builder")
+        .arg("--user")
+        .arg("--force-clean")
+        .arg("build/")
+        .arg(manifest_path)
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+
+    let output = match output.wait_with_output() {
+        Ok(o) => o,
+        Err(e) => return Err(e.to_string()),
+    };
+    if !output.status.success() {
+        return Err("Could not checkout git ref.".to_string());
+    }
+    Ok(())
 }
