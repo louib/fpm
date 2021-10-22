@@ -129,11 +129,31 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
 
     if command_name == "install" {}
 
+    if command_name == "parse" {
+        let manifest_file_path = match args.get("manifest_file_path") {
+            Some(p) => p,
+            None => {
+                eprintln!("a manifest file is required for this command!");
+                return 1;
+            }
+        };
+
+        if let Err(e) =
+            flatpak_rs::flatpak_manifest::FlatpakManifest::load_from_file(manifest_file_path.to_string())
+        {
+            println!("Could not parse manifest file: {}", e);
+            return 1;
+        }
+
+        println!("Parsed manifest file at {}.", manifest_file_path);
+        return 0;
+    }
+
     if command_name == "make" {
-        let candidate_flatpak_manifests = match crate::utils::get_candidate_flatpak_manifests("./") {
+        let candidate_flatpak_manifests = match crate::utils::get_candidate_flatpak_manifests(".") {
             Ok(m) => m,
             Err(e) => {
-                log::error!("Error while search for Flatpak manifests: {}.", e);
+                log::error!("Error while searching for Flatpak manifests: {}.", e);
                 return 1;
             }
         };

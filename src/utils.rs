@@ -571,7 +571,12 @@ pub fn get_candidate_flatpak_manifests(dir_path: &str) -> Result<Vec<String>, St
     let mut response: Vec<String> = vec![];
     let file_paths = match get_all_paths(std::path::Path::new(dir_path)) {
         Ok(paths) => paths,
-        Err(message) => return Err(message),
+        Err(message) => {
+            return Err(format!(
+                "Could not get file paths for dir {}: {}",
+                dir_path, message
+            ))
+        }
     };
     for file_path in file_paths.iter() {
         if !file_path.is_file() {
@@ -585,7 +590,6 @@ pub fn get_candidate_flatpak_manifests(dir_path: &str) -> Result<Vec<String>, St
         if file_path.contains(".git/") {
             continue;
         }
-
         if file_path.contains(".flatpak-builder/") {
             continue;
         }
