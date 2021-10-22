@@ -210,34 +210,20 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
     }
 
     if command_name == "make" {
-        let candidate_flatpak_manifests = match crate::utils::get_candidate_flatpak_manifests(".") {
+        let manifest_path = match crate::config::get_manifest_path() {
             Ok(m) => m,
             Err(e) => {
-                log::error!("Error while searching for Flatpak manifests: {}.", e);
+                log::error!("Could not get manifest from config: {}.", e);
                 return 1;
             }
         };
 
-        if candidate_flatpak_manifests.len() == 0 {
-            log::error!("Could not find any Flatpak manifest to build with.");
-            return 1;
-        }
-
-        if candidate_flatpak_manifests.len() != 1 {
-            log::error!("Too many Flatpak manifests to pick from. Use workspaces.");
-            return 1;
-        }
-
-        // make without argument runs the only manifest if there is only one
-        let manifest_path = candidate_flatpak_manifests.first().unwrap();
-
         if let Err(e) = FlatpakManifest::load_from_file(manifest_path.to_string()) {
-            log::error!("Could not parse Flatpak manifest at {}: {}", manifest_path, e);
+            log::error!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
             return 1;
         }
-        // TODO get the manifest path using the current workspace in the config.
 
-        match run_build(manifest_path) {
+        match run_build(&manifest_path) {
             Ok(_) => return 0,
             Err(_) => return 1,
         };
