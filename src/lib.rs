@@ -146,17 +146,15 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         let mut module_to_install: Option<FlatpakModuleDescription> = None;
         for module in modules {
             println!("{:?}", module);
-            let answer = crate::utils::ask_yes_no_question("Is this the module you want to install [Y/n]?".to_string());
+            let answer =
+                crate::utils::ask_yes_no_question("Is this the module you want to install [Y/n]?".to_string());
             if answer {
                 module_to_install = Some(module.clone());
                 break;
             }
         }
 
-        if let Some(module) = module_to_install {
-
-        }
-
+        if let Some(module) = module_to_install {}
     }
 
     if command_name == "parse" {
