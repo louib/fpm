@@ -127,7 +127,37 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         }
     }
 
-    if command_name == "install" {}
+    if command_name == "install" {
+        let package_name = match args.get("package_name") {
+            Some(n) => n,
+            None => {
+                eprintln!("a package name to install is required!");
+                return 1;
+            }
+        };
+
+        if package_name.len() < 4 {
+            eprintln!("Module name is too short");
+            return 1;
+        }
+
+        let db = crate::db::Database::get_database();
+        let modules: Vec<&FlatpakModuleDescription> = db.search_modules(package_name);
+        let mut module_to_install: Option<FlatpakModuleDescription> = None;
+        for module in modules {
+            println!("{:?}", module);
+            let answer = crate::utils::ask_yes_no_question("Is this the module you want to install [Y/n]?".to_string());
+            if answer {
+                module_to_install = Some(module.clone());
+                break;
+            }
+        }
+
+        if let Some(module) = module_to_install {
+
+        }
+
+    }
 
     if command_name == "parse" {
         let manifest_file_path = match args.get("manifest_file_path") {
