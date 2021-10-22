@@ -79,7 +79,7 @@ pub fn read_config() -> Result<WorkspaceConfig, String> {
     Ok(config)
 }
 
-pub fn load_manifest_from_config() -> Result<flatpak_rs::flatpak_manifest::FlatpakManifest, String> {
+pub fn get_manifest_path() -> Result<String, String> {
     let config = match read_or_init_config() {
         Ok(c) => c,
         Err(e) => return Err(format!("Could not load or init config: {}", e)),
@@ -101,10 +101,17 @@ pub fn load_manifest_from_config() -> Result<flatpak_rs::flatpak_manifest::Flatp
         ));
     }
 
-    let manifest_file_path = config.workspaces.get(workspace_name).unwrap().to_string();
-    log::debug!("Using manifest file {}.", &manifest_file_path);
+    return Ok(config.workspaces.get(workspace_name).unwrap().to_string());
+}
 
-    flatpak_rs::flatpak_manifest::FlatpakManifest::load_from_file(manifest_file_path.to_string())
+pub fn get_manifest() -> Result<flatpak_rs::flatpak_manifest::FlatpakManifest, String> {
+    let path = match get_manifest_path() {
+        Ok(p) => p,
+        Err(e) => return Err(e),
+    };
+    log::debug!("Loading manifest at {}.", &path);
+
+    flatpak_rs::flatpak_manifest::FlatpakManifest::load_from_file(path.to_string())
 }
 
 pub fn read_or_init_config() -> Result<WorkspaceConfig, String> {

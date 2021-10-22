@@ -154,7 +154,37 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             }
         }
 
-        if let Some(module) = module_to_install {}
+        if let Some(module) = module_to_install {
+            let mut flatpak_manifest = match crate::config::get_manifest() {
+                Ok(m) => m,
+                Err(e) => {
+                    log::error!("Could not get manifest from config: {}.", e);
+                    return 1;
+                }
+            };
+            let flatpak_manifest_path = match crate::config::get_manifest_path() {
+                Ok(p) => p,
+                Err(e) => {
+                    log::error!("Could not get manifest path from config: {}.", e);
+                    return 1;
+                }
+            };
+
+            flatpak_manifest.modules.push(flatpak_rs::flatpak_manifest::FlatpakModule::Description(module));
+
+            let manifest_dump = match flatpak_manifest.dump() {
+                Ok(d) => d,
+                Err(_e) => return 1,
+            };
+
+            match fs::write(path::Path::new(&flatpak_manifest_path), manifest_dump) {
+                Ok(content) => content,
+                Err(e) => {
+                    eprintln!("could not write file {}: {}.", flatpak_manifest_path, e);
+                    return 1;
+                }
+            };
+        }
     }
 
     if command_name == "parse" {
