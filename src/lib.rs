@@ -170,9 +170,10 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                 }
             };
 
-            flatpak_manifest
-                .modules
-                .insert(0, flatpak_rs::flatpak_manifest::FlatpakModule::Description(module));
+            flatpak_manifest.modules.insert(
+                0,
+                flatpak_rs::flatpak_manifest::FlatpakModule::Description(module),
+            );
 
             let manifest_dump = match flatpak_manifest.dump() {
                 Ok(d) => d,
