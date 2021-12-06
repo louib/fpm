@@ -1,5 +1,5 @@
-use std::env;
 use std::collections::HashMap;
+use std::env;
 use std::process::{Command, Stdio};
 
 pub mod build_systems;
@@ -229,7 +229,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                             return 1;
                         }
                         candidate_manifests[0].clone()
-                    },
+                    }
                     Err(e) => {
                         log::error!("Could not find candidate Flatpak manifests: {}.", e);
                         return 1;
@@ -237,6 +237,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                 }
             }
         };
+        log::info!("Using Flatpak manifest at {}", manifest_path);
 
         if let Err(e) = FlatpakManifest::load_from_file(manifest_path.to_string()) {
             log::error!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
