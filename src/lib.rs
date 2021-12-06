@@ -413,7 +413,9 @@ fn run_build(manifest_path: &str) -> Result<(), String> {
 
 pub fn get_manifest_file_path(path_arg: Option<&String>) -> Option<String> {
     if let Some(manifest_file_path) = path_arg {
-        return Some(manifest_file_path.to_string());
+        if manifest_file_path.trim().len() != 0 {
+            return Some(manifest_file_path.to_string());
+        }
     };
 
     let manifest_path = match crate::config::get_manifest_path() {
