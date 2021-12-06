@@ -175,7 +175,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                 Err(e) => {
                     log::error!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
                     return 1;
-                },
+                }
             };
 
             flatpak_manifest.modules.insert(
