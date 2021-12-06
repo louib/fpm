@@ -242,7 +242,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             log::error!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
             return 1;
         }
-        return 1;
 
         match run_build(&manifest_path) {
             Ok(_) => return 0,
