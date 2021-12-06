@@ -1,3 +1,4 @@
+use std::env;
 use std::collections::HashMap;
 use std::process::{Command, Stdio};
 
@@ -220,15 +221,19 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         let manifest_path = match crate::config::get_manifest_path() {
             Ok(m) => m,
             Err(e) => {
-                if let Ok(candidate_manifests) = crate::utils::get_candidate_flatpak_manifests("./") {
-                    if candidate_manifests.len() != 1 {
-                        log::error!("Found {} candidate Flatpak manifests.", candidate_manifests.len());
+                let current_dir = env::current_dir().unwrap();
+                match crate::utils::get_candidate_flatpak_manifests(current_dir.to_str().unwrap()) {
+                    Ok(candidate_manifests) => {
+                        if candidate_manifests.len() != 1 {
+                            log::error!("Found {} candidate Flatpak manifests.", candidate_manifests.len());
+                            return 1;
+                        }
+                        candidate_manifests[0].clone()
+                    },
+                    Err(e) => {
+                        log::error!("Could not find candidate Flatpak manifests: {}.", e);
                         return 1;
                     }
-                    candidate_manifests[0].clone()
-                } else {
-                    log::error!("Could not find candidate Flatpak manifests.");
-                    return 1;
                 }
             }
         };
@@ -237,6 +242,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             log::error!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
             return 1;
         }
+        return 1;
 
         match run_build(&manifest_path) {
             Ok(_) => return 0,
