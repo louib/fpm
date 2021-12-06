@@ -162,19 +162,20 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         }
 
         if let Some(module) = module_to_install {
-            let mut flatpak_manifest = match crate::config::get_manifest() {
-                Ok(m) => m,
-                Err(e) => {
-                    log::error!("Could not get manifest from config: {}.", e);
+            let manifest_path = match get_manifest_file_path(args.get("manifest_file_path")) {
+                Some(m) => m,
+                None => {
                     return 1;
                 }
             };
-            let flatpak_manifest_path = match crate::config::get_manifest_path() {
-                Ok(p) => p,
+            log::info!("Using Flatpak manifest at {}", manifest_path);
+
+            let mut flatpak_manifest = match FlatpakManifest::load_from_file(manifest_path.to_string()) {
+                Ok(m) => m,
                 Err(e) => {
-                    log::error!("Could not get manifest path from config: {}.", e);
+                    log::error!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
                     return 1;
-                }
+                },
             };
 
             flatpak_manifest.modules.insert(
@@ -187,10 +188,10 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                 Err(_e) => return 1,
             };
 
-            match fs::write(path::Path::new(&flatpak_manifest_path), manifest_dump) {
+            match fs::write(path::Path::new(&manifest_path), manifest_dump) {
                 Ok(content) => content,
                 Err(e) => {
-                    eprintln!("could not write file {}: {}.", flatpak_manifest_path, e);
+                    eprintln!("could not write file {}: {}.", manifest_path, e);
                     return 1;
                 }
             };

@@ -27,7 +27,7 @@ subcommands:
         args:
             - manifest_file_path:
                 multiple: false
-                required: true
+                required: false
                 help: The path of the Flatpak manifest to build the workspace with.
     - checkout:
         about: Checkout a workspace.
@@ -68,6 +68,10 @@ subcommands:
                 multiple: false
                 required: true
                 help: Name of the package or artifact to install.
+            - manifest_file_path:
+                multiple: false
+                required: false
+                help: The path of the Flatpak manifest to install the package into
     - search:
         about: search for packages.
         args:
