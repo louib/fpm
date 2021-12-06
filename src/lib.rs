@@ -218,24 +218,11 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
     }
 
     if command_name == "make" {
-        let manifest_path = match crate::config::get_manifest_path() {
-            Ok(m) => m,
-            Err(e) => {
-                let current_dir = env::current_dir().unwrap();
-                match crate::utils::get_candidate_flatpak_manifests(current_dir.to_str().unwrap()) {
-                    Ok(candidate_manifests) => {
-                        if candidate_manifests.len() != 1 {
-                            log::error!("Found {} candidate Flatpak manifests.", candidate_manifests.len());
-                            return 1;
-                        }
-                        candidate_manifests[0].clone()
-                    }
-                    Err(e) => {
-                        log::error!("Could not find candidate Flatpak manifests: {}.", e);
-                        return 1;
-                    }
-                }
-            }
+        let manifest_path = match get_manifest_file_path(args.get("manifest_file_path")) {
+            Some(m) => m,
+            None => {
+                return 1;
+            },
         };
         log::info!("Using Flatpak manifest at {}", manifest_path);
 
@@ -421,4 +408,31 @@ fn run_build(manifest_path: &str) -> Result<(), String> {
         return Err("Could not checkout git ref.".to_string());
     }
     Ok(())
+}
+
+pub fn get_manifest_file_path(path_arg: Option<&String>) -> Option<String> {
+    if let Some(manifest_file_path) = path_arg {
+        return Some(manifest_file_path.to_string());
+    };
+
+    let manifest_path = match crate::config::get_manifest_path() {
+        Ok(m) => return Some(m),
+        Err(e) => {
+            let current_dir = env::current_dir().unwrap();
+            match crate::utils::get_candidate_flatpak_manifests(current_dir.to_str().unwrap()) {
+                Ok(candidate_manifests) => {
+                    if candidate_manifests.len() != 1 {
+                        log::error!("Found {} candidate Flatpak manifests.", candidate_manifests.len());
+                        return None;
+                    }
+                    candidate_manifests[0].clone()
+                }
+                Err(e) => {
+                    log::error!("Could not find candidate Flatpak manifests: {}.", e);
+                    return None;
+                }
+            }
+        }
+    };
+    return Some(manifest_path);
 }
