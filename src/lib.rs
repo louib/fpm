@@ -222,7 +222,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             Some(m) => m,
             None => {
                 return 1;
-            },
+            }
         };
         log::info!("Using Flatpak manifest at {}", manifest_path);
 
