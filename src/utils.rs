@@ -597,6 +597,7 @@ pub fn get_candidate_flatpak_manifests(dir_path: &str) -> Result<Vec<String>, St
         if !flatpak_rs::flatpak_manifest::FlatpakManifest::file_path_matches(file_path) {
             continue;
         }
+        log::debug!("Found candidate Flatpak manifest {}", file_path);
         response.push(file_path.to_string());
     }
     return Ok(response);
