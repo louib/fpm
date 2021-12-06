@@ -220,8 +220,16 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         let manifest_path = match crate::config::get_manifest_path() {
             Ok(m) => m,
             Err(e) => {
-                log::error!("Could not get manifest from config: {}.", e);
-                return 1;
+                if let Ok(candidate_manifests) = crate::utils::get_candidate_flatpak_manifests("./") {
+                    if candidate_manifests.len() != 1 {
+                        log::error!("Found {} candidate Flatpak manifests.", candidate_manifests.len());
+                        return 1;
+                    }
+                    candidate_manifests[0].clone()
+                } else {
+                    log::error!("Could not find candidate Flatpak manifests.");
+                    return 1;
+                }
             }
         };
 
