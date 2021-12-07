@@ -6,6 +6,7 @@ pub mod build_systems;
 pub mod db;
 pub mod logger;
 pub mod projects;
+pub mod vcpkg_manifest;
 pub mod utils;
 
 mod config;
