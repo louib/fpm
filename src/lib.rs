@@ -240,6 +240,8 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
 
     if command_name == "run" {}
 
+    if command_name == "clean" {}
+
     if command_name == "ls" {
         let git_cache_dir = path::Path::new(DEFAULT_GIT_CACHE_DIR);
         if !git_cache_dir.is_dir() {
