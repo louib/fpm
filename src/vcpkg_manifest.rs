@@ -9,9 +9,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Default)]
 #[serde(rename_all = "kebab-case")]
 #[serde(default)]
-pub struct VCPKGManifest {
-
-}
+pub struct VCPKGManifest {}
 impl VCPKGManifest {
     pub fn file_path_matches(path: &str) -> bool {
         path.ends_with("vcpkg.json")
@@ -23,7 +21,5 @@ mod manifest_tests {
     use super::*;
 
     #[test]
-    pub fn test_parse_single_source() {
-    }
-
+    pub fn test_parse_single_source() {}
 }
