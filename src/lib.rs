@@ -5,7 +5,6 @@ use std::process::{Command, Stdio};
 pub mod build_systems;
 pub mod db;
 pub mod logger;
-pub mod projects;
 pub mod utils;
 pub mod vcpkg_manifest;
 
@@ -15,7 +14,7 @@ mod version;
 use flatpak_rs::flatpak_manifest::{
     FlatpakManifest, FlatpakModule, FlatpakModuleDescription, FlatpakSourceDescription,
 };
-pub use projects::SoftwareProject;
+use fpm_core::project::SoftwareProject;
 
 use std::fs;
 use std::path;

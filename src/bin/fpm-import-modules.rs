@@ -105,7 +105,7 @@ fn main() {
                 }
             }
         }
-        let mut project = fpm::projects::SoftwareProject::default();
+        let mut project = fpm_core::project::SoftwareProject::default();
         project.vcs_urls.insert(git_url.to_string());
         project.id = fpm::utils::repo_url_to_reverse_dns(&git_url);
         db.add_project(project);

@@ -8,7 +8,7 @@ use std::path;
 use flatpak_rs::flatpak_manifest::FlatpakModuleDescription;
 use uuid::Uuid;
 
-use crate::projects::SoftwareProject;
+use fpm_core::project::SoftwareProject;
 
 pub const DEFAULT_DB_PATH: &str = ".fpm-db";
 pub const MODULES_DB_SUBDIR: &str = "/modules";
