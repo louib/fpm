@@ -1,8 +1,6 @@
-use std::collections::hash_map::DefaultHasher;
 use std::collections::BTreeMap;
 use std::env;
 use std::fs;
-use std::hash::{Hash, Hasher};
 use std::path;
 
 use flatpak_rs::flatpak_manifest::FlatpakModuleDescription;
@@ -170,10 +168,7 @@ impl Database {
     pub fn remove_module() {}
 
     pub fn add_module(&mut self, new_module: FlatpakModuleDescription) {
-        // TODO what's the default hasher? Should we use something like keccak?
-        let mut s = DefaultHasher::new();
-        new_module.hash(&mut s);
-        let module_hash = s.finish();
+        let module_hash = crate::utils::get_module_hash(&new_module);
 
         let modules_path = Database::get_modules_db_path();
         let new_module_path = format!("{}/{}.yaml", modules_path, module_hash);

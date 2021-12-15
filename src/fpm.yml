@@ -29,6 +29,13 @@ subcommands:
                 multiple: false
                 required: false
                 help: The path of the Flatpak manifest to build the workspace with.
+    - show:
+        about: Show a project and its associated modules.
+        args:
+            - project_id:
+                multiple: false
+                required: true
+                help: The URL or reverse DNS ID of the project.
     - checkout:
         about: Checkout a workspace.
         args:
