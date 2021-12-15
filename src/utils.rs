@@ -1,10 +1,10 @@
+use std::collections::hash_map::DefaultHasher;
 use std::env;
 use std::fs;
+use std::hash::{Hash, Hasher};
 use std::io::{stdin, stdout, Write};
-use std::collections::hash_map::DefaultHasher;
 use std::path::Path;
 use std::process::{Command, Stdio};
-use std::hash::{Hash, Hasher};
 
 use lazy_static::lazy_static;
 use regex::Regex;

@@ -120,7 +120,13 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             if module.buildsystem.len() != 0 {
                 buildsystem = &module.buildsystem;
             }
-            println!("{: <30} {: <16} {: <10} {}.", crate::utils::get_module_hash(module), module.name, buildsystem, main_url);
+            println!(
+                "{: <30} {: <16} {: <10} {}.",
+                crate::utils::get_module_hash(module),
+                module.name,
+                buildsystem,
+                main_url
+            );
         }
 
         log::debug!("Searching for {} in the projects.", &search_term);
