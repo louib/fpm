@@ -121,7 +121,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                 buildsystem = &module.buildsystem;
             }
             println!(
-                "{: <30} {: <16} {: <10} {}.",
+                "{: <22} {: <30} {: <12} {}.",
                 crate::utils::get_module_hash(module),
                 module.name,
                 buildsystem,
