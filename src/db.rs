@@ -4,7 +4,6 @@ use std::fs;
 use std::path;
 
 use flatpak_rs::flatpak_manifest::FlatpakModuleDescription;
-use uuid::Uuid;
 
 use fpm_core::project::SoftwareProject;
 
