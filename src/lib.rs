@@ -122,7 +122,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             }
             println!(
                 "{: <22} {: <30} {: <12} {}.",
-                crate::utils::get_module_hash(module),
+                fpm_core::utils::get_module_hash(module),
                 module.name,
                 buildsystem,
                 main_url

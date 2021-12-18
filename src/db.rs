@@ -168,7 +168,7 @@ impl Database {
     pub fn remove_module() {}
 
     pub fn add_module(&mut self, new_module: FlatpakModuleDescription) {
-        let module_hash = crate::utils::get_module_hash(&new_module);
+        let module_hash = fpm_core::utils::get_module_hash(&new_module);
 
         let modules_path = Database::get_modules_db_path();
         let new_module_path = format!("{}/{}.yaml", modules_path, module_hash);

@@ -1,7 +1,5 @@
-use std::collections::hash_map::DefaultHasher;
 use std::env;
 use std::fs;
-use std::hash::{Hash, Hasher};
 use std::io::{stdin, stdout, Write};
 use std::path::Path;
 use std::process::{Command, Stdio};
@@ -921,11 +919,4 @@ pub fn git_url_to_https_url(git_url: &str) -> Option<String> {
     }
 
     None
-}
-
-pub fn get_module_hash(module: &flatpak_rs::flatpak_manifest::FlatpakModuleDescription) -> String {
-    // TODO maybe this should go into flatpak_rs??
-    let mut s = DefaultHasher::new();
-    module.hash(&mut s);
-    s.finish().to_string()
 }
