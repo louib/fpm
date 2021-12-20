@@ -3,8 +3,6 @@ use std::env;
 use std::process::{Command, Stdio};
 
 pub mod build_systems;
-pub mod db;
-pub mod logger;
 pub mod utils;
 pub mod vcpkg_manifest;
 
@@ -26,7 +24,7 @@ const FPM_MODULES_MANIFEST_PATH: &str = "fpm-modules.yaml";
 const DEFAULT_PACKAGE_LIST_SEP: &str = ",";
 
 pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
-    logger::init();
+    fpm_core::logger::init();
 
     log::debug!("running command {}.", command_name);
 
@@ -109,7 +107,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         }
 
         log::debug!("Searching for {} in the modules.", &search_term);
-        let db = crate::db::Database::get_database();
+        let db = fpm_core::db::Database::get_database();
         let modules: Vec<&FlatpakModuleDescription> = db.search_modules(search_term);
         for module in modules {
             let main_url = match module.get_main_url() {
@@ -154,7 +152,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             return 1;
         }
 
-        let db = crate::db::Database::get_database();
+        let db = fpm_core::db::Database::get_database();
         let modules: Vec<&FlatpakModuleDescription> = db.search_modules(package_name);
         let mut module_to_install: Option<FlatpakModuleDescription> = None;
         for module in modules {
@@ -259,7 +257,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         let list_all = true;
 
         let mut found_manifest = false;
-        let file_paths = match utils::get_all_paths(path::Path::new("./")) {
+        let file_paths = match fpm_core::utils::get_all_paths(path::Path::new("./")) {
             Ok(paths) => paths,
             Err(message) => {
                 eprintln!("Could not get the file paths :sad: {}", message);
@@ -390,7 +388,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
     }
 
     if command_name == "stats" {
-        let db = crate::db::Database::get_database();
+        let db = fpm_core::db::Database::get_database();
         println!("{}", db.get_stats());
         return 0;
     }
