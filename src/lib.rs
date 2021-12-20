@@ -2,7 +2,6 @@ use std::collections::HashMap;
 use std::env;
 use std::process::{Command, Stdio};
 
-pub mod build_systems;
 pub mod utils;
 pub mod vcpkg_manifest;
 
