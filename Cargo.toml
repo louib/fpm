@@ -28,7 +28,7 @@ serde_yaml = "0.8"
 serde_json = "1.0"
 
 flatpak-rs = "0.0.9"
-fpm-core = { git = "https://github.com/louib/fpm-core.git", rev = "e23927b96f6382b5d80aaf0c6304e4228475bc09" }
+fpm-core = { git = "https://github.com/louib/fpm-core.git", rev = "603f1010b056fb52b8bf319c7a7bb02effc8f86c" }
 
 regex = "1.5.4"
 
