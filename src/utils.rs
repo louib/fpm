@@ -301,11 +301,10 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
         log::info!("Already downloaded archive at {}", archive_url);
     }
 
-    let archive_type =
-        match flatpak_rs::flatpak_manifest::FlatpakSourceDescription::detect_archive_type(archive_url) {
-            Some(t) => t,
-            None => return Err(format!("Could not detect archive type for {}", archive_url)),
-        };
+    let archive_type = match flatpak_rs::source::FlatpakSourceDescription::detect_archive_type(archive_url) {
+        Some(t) => t,
+        None => return Err(format!("Could not detect archive type for {}", archive_url)),
+    };
 
     if archive_type.starts_with("tar") {
         let mut tar_flags = "";
@@ -574,7 +573,7 @@ pub fn get_candidate_flatpak_manifests(dir_path: &str) -> Result<Vec<String>, St
             continue;
         }
 
-        if !flatpak_rs::flatpak_manifest::FlatpakManifest::file_path_matches(file_path) {
+        if !flatpak_rs::application::FlatpakApplication::file_path_matches(file_path) {
             continue;
         }
         log::debug!("Found candidate Flatpak manifest {}", file_path);

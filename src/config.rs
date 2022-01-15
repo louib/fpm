@@ -104,14 +104,14 @@ pub fn get_manifest_path() -> Result<String, String> {
     return Ok(config.workspaces.get(workspace_name).unwrap().to_string());
 }
 
-pub fn get_manifest() -> Result<flatpak_rs::flatpak_manifest::FlatpakManifest, String> {
+pub fn get_manifest() -> Result<flatpak_rs::application::FlatpakApplication, String> {
     let path = match get_manifest_path() {
         Ok(p) => p,
         Err(e) => return Err(e),
     };
     log::debug!("Loading manifest at {}.", &path);
 
-    flatpak_rs::flatpak_manifest::FlatpakManifest::load_from_file(path.to_string())
+    flatpak_rs::application::FlatpakApplication::load_from_file(path.to_string())
 }
 
 pub fn read_or_init_config() -> Result<WorkspaceConfig, String> {

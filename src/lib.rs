@@ -8,9 +8,9 @@ pub mod vcpkg_manifest;
 mod config;
 mod version;
 
-use flatpak_rs::flatpak_manifest::{
-    FlatpakManifest, FlatpakModule, FlatpakModuleDescription, FlatpakSourceDescription,
-};
+use flatpak_rs::application::FlatpakApplication;
+use flatpak_rs::module::{FlatpakModule, FlatpakModuleDescription};
+use flatpak_rs::source::FlatpakSourceDescription;
 use fpm_core::project::SoftwareProject;
 
 use std::fs;
@@ -37,7 +37,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             .get("manifest_file_path")
             .expect("an input file is required!");
 
-        let flatpak_manifest = match FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
+        let flatpak_manifest = match FlatpakApplication::load_from_file(manifest_file_path.to_string()) {
             Ok(m) => m,
             Err(e) => {
                 eprintln!("Could not parse manifest file at {}: {}.", manifest_file_path, e);
@@ -67,7 +67,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             .get("manifest_file_path")
             .expect("a manifest file is required!");
 
-        let flatpak_manifest = match FlatpakManifest::load_from_file(manifest_file_path.to_string()) {
+        let flatpak_manifest = match FlatpakApplication::load_from_file(manifest_file_path.to_string()) {
             Ok(m) => m,
             Err(e) => {
                 eprintln!("Could not parse manifest file at {}: {}.", manifest_file_path, e);
@@ -173,7 +173,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             };
             log::info!("Using Flatpak manifest at {}", manifest_path);
 
-            let mut flatpak_manifest = match FlatpakManifest::load_from_file(manifest_path.to_string()) {
+            let mut flatpak_manifest = match FlatpakApplication::load_from_file(manifest_path.to_string()) {
                 Ok(m) => m,
                 Err(e) => {
                     log::error!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
@@ -181,10 +181,9 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                 }
             };
 
-            flatpak_manifest.modules.insert(
-                0,
-                flatpak_rs::flatpak_manifest::FlatpakModule::Description(module),
-            );
+            flatpak_manifest
+                .modules
+                .insert(0, flatpak_rs::module::FlatpakModule::Description(module));
 
             let manifest_dump = match flatpak_manifest.dump() {
                 Ok(d) => d,
@@ -211,7 +210,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         };
 
         if let Err(e) =
-            flatpak_rs::flatpak_manifest::FlatpakManifest::load_from_file(manifest_file_path.to_string())
+            flatpak_rs::application::FlatpakApplication::load_from_file(manifest_file_path.to_string())
         {
             println!("Could not parse manifest file: {}", e);
             return 1;
@@ -230,7 +229,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         };
         log::info!("Using Flatpak manifest at {}", manifest_path);
 
-        if let Err(e) = FlatpakManifest::load_from_file(manifest_path.to_string()) {
+        if let Err(e) = FlatpakApplication::load_from_file(manifest_path.to_string()) {
             log::error!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
             return 1;
         }
@@ -274,7 +273,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                 continue;
             }
 
-            if FlatpakManifest::load_from_file(file_path.to_string()).is_ok() {
+            if FlatpakApplication::load_from_file(file_path.to_string()).is_ok() {
                 println!("{} (app manifest)", file_path);
                 found_manifest = true;
             }
