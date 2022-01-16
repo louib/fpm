@@ -113,15 +113,11 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                 Some(u) => u,
                 None => continue,
             };
-            let mut buildsystem = "none";
-            if module.buildsystem.len() != 0 {
-                buildsystem = &module.buildsystem;
-            }
             println!(
                 "{: <22} {: <30} {: <12} {}.",
                 fpm_core::utils::get_module_hash(module),
                 module.name,
-                buildsystem,
+                module.buildsystem.to_string(),
                 main_url
             );
         }
