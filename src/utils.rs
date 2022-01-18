@@ -301,7 +301,7 @@ pub fn get_and_uncompress_archive(archive_url: &str) -> Result<String, String> {
         log::info!("Already downloaded archive at {}", archive_url);
     }
 
-    let archive_type = match flatpak_rs::source::FlatpakSourceDescription::detect_archive_type(archive_url) {
+    let archive_type = match flatpak_rs::source::FlatpakSource::detect_archive_type(archive_url) {
         Some(t) => t,
         None => return Err(format!("Could not detect archive type for {}", archive_url)),
     };

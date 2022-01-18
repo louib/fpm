@@ -9,8 +9,8 @@ mod config;
 mod version;
 
 use flatpak_rs::application::FlatpakApplication;
-use flatpak_rs::module::{FlatpakModule, FlatpakModuleDescription};
-use flatpak_rs::source::FlatpakSourceDescription;
+use flatpak_rs::module::{FlatpakModule, FlatpakModuleItem};
+use flatpak_rs::source::FlatpakSource;
 use fpm_core::project::SoftwareProject;
 
 use std::fs;
@@ -85,7 +85,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             if !output.is_empty() {
                 output.push_str(&separator)
             }
-            if let FlatpakModule::Description(module_description) = module {
+            if let FlatpakModuleItem::Description(module_description) = module {
                 output.push_str(&module_description.name);
             }
         }
@@ -107,7 +107,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
 
         log::debug!("Searching for {} in the modules.", &search_term);
         let db = fpm_core::db::Database::get_database();
-        let modules: Vec<&FlatpakModuleDescription> = db.search_modules(search_term);
+        let modules: Vec<&FlatpakModule> = db.search_modules(search_term);
         for module in modules {
             let main_url = match module.get_main_url() {
                 Some(u) => u,
@@ -148,8 +148,8 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         }
 
         let db = fpm_core::db::Database::get_database();
-        let modules: Vec<&FlatpakModuleDescription> = db.search_modules(package_name);
-        let mut module_to_install: Option<FlatpakModuleDescription> = None;
+        let modules: Vec<&FlatpakModule> = db.search_modules(package_name);
+        let mut module_to_install: Option<FlatpakModule> = None;
         for module in modules {
             println!("{}", module.dump().unwrap());
             let answer =
@@ -179,7 +179,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
 
             flatpak_manifest
                 .modules
-                .insert(0, flatpak_rs::module::FlatpakModule::Description(module));
+                .insert(0, FlatpakModuleItem::Description(module));
 
             let manifest_dump = match flatpak_manifest.dump() {
                 Ok(d) => d,
@@ -274,14 +274,14 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                 found_manifest = true;
             }
 
-            if FlatpakModuleDescription::load_from_file(file_path.to_string()).is_ok() {
+            if FlatpakModule::load_from_file(file_path.to_string()).is_ok() {
                 if file_path.ends_with(FPM_MODULES_MANIFEST_PATH) {
                     continue;
                 }
                 println!("{} (module manifest)", file_path);
             }
 
-            if FlatpakSourceDescription::load_from_file(file_path.to_string()).is_ok() {
+            if FlatpakSource::load_from_file(file_path.to_string()).is_ok() {
                 println!("{} (sources manifest)", file_path);
             }
         }
