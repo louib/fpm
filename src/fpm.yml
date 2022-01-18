@@ -90,13 +90,6 @@ subcommands:
                 help: Term to search for in the projects database.
     - stats:
         about: Print statistics of the database.
-    - lint:
-        about: lint a Flatpak manifest file.
-        args:
-            - manifest_file_path:
-                multiple: false
-                required: true
-                help: Path of the manifest file.
     - get-package-list:
         about: Get a comma-separated list of packages parsed from the manifest file. The default separator can be changed with the -s option.
         args:

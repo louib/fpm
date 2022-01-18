@@ -32,36 +32,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         Err(e) => panic!("Could not load or init config: {}", e),
     };
 
-    if command_name == "lint" {
-        let manifest_file_path = args
-            .get("manifest_file_path")
-            .expect("an input file is required!");
-
-        let flatpak_manifest = match FlatpakApplication::load_from_file(manifest_file_path.to_string()) {
-            Ok(m) => m,
-            Err(e) => {
-                eprintln!("Could not parse manifest file at {}: {}.", manifest_file_path, e);
-                return 1;
-            }
-        };
-
-        let manifest_dump = match flatpak_manifest.dump() {
-            Ok(d) => d,
-            Err(_e) => return 1,
-        };
-
-        match fs::write(path::Path::new(manifest_file_path), manifest_dump) {
-            Ok(content) => content,
-            Err(e) => {
-                eprintln!("could not write file {}: {}.", manifest_file_path, e);
-                return 1;
-            }
-        };
-
-        eprintln!("Dumped the manifest!");
-        return 0;
-    }
-
     if command_name == "get-package-list" {
         let manifest_file_path = args
             .get("manifest_file_path")
