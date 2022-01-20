@@ -27,8 +27,8 @@ serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.8"
 serde_json = "1.0"
 
-flatpak-rs = "0.4.0"
-fpm-core = { git = "https://github.com/louib/fpm-core.git", rev = "caae1b908846a1cd8b20cd6fd724c4535aa701d4" }
+flatpak-rs = "0.4.2"
+fpm-core = { git = "https://github.com/louib/fpm-core.git", rev = "75d132cb17f02d323e5689fcd46fd9c15583591a" }
 
 regex = "1.5.4"
 
