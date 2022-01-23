@@ -67,13 +67,13 @@ dependencies = [
 
 [[package]]
 name = "flatpak-rs"
-version = "0.4.3"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3176afd8aac84c7c7968e5c6cde32d52cfea0ffe808be01e888b7f95f1873892"
+checksum = "1e5344687693d4ac950186350530671e3a5abedb72bf64c04073a18ad7af11b1"
 dependencies = [
  "lazy_static",
  "regex",
- "serde 1.0.133",
+ "serde 1.0.135",
  "serde_json",
  "serde_yaml",
 ]
@@ -88,7 +88,7 @@ dependencies = [
  "lazy_static",
  "log",
  "regex",
- "serde 1.0.133",
+ "serde 1.0.135",
  "serde_json",
  "serde_yaml",
  "uuid",
@@ -97,11 +97,11 @@ dependencies = [
 [[package]]
 name = "fpm-core"
 version = "0.1.0"
-source = "git+https://github.com/louib/fpm-core.git?rev=d5194de24e52c4342b3514626672e4959689153f#d5194de24e52c4342b3514626672e4959689153f"
+source = "git+https://github.com/louib/fpm-core.git?branch=master#143b5a9723340f1fc2b9622170d92148b3bbf07e"
 dependencies = [
  "flatpak-rs",
  "log",
- "serde 1.0.133",
+ "serde 1.0.135",
  "serde_yaml",
  "simple-logging",
 ]
@@ -187,9 +187,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.14"
+version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47aa80447ce4daf1717500037052af176af5d38cc3e571d9ec1c7353fc10c87d"
+checksum = "864d3e96a899863136fc6e99f3d7cae289dafe43bf2c5ac19b70df7210c0a145"
 dependencies = [
  "proc-macro2",
 ]
@@ -278,18 +278,18 @@ checksum = "34b623917345a631dc9608d5194cc206b3fe6c3554cd1c75b937e55e285254af"
 
 [[package]]
 name = "serde"
-version = "1.0.133"
+version = "1.0.135"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97565067517b60e2d1ea8b268e59ce036de907ac523ad83a0475da04e818989a"
+checksum = "2cf9235533494ea2ddcdb794665461814781c53f19d87b76e571a1c35acbad2b"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.133"
+version = "1.0.135"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed201699328568d8d08208fdd080e3ff594e6c422e438b6705905da01005d537"
+checksum = "8dcde03d87d4c973c04be249e7d8f0b35db1c848c487bd43032808e59dd8328d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -298,13 +298,13 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.75"
+version = "1.0.78"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c059c05b48c5c0067d4b4b2b4f0732dd65feb52daf7e0ea09cd87e7dadc1af79"
+checksum = "d23c1ba4cf0efd44be32017709280b32d1cea5c3f1275c3b6d9e8bc54f758085"
 dependencies = [
  "itoa",
  "ryu",
- "serde 1.0.133",
+ "serde 1.0.135",
 ]
 
 [[package]]
@@ -315,7 +315,7 @@ checksum = "a4a521f2940385c165a24ee286aa8599633d162077a54bdcae2a6fd5a7bfa7a0"
 dependencies = [
  "indexmap",
  "ryu",
- "serde 1.0.133",
+ "serde 1.0.135",
  "yaml-rust 0.4.5",
 ]
 
