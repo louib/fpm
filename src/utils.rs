@@ -46,7 +46,7 @@ pub fn get_candidate_flatpak_manifests(dir_path: &str) -> Result<Vec<String>, St
             None => continue,
         };
 
-        if file_path.contains(".git/") {
+        if file_path.contains(DEFAULT_GIT_CACHE_DIR) {
             continue;
         }
         if file_path.contains(DEFAULT_FLATPAK_BUILDER_CACHE_DIR) {
