@@ -67,9 +67,9 @@ dependencies = [
 
 [[package]]
 name = "flatpak-rs"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e5344687693d4ac950186350530671e3a5abedb72bf64c04073a18ad7af11b1"
+checksum = "be9b66e19a974468af4bc548c1ac776564472eda67de1eb064f79f5a8a2c3461"
 dependencies = [
  "lazy_static",
  "regex",
@@ -97,7 +97,7 @@ dependencies = [
 [[package]]
 name = "fpm-core"
 version = "0.1.0"
-source = "git+https://github.com/louib/fpm-core.git?branch=master#143b5a9723340f1fc2b9622170d92148b3bbf07e"
+source = "git+https://github.com/louib/fpm-core.git?branch=master#409aee84fa692f1cb13e5cccdd6c9aeff328aa73"
 dependencies = [
  "flatpak-rs",
  "log",
