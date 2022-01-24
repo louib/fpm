@@ -3,6 +3,9 @@ use std::fs;
 use std::io::{stdin, stdout, Write};
 use std::path::Path;
 
+pub const DEFAULT_FLATPAK_BUILDER_CACHE_DIR: &str = ".flatpak-builder/";
+pub const DEFAULT_GIT_CACHE_DIR: &str = ".git/";
+
 pub fn ask_yes_no_question(question: String) -> bool {
     let mut answer = String::new();
     print!("{}? [Y/n]: ", question);
@@ -45,7 +48,7 @@ pub fn get_candidate_flatpak_manifests(dir_path: &str) -> Result<Vec<String>, St
         if file_path.contains(".git/") {
             continue;
         }
-        if file_path.contains(".flatpak-builder/") {
+        if file_path.contains(DEFAULT_FLATPAK_BUILDER_CACHE_DIR) {
             continue;
         }
 

@@ -16,7 +16,6 @@ use fpm_core::project::SoftwareProject;
 use std::fs;
 use std::path;
 
-const DEFAULT_GIT_CACHE_DIR: &str = ".git/";
 // This might need to become a regex at some point, to allow fpm to manage multiple module
 // manifests at the same time.
 const FPM_MODULES_MANIFEST_PATH: &str = "fpm-modules.yaml";
@@ -208,10 +207,12 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
 
     if command_name == "run" {}
 
-    if command_name == "clean" {}
+    if command_name == "clean" {
+        // let git_cache_dir = path::Path::new(crate::utils::DEFAULT_GIT_CACHE_DIR);
+    }
 
     if command_name == "ls" {
-        let git_cache_dir = path::Path::new(DEFAULT_GIT_CACHE_DIR);
+        let git_cache_dir = path::Path::new(crate::utils::DEFAULT_GIT_CACHE_DIR);
         if !git_cache_dir.is_dir() {
             eprintln!("This does not seem like a git project (.git/ was not found).");
             return 1;
@@ -235,7 +236,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             }
 
             let file_path = file_path.to_str().unwrap();
-            if file_path.contains(DEFAULT_GIT_CACHE_DIR) {
+            if file_path.contains(crate::utils::DEFAULT_GIT_CACHE_DIR) {
                 continue;
             }
 
