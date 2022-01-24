@@ -208,7 +208,17 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
     if command_name == "run" {}
 
     if command_name == "clean" {
-        // let git_cache_dir = path::Path::new(crate::utils::DEFAULT_GIT_CACHE_DIR);
+        let flatpak_build_cache_dir = path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR);
+        if flatpak_build_cache_dir.is_dir() {
+            println!("Removing {}.", crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR);
+            fs::remove_dir_all(crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR).unwrap();
+        }
+
+        let flatpak_build_output_dir = path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
+        if flatpak_build_output_dir.is_dir() {
+            println!("Removing {}.", crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
+            fs::remove_dir_all(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR).unwrap();
+        }
     }
 
     if command_name == "ls" {
@@ -366,7 +376,7 @@ fn run_build(manifest_path: &str) -> Result<(), String> {
     let output = Command::new("flatpak-builder")
         .arg("--user")
         .arg("--force-clean")
-        .arg("build/")
+        .arg(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR)
         .arg(manifest_path)
         .stdout(Stdio::piped())
         .spawn()
@@ -377,7 +387,7 @@ fn run_build(manifest_path: &str) -> Result<(), String> {
         Err(e) => return Err(e.to_string()),
     };
     if !output.status.success() {
-        return Err("Could not checkout git ref.".to_string());
+        return Err("Could not run flatpak build.".to_string());
     }
     Ok(())
 }

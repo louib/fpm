@@ -4,6 +4,7 @@ use std::io::{stdin, stdout, Write};
 use std::path::Path;
 
 pub const DEFAULT_FLATPAK_BUILDER_CACHE_DIR: &str = ".flatpak-builder/";
+pub const DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR: &str = ".flatpak-builder-out/";
 pub const DEFAULT_GIT_CACHE_DIR: &str = ".git/";
 
 pub fn ask_yes_no_question(question: String) -> bool {
@@ -49,6 +50,9 @@ pub fn get_candidate_flatpak_manifests(dir_path: &str) -> Result<Vec<String>, St
             continue;
         }
         if file_path.contains(DEFAULT_FLATPAK_BUILDER_CACHE_DIR) {
+            continue;
+        }
+        if file_path.contains(DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR) {
             continue;
         }
 
