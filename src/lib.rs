@@ -9,6 +9,7 @@ mod config;
 mod version;
 
 use flatpak_rs::application::FlatpakApplication;
+use flatpak_rs::build_system::FlatpakBuildSystem;
 use flatpak_rs::module::{FlatpakModule, FlatpakModuleItem};
 use flatpak_rs::source::FlatpakSource;
 use fpm_core::project::SoftwareProject;
@@ -86,7 +87,7 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
                 "{: <22} {: <30} {: <12} {}.",
                 fpm_core::utils::get_module_hash(module),
                 module.name,
-                module.buildsystem.to_string(),
+                module.get_buildsystem().unwrap_or("unknown".to_string()),
                 main_url
             );
         }
