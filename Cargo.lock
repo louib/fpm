@@ -67,13 +67,13 @@ dependencies = [
 
 [[package]]
 name = "flatpak-rs"
-version = "0.5.1"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "be9b66e19a974468af4bc548c1ac776564472eda67de1eb064f79f5a8a2c3461"
+checksum = "3461aa98e4696535b128aa2a7ddd248bf6310d27d7f38547a79298194be86d47"
 dependencies = [
  "lazy_static",
  "regex",
- "serde 1.0.135",
+ "serde 1.0.136",
  "serde_json",
  "serde_yaml",
 ]
@@ -88,7 +88,7 @@ dependencies = [
  "lazy_static",
  "log",
  "regex",
- "serde 1.0.135",
+ "serde 1.0.136",
  "serde_json",
  "serde_yaml",
  "uuid",
@@ -97,11 +97,11 @@ dependencies = [
 [[package]]
 name = "fpm-core"
 version = "0.1.0"
-source = "git+https://github.com/louib/fpm-core.git?branch=master#409aee84fa692f1cb13e5cccdd6c9aeff328aa73"
+source = "git+https://github.com/louib/fpm-core.git?branch=master#ba5b723b2e1ebd1c985288bc4390fa1642d4dead"
 dependencies = [
  "flatpak-rs",
  "log",
- "serde 1.0.135",
+ "serde 1.0.136",
  "serde_yaml",
  "simple-logging",
 ]
@@ -151,9 +151,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.113"
+version = "0.2.114"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eef78b64d87775463c549fbd80e19249ef436ea3bf1de2a1eb7e717ec7fab1e9"
+checksum = "b0005d08a8f7b65fb8073cb697aa0b12b631ed251ce73d862ce50eeb52ce3b50"
 
 [[package]]
 name = "linked-hash-map"
@@ -278,18 +278,18 @@ checksum = "34b623917345a631dc9608d5194cc206b3fe6c3554cd1c75b937e55e285254af"
 
 [[package]]
 name = "serde"
-version = "1.0.135"
+version = "1.0.136"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cf9235533494ea2ddcdb794665461814781c53f19d87b76e571a1c35acbad2b"
+checksum = "ce31e24b01e1e524df96f1c2fdd054405f8d7376249a5110886fb4b658484789"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.135"
+version = "1.0.136"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8dcde03d87d4c973c04be249e7d8f0b35db1c848c487bd43032808e59dd8328d"
+checksum = "08597e7152fcd306f41838ed3e37be9eaeed2b61c42e2117266a554fab4662f9"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -304,7 +304,7 @@ checksum = "d23c1ba4cf0efd44be32017709280b32d1cea5c3f1275c3b6d9e8bc54f758085"
 dependencies = [
  "itoa",
  "ryu",
- "serde 1.0.135",
+ "serde 1.0.136",
 ]
 
 [[package]]
@@ -315,7 +315,7 @@ checksum = "a4a521f2940385c165a24ee286aa8599633d162077a54bdcae2a6fd5a7bfa7a0"
 dependencies = [
  "indexmap",
  "ryu",
- "serde 1.0.135",
+ "serde 1.0.136",
  "yaml-rust 0.4.5",
 ]
 
