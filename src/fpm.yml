@@ -14,12 +14,6 @@ args:
         required: false
         help: Show the version and exit.
 subcommands:
-    - ls:
-        about: Lists the available Flatpak workspaces.
-        args:
-            - parse:
-                short: p
-                help: Parse the project's files to detect build environments.
     - checkout:
         about: Checkout a workspace.
         args:

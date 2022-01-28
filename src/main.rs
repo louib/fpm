@@ -58,6 +58,12 @@ enum SubCommand {
     Run {},
     /// Remove the build directories and build artifacts.
     Clean {},
+    /// Lists the available Flatpak workspaces.
+    Ls {
+        /// Parse the project's files to detect build environments.
+        #[clap(long, short)]
+        parse: bool,
+    },
     /// install a package in the current Flatpak workspace.
     #[clap(setting(AppSettings::ArgRequiredElseHelp))]
     Install {
@@ -113,6 +119,56 @@ fn main() {
             }
         }
         SubCommand::Run {} => {}
+        SubCommand::Ls { parse } => {
+            let git_cache_dir = path::Path::new(crate::utils::DEFAULT_GIT_CACHE_DIR);
+            if !git_cache_dir.is_dir() {
+                panic!("This does not seem like a git project (.git/ was not found).");
+            }
+
+            // FIXME only enable with a `-a` option.
+            let list_all = true;
+
+            let mut found_manifest = false;
+            let file_paths = match fpm_core::utils::get_all_paths(path::Path::new("./")) {
+                Ok(paths) => paths,
+                Err(message) => {
+                    panic!("Could not get the file paths :sad: {}", message);
+                }
+            };
+            // TODO print also those already matched to workspaces.
+            for file_path in file_paths.iter() {
+                if !file_path.is_file() {
+                    continue;
+                }
+
+                let file_path = file_path.to_str().unwrap();
+                if file_path.contains(crate::utils::DEFAULT_GIT_CACHE_DIR) {
+                    continue;
+                }
+
+                if FlatpakApplication::load_from_file(file_path.to_string()).is_ok() {
+                    println!("{} (app manifest)", file_path);
+                    found_manifest = true;
+                }
+
+                if FlatpakModule::load_from_file(file_path.to_string()).is_ok() {
+                    if file_path.ends_with(FPM_MODULES_MANIFEST_PATH) {
+                        continue;
+                    }
+                    println!("{} (module manifest)", file_path);
+                }
+
+                if FlatpakSource::load_from_file(file_path.to_string()).is_ok() {
+                    println!("{} (sources manifest)", file_path);
+                }
+            }
+
+            if !found_manifest {
+                eprintln!("No available workspace found for the project. Try running `ls -p`.");
+            } else {
+                println!("Use `checkout` to select a workspace.");
+            }
+        }
         SubCommand::Clean {} => {
             let flatpak_build_cache_dir = path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR);
             if flatpak_build_cache_dir.is_dir() {
@@ -259,59 +315,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         Ok(c) => c,
         Err(e) => panic!("Could not load or init config: {}", e),
     };
-
-    if command_name == "ls" {
-        let git_cache_dir = path::Path::new(crate::utils::DEFAULT_GIT_CACHE_DIR);
-        if !git_cache_dir.is_dir() {
-            eprintln!("This does not seem like a git project (.git/ was not found).");
-            return 1;
-        }
-
-        // FIXME only enable with a `-a` option.
-        let list_all = true;
-
-        let mut found_manifest = false;
-        let file_paths = match fpm_core::utils::get_all_paths(path::Path::new("./")) {
-            Ok(paths) => paths,
-            Err(message) => {
-                eprintln!("Could not get the file paths :sad: {}", message);
-                return 1;
-            }
-        };
-        // TODO print also those already matched to workspaces.
-        for file_path in file_paths.iter() {
-            if !file_path.is_file() {
-                continue;
-            }
-
-            let file_path = file_path.to_str().unwrap();
-            if file_path.contains(crate::utils::DEFAULT_GIT_CACHE_DIR) {
-                continue;
-            }
-
-            if FlatpakApplication::load_from_file(file_path.to_string()).is_ok() {
-                println!("{} (app manifest)", file_path);
-                found_manifest = true;
-            }
-
-            if FlatpakModule::load_from_file(file_path.to_string()).is_ok() {
-                if file_path.ends_with(FPM_MODULES_MANIFEST_PATH) {
-                    continue;
-                }
-                println!("{} (module manifest)", file_path);
-            }
-
-            if FlatpakSource::load_from_file(file_path.to_string()).is_ok() {
-                println!("{} (sources manifest)", file_path);
-            }
-        }
-
-        if !found_manifest {
-            eprintln!("No available workspace found for the project. Try running `ls -p`.");
-        } else {
-            println!("Use `checkout` to select a workspace.");
-        }
-    }
 
     if command_name == "checkout" {
         let env_name = match args.get("env_name") {
