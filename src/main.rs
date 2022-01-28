@@ -45,23 +45,50 @@ struct Fpm {
 enum SubCommand {
     /// Formats a Flatpak manifest.
     #[clap(setting(AppSettings::ArgRequiredElseHelp))]
-    Lint {
-        /// The path of the manifest to lint.
-        path: String,
-        /// Only check the manifest for formatting issues.
-        #[clap(long, short)]
-        check: bool,
+    Search {
+        /// The term to search for in the database.
+        search_term: String,
     },
 }
 
 
 fn main() {
     fpm_core::logger::init();
-    // let args = Fpm::parse();
-    //
-    // match &args.command {
-        // SubCommand::Lint { path, check } => {},
-    // }
+    let args = Fpm::parse();
+    match &args.command {
+        SubCommand::Search { search_term } => {
+            if search_term.len() < 3 {
+                panic!("{} is too short for a search term!", search_term);
+            }
+
+            log::debug!("Searching for {} in the modules.", &search_term);
+            let db = fpm_core::db::Database::get_database();
+            let modules: Vec<&FlatpakModule> = db.search_modules(search_term);
+            for module in modules {
+                let main_url = match module.get_main_url() {
+                    Some(u) => u,
+                    None => continue,
+                };
+                println!(
+                    "{: <22} {: <30} {: <12} {}.",
+                    fpm_core::utils::get_module_hash(module),
+                    module.name,
+                    module.get_buildsystem().unwrap_or("unknown".to_string()),
+                    main_url
+                );
+            }
+
+            log::debug!("Searching for {} in the projects.", &search_term);
+            let projects: Vec<&SoftwareProject> = db.search_projects(search_term);
+            for project in projects {
+                println!(
+                    "found candidate project {} ({}).",
+                    project.name,
+                    project.get_main_vcs_url()
+                );
+            }
+        },
+    }
 
     let yaml = load_yaml!("fpm.yml");
     let mut fpm_app: App = App::from_yaml(yaml).version(APP_VERSION);
@@ -135,44 +162,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
     };
 
     if command_name == "search" {
-        let search_term = match args.get("search_term") {
-            Some(search_term) => search_term,
-            None => {
-                eprintln!("A search term is required!");
-                return 1;
-            }
-        };
-        if search_term.len() < 3 {
-            eprintln!("{} is too short for a search term!", search_term);
-            return 1;
-        }
-
-        log::debug!("Searching for {} in the modules.", &search_term);
-        let db = fpm_core::db::Database::get_database();
-        let modules: Vec<&FlatpakModule> = db.search_modules(search_term);
-        for module in modules {
-            let main_url = match module.get_main_url() {
-                Some(u) => u,
-                None => continue,
-            };
-            println!(
-                "{: <22} {: <30} {: <12} {}.",
-                fpm_core::utils::get_module_hash(module),
-                module.name,
-                module.get_buildsystem().unwrap_or("unknown".to_string()),
-                main_url
-            );
-        }
-
-        log::debug!("Searching for {} in the projects.", &search_term);
-        let projects: Vec<&SoftwareProject> = db.search_projects(search_term);
-        for project in projects {
-            println!(
-                "found candidate project {} ({}).",
-                project.name,
-                project.get_main_vcs_url()
-            );
-        }
     }
 
     if command_name == "install" {
