@@ -27,8 +27,6 @@ subcommands:
                 multiple: false
                 required: true
                 help: The name of the workspace to checkout.
-    - clean:
-        about: Remove the build directories and build artifacts.
     - create:
         about: Create a workspace using a Flatpak manifest.
         args:

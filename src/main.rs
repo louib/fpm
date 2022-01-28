@@ -56,6 +56,8 @@ enum SubCommand {
     },
     /// Run a command in the Flatpak workspace, or the default command if none is specified.
     Run {},
+    /// Remove the build directories and build artifacts.
+    Clean {},
     /// install a package in the current Flatpak workspace.
     #[clap(setting(AppSettings::ArgRequiredElseHelp))]
     Install {
@@ -111,6 +113,19 @@ fn main() {
             }
         }
         SubCommand::Run {} => {}
+        SubCommand::Clean {} => {
+            let flatpak_build_cache_dir = path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR);
+            if flatpak_build_cache_dir.is_dir() {
+                println!("Removing {}.", crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR);
+                fs::remove_dir_all(crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR).unwrap();
+            }
+
+            let flatpak_build_output_dir = path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
+            if flatpak_build_output_dir.is_dir() {
+                println!("Removing {}.", crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
+                fs::remove_dir_all(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR).unwrap();
+            }
+        }
         SubCommand::Make { manifest_file_path } => {
             let manifest_path = get_manifest_file_path(manifest_file_path.as_ref()).unwrap();
             log::info!("Using Flatpak manifest at {}", manifest_path);
@@ -244,20 +259,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         Ok(c) => c,
         Err(e) => panic!("Could not load or init config: {}", e),
     };
-
-    if command_name == "clean" {
-        let flatpak_build_cache_dir = path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR);
-        if flatpak_build_cache_dir.is_dir() {
-            println!("Removing {}.", crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR);
-            fs::remove_dir_all(crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR).unwrap();
-        }
-
-        let flatpak_build_output_dir = path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
-        if flatpak_build_output_dir.is_dir() {
-            println!("Removing {}.", crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
-            fs::remove_dir_all(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR).unwrap();
-        }
-    }
 
     if command_name == "ls" {
         let git_cache_dir = path::Path::new(crate::utils::DEFAULT_GIT_CACHE_DIR);
