@@ -14,7 +14,7 @@ use std::process::{exit, Command, Stdio};
 #[macro_use]
 extern crate clap;
 
-use clap::{AppSettings, App, ArgMatches, Parser, Subcommand};
+use clap::{App, AppSettings, ArgMatches, Parser, Subcommand};
 
 use flatpak_rs::application::FlatpakApplication;
 use flatpak_rs::build_system::FlatpakBuildSystem;
@@ -68,7 +68,6 @@ enum SubCommand {
     Status {},
 }
 
-
 fn main() {
     fpm_core::logger::init();
 
@@ -110,8 +109,8 @@ fn main() {
                     project.get_main_vcs_url()
                 );
             }
-        },
-        SubCommand::Run {} => {},
+        }
+        SubCommand::Run {} => {}
         SubCommand::Make { manifest_file_path } => {
             let manifest_path = get_manifest_file_path(manifest_file_path.as_ref()).unwrap();
             log::info!("Using Flatpak manifest at {}", manifest_path);
@@ -121,8 +120,11 @@ fn main() {
             }
 
             run_build(&manifest_path).unwrap();
-        },
-        SubCommand::Install { package_name, manifest_file_path } => {
+        }
+        SubCommand::Install {
+            package_name,
+            manifest_file_path,
+        } => {
             if package_name.len() < 4 {
                 panic!("Module name is too short");
             }
@@ -164,7 +166,7 @@ fn main() {
                     }
                 };
             }
-        },
+        }
         SubCommand::Status {} => {
             let current_workspace = match config.current_workspace {
                 Some(workspace) => workspace,
@@ -182,7 +184,7 @@ fn main() {
 
             let manifest_file_path = config.workspaces.get(&current_workspace).unwrap();
             println!("Workspace {} using {}.", current_workspace, manifest_file_path);
-        },
+        }
     }
 
     let yaml = load_yaml!("fpm.yml");
