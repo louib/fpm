@@ -79,11 +79,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "flatpak-rs"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a6e82f72acc52371eac8001f94194dc94a89a75be599399364bc2304e51527df"
+dependencies = [
+ "lazy_static",
+ "regex",
+ "serde 1.0.136",
+ "serde_json",
+ "serde_yaml",
+]
+
+[[package]]
 name = "fpm"
 version = "0.0.3"
 dependencies = [
  "clap",
- "flatpak-rs",
+ "flatpak-rs 0.8.0",
  "fpm-core",
  "lazy_static",
  "log",
@@ -97,9 +110,9 @@ dependencies = [
 [[package]]
 name = "fpm-core"
 version = "0.1.0"
-source = "git+https://github.com/louib/fpm-core.git?branch=master#ba5b723b2e1ebd1c985288bc4390fa1642d4dead"
+source = "git+https://github.com/louib/fpm-core.git?branch=master#37fa1a340809a8f8e676b95a8f631155b306880b"
 dependencies = [
- "flatpak-rs",
+ "flatpak-rs 0.9.1",
  "log",
  "serde 1.0.136",
  "serde_yaml",
@@ -151,9 +164,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.114"
+version = "0.2.115"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0005d08a8f7b65fb8073cb697aa0b12b631ed251ce73d862ce50eeb52ce3b50"
+checksum = "0a8d982fa7a96a000f6ec4cfe966de9703eccde29750df2bb8949da91b0e818d"
 
 [[package]]
 name = "linked-hash-map"
