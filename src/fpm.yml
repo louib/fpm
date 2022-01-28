@@ -83,17 +83,3 @@ subcommands:
                 help: Term to search for in the projects database.
     - stats:
         about: Print statistics of the database.
-    - get-package-list:
-        about: Get a comma-separated list of packages parsed from the manifest file. The default separator can be changed with the -s option.
-        args:
-            - manifest_file_path:
-                multiple: false
-                required: true
-                help: Path of the input build manifest.
-            - separator:
-                short: s
-                long: sep
-                takes_value: true
-                value_name: SEP
-                required: false
-                help: Separator used when printing the package list.

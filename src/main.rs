@@ -25,18 +25,17 @@ use fpm_core::project::SoftwareProject;
 // This might need to become a regex at some point, to allow fpm to manage multiple module
 // manifests at the same time.
 const FPM_MODULES_MANIFEST_PATH: &str = "fpm-modules.yaml";
-const DEFAULT_PACKAGE_LIST_SEP: &str = ",";
 const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 mod config;
 mod utils;
 mod version;
 
-/// TODO add description
+/// CLI tool for managing Flatpak manifests and workspaces
 #[derive(Parser)]
 #[clap(name = "fpm")]
 #[clap(version = env!("CARGO_PKG_VERSION"))]
-#[clap(about = "TODO", long_about = None)]
+#[clap(about = "CLI tool for managing Flatpak manifests and workspaces", long_about = None)]
 struct Fpm {
     #[clap(subcommand)]
     command: SubCommand,
@@ -57,6 +56,7 @@ enum SubCommand {
 
 
 fn main() {
+    fpm_core::logger::init();
     // let args = Fpm::parse();
     //
     // match &args.command {
@@ -109,12 +109,6 @@ fn main() {
             .unwrap_or("")
             .to_string(),
     );
-    arguments.entry("separator".to_string()).or_insert(
-        subcommand_matches
-            .value_of("separator")
-            .unwrap_or(",")
-            .to_string(),
-    );
     arguments.entry("package_name".to_string()).or_insert(
         subcommand_matches
             .value_of("package_name")
@@ -133,44 +127,12 @@ fn main() {
 }
 
 pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
-    fpm_core::logger::init();
-
     log::debug!("running command {}.", command_name);
 
     let mut config = match crate::config::read_or_init_config() {
         Ok(c) => c,
         Err(e) => panic!("Could not load or init config: {}", e),
     };
-
-    if command_name == "get-package-list" {
-        let manifest_file_path = args
-            .get("manifest_file_path")
-            .expect("a manifest file is required!");
-
-        let flatpak_manifest = match FlatpakApplication::load_from_file(manifest_file_path.to_string()) {
-            Ok(m) => m,
-            Err(e) => {
-                eprintln!("Could not parse manifest file at {}: {}.", manifest_file_path, e);
-                return 1;
-            }
-        };
-
-        let mut separator = DEFAULT_PACKAGE_LIST_SEP;
-        if args.contains_key("separator") {
-            separator = args.get("separator").unwrap();
-        }
-
-        let mut output: String = String::from("");
-        for module in &flatpak_manifest.get_all_modules_recursively() {
-            if !output.is_empty() {
-                output.push_str(&separator)
-            }
-            if let FlatpakModuleItem::Description(module_description) = module {
-                output.push_str(&module_description.name);
-            }
-        }
-        println!("{}", output);
-    }
 
     if command_name == "search" {
         let search_term = match args.get("search_term") {
