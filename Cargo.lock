@@ -102,7 +102,7 @@ dependencies = [
 [[package]]
 name = "fpm-core"
 version = "0.1.0"
-source = "git+https://github.com/louib/fpm-core.git?branch=master#beb10436074f7529333011eb01540277994de0db"
+source = "git+https://github.com/louib/fpm-core.git?branch=master#4860f740666771f0a020d480ceff964dd092c357"
 dependencies = [
  "flatpak-rs",
  "log",

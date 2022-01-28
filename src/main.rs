@@ -188,7 +188,7 @@ fn main() {
             }
         }
         SubCommand::Ls { parse } => {
-            let git_cache_dir = path::Path::new(crate::utils::DEFAULT_GIT_CACHE_DIR);
+            let git_cache_dir = path::Path::new(fpm_core::utils::DEFAULT_GIT_CACHE_DIR);
             if !git_cache_dir.is_dir() {
                 panic!("This does not seem like a git project (.git/ was not found).");
             }
@@ -210,7 +210,7 @@ fn main() {
                 }
 
                 let file_path = file_path.to_str().unwrap();
-                if file_path.contains(crate::utils::DEFAULT_GIT_CACHE_DIR) {
+                if file_path.contains(fpm_core::utils::DEFAULT_GIT_CACHE_DIR) {
                     continue;
                 }
 
@@ -238,16 +238,16 @@ fn main() {
             }
         }
         SubCommand::Clean {} => {
-            let flatpak_build_cache_dir = path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR);
+            let flatpak_build_cache_dir = path::Path::new(fpm_core::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR);
             if flatpak_build_cache_dir.is_dir() {
-                println!("Removing {}.", crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR);
-                fs::remove_dir_all(crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR).unwrap();
+                println!("Removing {}.", fpm_core::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR);
+                fs::remove_dir_all(fpm_core::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR).unwrap();
             }
 
-            let flatpak_build_output_dir = path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
+            let flatpak_build_output_dir = path::Path::new(fpm_core::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
             if flatpak_build_output_dir.is_dir() {
-                println!("Removing {}.", crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
-                fs::remove_dir_all(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR).unwrap();
+                println!("Removing {}.", fpm_core::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
+                fs::remove_dir_all(fpm_core::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR).unwrap();
             }
         }
         SubCommand::Make {
@@ -362,7 +362,7 @@ fn build_flatpak_application(manifest_path: &str, install: bool) -> Result<(), S
         let mut command = command.arg("--install");
     }
     let mut command = command
-        .arg(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR)
+        .arg(fpm_core::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR)
         .arg(manifest_path);
 
     let output = command.stdout(Stdio::piped()).spawn().unwrap();
@@ -377,14 +377,14 @@ fn build_flatpak_application(manifest_path: &str, install: bool) -> Result<(), S
 }
 
 fn run_flatpak_application(manifest_file_path: &str, flatpak_command: &str) -> Result<(), String> {
-    if !path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR).is_dir() {
+    if !path::Path::new(fpm_core::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR).is_dir() {
         return Err("The application has not been build yet. Run `fpm make` first.".to_string());
     }
 
     let mut command = Command::new("flatpak-builder");
     let mut command = command.arg("--run");
 
-    let mut command = command.arg(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
+    let mut command = command.arg(fpm_core::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
     let mut command = command.arg(manifest_file_path);
     let mut command = command.arg(flatpak_command);
 
