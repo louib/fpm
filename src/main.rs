@@ -59,6 +59,13 @@ enum SubCommand {
         /// The name of the workspace to checkout.
         env_name: String,
     },
+    /// Create a workspace using a Flatpak manifest.
+    Create {
+        /// The name of the workspace to create.
+        env_name: String,
+        /// The path of the Flatpak manifest to build the workspace with.
+        manifest_file_path: String,
+    },
     /// Run a command in the Flatpak workspace, or the default command if none is specified.
     Run {},
     /// Remove the build directories and build artifacts.
@@ -93,6 +100,31 @@ fn main() {
 
     let args = Fpm::parse();
     match &args.command {
+        SubCommand::Create { env_name, manifest_file_path } => {
+            if let Some(current_workspace) = &config.current_workspace {
+                if current_workspace == env_name {
+                    println!("Already in workspace {}.", env_name);
+                    return;
+                }
+            }
+
+            if config.workspaces.contains_key(env_name) {
+                panic!("Workspace {} already exists.", env_name);
+            }
+
+            config
+                .workspaces
+                .insert(env_name.to_string(), manifest_file_path.to_string());
+            config.current_workspace = Some(env_name.to_string());
+            match crate::config::write_config(&config) {
+                Ok(c) => c,
+                Err(e) => panic!("Could not write config: {}", e),
+            };
+            println!(
+                "🗃 Created workspace {} with manifest file {}.",
+                env_name, manifest_file_path
+            );
+        },
         SubCommand::Checkout { env_name } => {
             if let Some(current_workspace) = &config.current_workspace {
                 if current_workspace == env_name {
@@ -347,47 +379,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         Ok(c) => c,
         Err(e) => panic!("Could not load or init config: {}", e),
     };
-
-    if command_name == "create" {
-        let env_name = match args.get("env_name") {
-            Some(n) => n,
-            None => panic!("An env name is required to checkout."),
-        };
-
-        if let Some(current_workspace) = &config.current_workspace {
-            if current_workspace == env_name {
-                println!("Already in workspace {}.", env_name);
-                return 0;
-            }
-        }
-
-        if config.workspaces.contains_key(env_name) {
-            eprintln!("Workspace {} already exists.", env_name);
-            return 1;
-        }
-
-        let manifest_file_path = match args.get("manifest_file_path") {
-            Some(p) => p,
-            None => {
-                eprintln!("a manifest file is required to create a new workspace!");
-                // TODO handle reading from stdin.
-                return 1;
-            }
-        };
-
-        config
-            .workspaces
-            .insert(env_name.to_string(), manifest_file_path.to_string());
-        config.current_workspace = Some(env_name.to_string());
-        match crate::config::write_config(&config) {
-            Ok(c) => c,
-            Err(e) => panic!("Could not write config: {}", e),
-        };
-        println!(
-            "🗃 Created workspace {} with manifest file {}.",
-            env_name, manifest_file_path
-        );
-    }
 
     log::debug!("Finishing...");
     return 0;
