@@ -49,13 +49,25 @@ enum SubCommand {
         /// The term to search for in the database.
         search_term: String,
     },
-    /// Run the application described by a manifest.
-    Run {},
+    /// Run a command in the Flatpak workspace, or the default command if none is specified.
+    Run {
+        /// The command string to run.
+        command: String,
+    },
+    /// Show the current build status for the repository.
+    Status {
+    },
 }
 
 
 fn main() {
     fpm_core::logger::init();
+
+    let mut config = match crate::config::read_or_init_config() {
+        Ok(c) => c,
+        Err(e) => panic!("Could not load or init config: {}", e),
+    };
+
     let args = Fpm::parse();
     match &args.command {
         SubCommand::Search { search_term } => {
@@ -90,7 +102,25 @@ fn main() {
                 );
             }
         },
-        SubCommand::Run {} => {}
+        SubCommand::Run { command } => {},
+        SubCommand::Status {} => {
+            let current_workspace = match config.current_workspace {
+                Some(workspace) => workspace,
+                None => "".to_string(),
+            };
+
+            if current_workspace.len() == 0 {
+                println!("Not in a workspace. Call `ls` to list the workspaces and manifest files.");
+                return;
+            }
+
+            if !config.workspaces.contains_key(&current_workspace) {
+                panic!("Workspace {} not found in config!.", current_workspace);
+            }
+
+            let manifest_file_path = config.workspaces.get(&current_workspace).unwrap();
+            println!("Workspace {} using {}.", current_workspace, manifest_file_path);
+        },
     }
 
     let yaml = load_yaml!("fpm.yml");
@@ -377,22 +407,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
     }
 
     if command_name == "status" {
-        let current_workspace = match config.current_workspace {
-            Some(workspace) => workspace,
-            None => "".to_string(),
-        };
-
-        if current_workspace.len() == 0 {
-            println!("Not in a workspace. Call `ls` to list the workspaces and manifest files.");
-            return 0;
-        }
-
-        if !config.workspaces.contains_key(&current_workspace) {
-            panic!("Workspace {} not found in config!.", current_workspace);
-        }
-
-        let manifest_file_path = config.workspaces.get(&current_workspace).unwrap();
-        println!("Workspace {} using {}.", current_workspace, manifest_file_path);
     }
 
     if command_name == "stats" {

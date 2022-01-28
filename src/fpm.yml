@@ -14,8 +14,6 @@ args:
         required: false
         help: Show the version and exit.
 subcommands:
-    - status:
-        about: Show the current build status for the repository.
     - ls:
         about: Lists the available Flatpak workspaces.
         args:
@@ -45,13 +43,6 @@ subcommands:
                 help: The name of the workspace to checkout.
     - clean:
         about: Remove the build directories and build artifacts.
-    - run:
-        about: Run a command in the Flatpak workspace.
-        args:
-            - command:
-                multiple: false
-                required: true
-                help: The command string to run.
     - create:
         about: Create a workspace using a Flatpak manifest.
         args:
