@@ -1,3 +1,5 @@
+//! This is the binary crate for the `fpm` Flatpak module manager.
+//! To get the list of available commands, run `fpm -h`.
 use std::collections::HashMap;
 use std::env;
 use std::fs;
@@ -12,7 +14,7 @@ use std::process::{exit, Command, Stdio};
 #[macro_use]
 extern crate clap;
 
-use clap::{App, ArgMatches};
+use clap::{AppSettings, App, ArgMatches, Parser, Subcommand};
 
 use flatpak_rs::application::FlatpakApplication;
 use flatpak_rs::build_system::FlatpakBuildSystem;
@@ -30,12 +32,43 @@ mod config;
 mod utils;
 mod version;
 
+/// TODO add description
+#[derive(Parser)]
+#[clap(name = "fpm")]
+#[clap(version = env!("CARGO_PKG_VERSION"))]
+#[clap(about = "TODO", long_about = None)]
+struct Fpm {
+    #[clap(subcommand)]
+    command: SubCommand,
+}
+
+#[derive(Subcommand)]
+enum SubCommand {
+    /// Formats a Flatpak manifest.
+    #[clap(setting(AppSettings::ArgRequiredElseHelp))]
+    Lint {
+        /// The path of the manifest to lint.
+        path: String,
+        /// Only check the manifest for formatting issues.
+        #[clap(long, short)]
+        check: bool,
+    },
+}
+
+
 fn main() {
+    // let args = Fpm::parse();
+    //
+    // match &args.command {
+        // SubCommand::Lint { path, check } => {},
+    // }
+
     let yaml = load_yaml!("fpm.yml");
-    let fpm_app: App = App::from_yaml(yaml).version(APP_VERSION);
+    let mut fpm_app: App = App::from_yaml(yaml).version(APP_VERSION);
 
     // Here we could use get_matches_safe and override the error messages.
     // See https://docs.rs/clap/2.33.1/clap/struct.App.html#method.get_matches_safe
+    let help_text = fpm_app.render_usage().clone();
     let matches: ArgMatches = fpm_app.get_matches();
 
     if matches.is_present("version") {
@@ -50,7 +83,7 @@ fn main() {
         Some(command_name) => command_name,
         None => {
             eprintln!("Please provide a command to execute.");
-            eprintln!("{}", matches.usage());
+            eprintln!("{}", help_text);
             exit(1);
         }
     };
@@ -59,7 +92,7 @@ fn main() {
         Some(subcommand_matches) => subcommand_matches,
         None => {
             eprintln!("Invalid arguments for command {}", command_name);
-            eprintln!("{}", matches.usage());
+            eprintln!("{}", help_text);
             exit(1);
         }
     };
