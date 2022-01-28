@@ -49,6 +49,8 @@ enum SubCommand {
         /// The term to search for in the database.
         search_term: String,
     },
+    /// Run the application described by a manifest.
+    Run {},
 }
 
 
@@ -88,6 +90,7 @@ fn main() {
                 );
             }
         },
+        SubCommand::Run {} => {}
     }
 
     let yaml = load_yaml!("fpm.yml");
@@ -103,7 +106,6 @@ fn main() {
         exit(0);
     }
 
-    // let mut options: HashMap<String, bool> = HashMap::new();
     let mut arguments: HashMap<String, String> = HashMap::new();
 
     let command_name = match matches.subcommand_name() {
@@ -127,12 +129,6 @@ fn main() {
     arguments.entry("manifest_file_path".to_string()).or_insert(
         subcommand_matches
             .value_of("manifest_file_path")
-            .unwrap_or("")
-            .to_string(),
-    );
-    arguments.entry("search_term".to_string()).or_insert(
-        subcommand_matches
-            .value_of("search_term")
             .unwrap_or("")
             .to_string(),
     );
@@ -160,9 +156,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         Ok(c) => c,
         Err(e) => panic!("Could not load or init config: {}", e),
     };
-
-    if command_name == "search" {
-    }
 
     if command_name == "install" {
         let package_name = match args.get("package_name") {
@@ -246,8 +239,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             Err(_) => return 1,
         };
     }
-
-    if command_name == "run" {}
 
     if command_name == "clean" {
         let flatpak_build_cache_dir = path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR);
