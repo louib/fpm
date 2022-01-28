@@ -67,7 +67,13 @@ enum SubCommand {
         manifest_file_path: String,
     },
     /// Run a command in the Flatpak workspace, or the default command if none is specified.
-    Run {},
+    Run {
+        /// The path of the Flatpak manifest to build the workspace with.
+        manifest_file_path: Option<String>,
+        /// The command to execute. Otherwise the default command from the application manifest
+        /// will be used.
+        command: Option<String>,
+    },
     /// Remove the build directories and build artifacts.
     Clean {},
     /// Lists the available Flatpak workspaces.
@@ -257,8 +263,25 @@ fn main() {
 
             build_flatpak_application(&manifest_path, *install).unwrap();
         }
-        SubCommand::Run {} => {
-            run_flatpak_application().unwrap();
+        SubCommand::Run {
+            manifest_file_path,
+            command,
+        } => {
+            let manifest_path = get_manifest_file_path(manifest_file_path.as_ref()).unwrap();
+            log::info!("Using Flatpak manifest at {}", manifest_path);
+
+            let flatpak_application = match FlatpakApplication::load_from_file(manifest_path.to_string()) {
+                Ok(a) => a,
+                Err(e) => {
+                    panic!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
+                }
+            };
+
+            run_flatpak_application(
+                &manifest_path,
+                &command.as_ref().unwrap_or(&flatpak_application.command.unwrap()),
+            )
+            .unwrap();
         }
         SubCommand::Install {
             package_name,
@@ -341,8 +364,8 @@ fn build_flatpak_application(manifest_path: &str, install: bool) -> Result<(), S
     let mut command = command
         .arg(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR)
         .arg(manifest_path);
-    let output = command.stdout(Stdio::piped()).spawn().unwrap();
 
+    let output = command.stdout(Stdio::piped()).spawn().unwrap();
     let output = match output.wait_with_output() {
         Ok(o) => o,
         Err(e) => return Err(e.to_string()),
@@ -353,7 +376,7 @@ fn build_flatpak_application(manifest_path: &str, install: bool) -> Result<(), S
     Ok(())
 }
 
-fn run_flatpak_application() -> Result<(), String> {
+fn run_flatpak_application(manifest_file_path: &str, flatpak_command: &str) -> Result<(), String> {
     if !path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR).is_dir() {
         return Err("The application has not been build yet. Run `fpm make` first.".to_string());
     }
@@ -361,10 +384,11 @@ fn run_flatpak_application() -> Result<(), String> {
     let mut command = Command::new("flatpak-builder");
     let mut command = command.arg("--run");
 
-    let mut command = command
-        .arg(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
-    let output = command.stdout(Stdio::piped()).spawn().unwrap();
+    let mut command = command.arg(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
+    let mut command = command.arg(manifest_file_path);
+    let mut command = command.arg(flatpak_command);
 
+    let output = command.stdout(Stdio::piped()).spawn().unwrap();
     let output = match output.wait_with_output() {
         Ok(o) => o,
         Err(e) => return Err(e.to_string()),
