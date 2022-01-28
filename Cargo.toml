@@ -28,5 +28,3 @@ regex = "1.5"
 log = "0.4"
 
 lazy_static = "1.4"
-
-uuid = { version = "0.4", features = ["serde", "v4"] }
