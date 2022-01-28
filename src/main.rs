@@ -181,7 +181,6 @@ fn main() {
                 );
             }
         }
-        SubCommand::Run {} => {}
         SubCommand::Ls { parse } => {
             let git_cache_dir = path::Path::new(crate::utils::DEFAULT_GIT_CACHE_DIR);
             if !git_cache_dir.is_dir() {
@@ -256,7 +255,10 @@ fn main() {
                 panic!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
             }
 
-            run_build(&manifest_path, *install).unwrap();
+            build_flatpak_application(&manifest_path, *install).unwrap();
+        }
+        SubCommand::Run {} => {
+            run_flatpak_application().unwrap();
         }
         SubCommand::Install {
             package_name,
@@ -329,7 +331,7 @@ fn main() {
     }
 }
 
-fn run_build(manifest_path: &str, install: bool) -> Result<(), String> {
+fn build_flatpak_application(manifest_path: &str, install: bool) -> Result<(), String> {
     let mut command = Command::new("flatpak-builder");
     let mut command = command.arg("--user").arg("--force-clean");
 
@@ -339,6 +341,28 @@ fn run_build(manifest_path: &str, install: bool) -> Result<(), String> {
     let mut command = command
         .arg(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR)
         .arg(manifest_path);
+    let output = command.stdout(Stdio::piped()).spawn().unwrap();
+
+    let output = match output.wait_with_output() {
+        Ok(o) => o,
+        Err(e) => return Err(e.to_string()),
+    };
+    if !output.status.success() {
+        return Err("Could not run flatpak build.".to_string());
+    }
+    Ok(())
+}
+
+fn run_flatpak_application() -> Result<(), String> {
+    if !path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR).is_dir() {
+        return Err("The application has not been build yet. Run `fpm make` first.".to_string());
+    }
+
+    let mut command = Command::new("flatpak-builder");
+    let mut command = command.arg("--run");
+
+    let mut command = command
+        .arg(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
     let output = command.stdout(Stdio::piped()).spawn().unwrap();
 
     let output = match output.wait_with_output() {
