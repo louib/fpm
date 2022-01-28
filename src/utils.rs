@@ -1,5 +1,3 @@
-use std::env;
-use std::fs;
 use std::io::{stdin, stdout, Write};
 use std::path::Path;
 
@@ -28,7 +26,7 @@ pub fn ask_yes_no_question(question: String) -> bool {
 
 pub fn get_candidate_flatpak_manifests(dir_path: &str) -> Result<Vec<String>, String> {
     let mut response: Vec<String> = vec![];
-    let file_paths = match fpm_core::utils::get_all_paths(std::path::Path::new(dir_path)) {
+    let file_paths = match fpm_core::utils::get_all_paths(Path::new(dir_path)) {
         Ok(paths) => paths,
         Err(message) => {
             return Err(format!(

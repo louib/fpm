@@ -1,10 +1,9 @@
 //! This is the binary crate for the `fpm` Flatpak module manager.
 //! To get the list of available commands, run `fpm -h`.
-use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::path;
-use std::process::{exit, Command, Stdio};
+use std::process::{Command, Stdio};
 
 // TODO tune built-in attributes
 // From https://doc.rust-lang.org/reference/items/modules.html#attributes-on-modules
@@ -14,10 +13,9 @@ use std::process::{exit, Command, Stdio};
 #[macro_use]
 extern crate clap;
 
-use clap::{App, AppSettings, ArgMatches, Parser, Subcommand};
+use clap::{AppSettings, Parser, Subcommand};
 
 use flatpak_rs::application::FlatpakApplication;
-use flatpak_rs::build_system::FlatpakBuildSystem;
 use flatpak_rs::module::{FlatpakModule, FlatpakModuleItem};
 use flatpak_rs::source::FlatpakSource;
 use fpm_core::project::SoftwareProject;
@@ -25,7 +23,6 @@ use fpm_core::project::SoftwareProject;
 // This might need to become a regex at some point, to allow fpm to manage multiple module
 // manifests at the same time.
 const FPM_MODULES_MANIFEST_PATH: &str = "fpm-modules.yaml";
-const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 mod config;
 mod utils;
@@ -100,7 +97,10 @@ fn main() {
 
     let args = Fpm::parse();
     match &args.command {
-        SubCommand::Create { env_name, manifest_file_path } => {
+        SubCommand::Create {
+            env_name,
+            manifest_file_path,
+        } => {
             if let Some(current_workspace) = &config.current_workspace {
                 if current_workspace == env_name {
                     println!("Already in workspace {}.", env_name);
@@ -124,7 +124,7 @@ fn main() {
                 "🗃 Created workspace {} with manifest file {}.",
                 env_name, manifest_file_path
             );
-        },
+        }
         SubCommand::Checkout { env_name } => {
             if let Some(current_workspace) = &config.current_workspace {
                 if current_workspace == env_name {
@@ -186,7 +186,7 @@ fn main() {
             }
 
             // FIXME only enable with a `-a` option.
-            let list_all = true;
+            // let list_all = true;
 
             let mut found_manifest = false;
             let file_paths = match fpm_core::utils::get_all_paths(path::Path::new("./")) {
@@ -321,67 +321,6 @@ fn main() {
             println!("Workspace {} using {}.", current_workspace, manifest_file_path);
         }
     }
-
-    let yaml = load_yaml!("fpm.yml");
-    let mut fpm_app: App = App::from_yaml(yaml).version(APP_VERSION);
-
-    // Here we could use get_matches_safe and override the error messages.
-    // See https://docs.rs/clap/2.33.1/clap/struct.App.html#method.get_matches_safe
-    let help_text = fpm_app.render_usage().clone();
-    let matches: ArgMatches = fpm_app.get_matches();
-
-    if matches.is_present("version") {
-        println!("{}", APP_VERSION);
-        exit(0);
-    }
-
-    let mut arguments: HashMap<String, String> = HashMap::new();
-
-    let command_name = match matches.subcommand_name() {
-        Some(command_name) => command_name,
-        None => {
-            eprintln!("Please provide a command to execute.");
-            eprintln!("{}", help_text);
-            exit(1);
-        }
-    };
-
-    let subcommand_matches = match matches.subcommand_matches(command_name) {
-        Some(subcommand_matches) => subcommand_matches,
-        None => {
-            eprintln!("Invalid arguments for command {}", command_name);
-            eprintln!("{}", help_text);
-            exit(1);
-        }
-    };
-
-    arguments.entry("manifest_file_path".to_string()).or_insert(
-        subcommand_matches
-            .value_of("manifest_file_path")
-            .unwrap_or("")
-            .to_string(),
-    );
-    arguments
-        .entry("env_name".to_string())
-        .or_insert(subcommand_matches.value_of("env_name").unwrap_or("").to_string());
-    arguments
-        .entry("command".to_string())
-        .or_insert(subcommand_matches.value_of("command").unwrap_or("").to_string());
-
-    let exit_code = run(command_name, arguments);
-    exit(exit_code);
-}
-
-pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
-    log::debug!("running command {}.", command_name);
-
-    let mut config = match crate::config::read_or_init_config() {
-        Ok(c) => c,
-        Err(e) => panic!("Could not load or init config: {}", e),
-    };
-
-    log::debug!("Finishing...");
-    return 0;
 }
 
 fn run_build(manifest_path: &str) -> Result<(), String> {
@@ -413,7 +352,7 @@ pub fn get_manifest_file_path(path_arg: Option<&String>) -> Option<String> {
 
     let manifest_path = match crate::config::get_manifest_path() {
         Ok(m) => return Some(m),
-        Err(e) => {
+        Err(_e) => {
             let current_dir = env::current_dir().unwrap();
             match crate::utils::get_candidate_flatpak_manifests(current_dir.to_str().unwrap()) {
                 Ok(candidate_manifests) => {
