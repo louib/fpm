@@ -17,16 +17,16 @@ keywords = [
 [dependencies]
 clap = {version = "2.33.1", features = ["yaml"]}
 serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.8"
 serde_json = "1.0"
+serde_yaml = "0.8"
 
 flatpak-rs = "0.9"
 fpm-core = { git = "https://github.com/louib/fpm-core.git", branch = "master" }
 
-regex = "1.5.4"
+regex = "1.5"
 
 log = "0.4"
 
-lazy_static = "1.4.0"
+lazy_static = "1.4"
 
 uuid = { version = "0.4", features = ["serde", "v4"] }
