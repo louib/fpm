@@ -74,6 +74,8 @@ enum SubCommand {
     },
     /// Show the current build status for the repository.
     Status {},
+    /// Print statistics of the database.
+    Stats {},
 }
 
 fn main() {
@@ -238,6 +240,10 @@ fn main() {
                 };
             }
         }
+        SubCommand::Stats {} => {
+            let db = fpm_core::db::Database::get_database();
+            println!("{}", db.get_stats());
+        }
         SubCommand::Status {} => {
             let current_workspace = match config.current_workspace {
                 Some(workspace) => workspace,
@@ -383,12 +389,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             "🗃 Created workspace {} with manifest file {}.",
             env_name, manifest_file_path
         );
-    }
-
-    if command_name == "stats" {
-        let db = fpm_core::db::Database::get_database();
-        println!("{}", db.get_stats());
-        return 0;
     }
 
     log::debug!("Finishing...");

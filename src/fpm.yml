@@ -32,5 +32,3 @@ subcommands:
                 multiple: false
                 required: true
                 help: The path of the Flatpak manifest to build the workspace with.
-    - stats:
-        about: Print statistics of the database.
