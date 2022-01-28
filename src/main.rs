@@ -113,7 +113,7 @@ fn main() {
                 Ok(c) => c,
                 Err(e) => panic!("Could not write config: {}", e),
             };
-        },
+        }
         SubCommand::Search { search_term } => {
             if search_term.len() < 3 {
                 panic!("{} is too short for a search term!", search_term);
