@@ -246,7 +246,10 @@ fn main() {
 
             let flatpak_build_output_dir = path::Path::new(fpm_core::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
             if flatpak_build_output_dir.is_dir() {
-                println!("Removing {}.", fpm_core::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR);
+                println!(
+                    "Removing {}.",
+                    fpm_core::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR
+                );
                 fs::remove_dir_all(fpm_core::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR).unwrap();
             }
         }
