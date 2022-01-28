@@ -50,6 +50,9 @@ enum SubCommand {
     Make {
         /// The path of the Flatpak manifest to build the workspace with.
         manifest_file_path: Option<String>,
+        /// Also install the application described by the Flatpak manifest.
+        #[clap(long, short)]
+        install: bool,
     },
     /// Checkout a workspace.
     Checkout {
@@ -242,7 +245,10 @@ fn main() {
                 fs::remove_dir_all(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR).unwrap();
             }
         }
-        SubCommand::Make { manifest_file_path } => {
+        SubCommand::Make {
+            manifest_file_path,
+            install,
+        } => {
             let manifest_path = get_manifest_file_path(manifest_file_path.as_ref()).unwrap();
             log::info!("Using Flatpak manifest at {}", manifest_path);
 
@@ -250,7 +256,7 @@ fn main() {
                 panic!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
             }
 
-            run_build(&manifest_path).unwrap();
+            run_build(&manifest_path, *install).unwrap();
         }
         SubCommand::Install {
             package_name,
@@ -323,15 +329,17 @@ fn main() {
     }
 }
 
-fn run_build(manifest_path: &str) -> Result<(), String> {
-    let output = Command::new("flatpak-builder")
-        .arg("--user")
-        .arg("--force-clean")
+fn run_build(manifest_path: &str, install: bool) -> Result<(), String> {
+    let mut command = Command::new("flatpak-builder");
+    let mut command = command.arg("--user").arg("--force-clean");
+
+    if install {
+        let mut command = command.arg("--install");
+    }
+    let mut command = command
         .arg(crate::utils::DEFAULT_FLATPAK_BUILDER_OUTPUT_DIR)
-        .arg(manifest_path)
-        .stdout(Stdio::piped())
-        .spawn()
-        .unwrap();
+        .arg(manifest_path);
+    let output = command.stdout(Stdio::piped()).spawn().unwrap();
 
     let output = match output.wait_with_output() {
         Ok(o) => o,
