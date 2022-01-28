@@ -1,18 +1,30 @@
 [package]
 name = "fpm"
-version = "0.0.3"
 authors = ["louib <code@louib.net>"]
-edition = "2018"
-description = "CLI tool for managing Flatpak manifests and workspaces."
-license = "MIT"
+
 repository = "https://github.com/louib/fpm/"
-readme = "README.md"
+description = "CLI tool for managing Flatpak manifests and workspaces."
+
 keywords = [
   "flatpak",
   "manifest",
   "modules",
   "workspace",
 ]
+
+license = "MIT"
+readme = "README.md"
+
+version = "0.0.3"
+edition = "2018"
+
+include = [
+  "src/",
+  "README.md",
+  "LICENSE",
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 clap = {version = "3", features = ["yaml", "derive"]}
