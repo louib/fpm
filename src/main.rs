@@ -49,14 +49,23 @@ enum SubCommand {
         /// The term to search for in the database.
         search_term: String,
     },
+    /// Build a workspace.
+    Make {
+        /// The path of the Flatpak manifest to build the workspace with.
+        manifest_file_path: Option<String>,
+    },
     /// Run a command in the Flatpak workspace, or the default command if none is specified.
-    Run {
-        /// The command string to run.
-        command: String,
+    Run {},
+    /// install a package in the current Flatpak workspace.
+    #[clap(setting(AppSettings::ArgRequiredElseHelp))]
+    Install {
+        /// Name of the package or artifact to install.
+        package_name: String,
+        /// The path of the Flatpak manifest to install the package into.
+        manifest_file_path: Option<String>,
     },
     /// Show the current build status for the repository.
-    Status {
-    },
+    Status {},
 }
 
 
@@ -102,7 +111,60 @@ fn main() {
                 );
             }
         },
-        SubCommand::Run { command } => {},
+        SubCommand::Run {} => {},
+        SubCommand::Make { manifest_file_path } => {
+            let manifest_path = get_manifest_file_path(manifest_file_path.as_ref()).unwrap();
+            log::info!("Using Flatpak manifest at {}", manifest_path);
+
+            if let Err(e) = FlatpakApplication::load_from_file(manifest_path.to_string()) {
+                panic!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
+            }
+
+            run_build(&manifest_path).unwrap();
+        },
+        SubCommand::Install { package_name, manifest_file_path } => {
+            if package_name.len() < 4 {
+                panic!("Module name is too short");
+            }
+
+            let db = fpm_core::db::Database::get_database();
+            let modules: Vec<&FlatpakModule> = db.search_modules(package_name);
+            let mut module_to_install: Option<FlatpakModule> = None;
+            for module in modules {
+                println!("{}", module.dump().unwrap());
+                let answer =
+                    crate::utils::ask_yes_no_question("Is this the module you want to install".to_string());
+                if answer {
+                    module_to_install = Some(module.clone());
+                    break;
+                }
+            }
+
+            if let Some(module) = module_to_install {
+                let manifest_path = get_manifest_file_path(manifest_file_path.as_ref()).unwrap();
+                log::info!("Using Flatpak manifest at {}", manifest_path);
+
+                let mut flatpak_manifest = match FlatpakApplication::load_from_file(manifest_path.to_string()) {
+                    Ok(m) => m,
+                    Err(e) => {
+                        panic!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
+                    }
+                };
+
+                flatpak_manifest
+                    .modules
+                    .insert(0, FlatpakModuleItem::Description(module));
+
+                let manifest_dump = flatpak_manifest.dump().unwrap();
+
+                match fs::write(path::Path::new(&manifest_path), manifest_dump) {
+                    Ok(content) => content,
+                    Err(e) => {
+                        panic!("could not write file {}: {}.", manifest_path, e);
+                    }
+                };
+            }
+        },
         SubCommand::Status {} => {
             let current_workspace = match config.current_workspace {
                 Some(workspace) => workspace,
@@ -162,12 +224,6 @@ fn main() {
             .unwrap_or("")
             .to_string(),
     );
-    arguments.entry("package_name".to_string()).or_insert(
-        subcommand_matches
-            .value_of("package_name")
-            .unwrap_or("")
-            .to_string(),
-    );
     arguments
         .entry("env_name".to_string())
         .or_insert(subcommand_matches.value_of("env_name").unwrap_or("").to_string());
@@ -186,89 +242,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         Ok(c) => c,
         Err(e) => panic!("Could not load or init config: {}", e),
     };
-
-    if command_name == "install" {
-        let package_name = match args.get("package_name") {
-            Some(n) => n,
-            None => {
-                eprintln!("a package name to install is required!");
-                return 1;
-            }
-        };
-
-        if package_name.len() < 4 {
-            eprintln!("Module name is too short");
-            return 1;
-        }
-
-        let db = fpm_core::db::Database::get_database();
-        let modules: Vec<&FlatpakModule> = db.search_modules(package_name);
-        let mut module_to_install: Option<FlatpakModule> = None;
-        for module in modules {
-            println!("{}", module.dump().unwrap());
-            let answer =
-                crate::utils::ask_yes_no_question("Is this the module you want to install".to_string());
-            if answer {
-                module_to_install = Some(module.clone());
-                break;
-            }
-        }
-
-        if let Some(module) = module_to_install {
-            let manifest_path = match get_manifest_file_path(args.get("manifest_file_path")) {
-                Some(m) => m,
-                None => {
-                    return 1;
-                }
-            };
-            log::info!("Using Flatpak manifest at {}", manifest_path);
-
-            let mut flatpak_manifest = match FlatpakApplication::load_from_file(manifest_path.to_string()) {
-                Ok(m) => m,
-                Err(e) => {
-                    log::error!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
-                    return 1;
-                }
-            };
-
-            flatpak_manifest
-                .modules
-                .insert(0, FlatpakModuleItem::Description(module));
-
-            let manifest_dump = match flatpak_manifest.dump() {
-                Ok(d) => d,
-                Err(_e) => return 1,
-            };
-
-            match fs::write(path::Path::new(&manifest_path), manifest_dump) {
-                Ok(content) => content,
-                Err(e) => {
-                    eprintln!("could not write file {}: {}.", manifest_path, e);
-                    return 1;
-                }
-            };
-        }
-    }
-
-    if command_name == "make" {
-        let manifest_path = match get_manifest_file_path(args.get("manifest_file_path")) {
-            Some(m) => m,
-            None => {
-                return 1;
-            }
-        };
-        log::info!("Using Flatpak manifest at {}", manifest_path);
-
-        if let Err(e) = FlatpakApplication::load_from_file(manifest_path.to_string()) {
-            log::error!("Could not parse Flatpak manifest at {}: {}", &manifest_path, e);
-            return 1;
-        }
-
-        match run_build(&manifest_path) {
-            Ok(_) => return 0,
-            Err(_) => return 1,
-        };
-    }
 
     if command_name == "clean" {
         let flatpak_build_cache_dir = path::Path::new(crate::utils::DEFAULT_FLATPAK_BUILDER_CACHE_DIR);
@@ -404,9 +377,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
             "🗃 Created workspace {} with manifest file {}.",
             env_name, manifest_file_path
         );
-    }
-
-    if command_name == "status" {
     }
 
     if command_name == "stats" {
