@@ -10,13 +10,9 @@ fpm is a CLI tool for managing Flatpak modules and manifests.
   The command-line options, command names and file formats might change
   at any time until the project reaches version 1.0.0.**
 
-## Features
-* Flatpak manifest linting and validation.
-* Bootstrapping of Flatpak manifest.
-* Development workspace management, based on `flatpak-builder`.
-* Module management, based on an internal database of Flatpak modules and `apt` packages.
-
 ## Installing
+`fpm` is currently not published on crates.io. You will need to install it locally with cargo.
+
 ### Building with Cargo
 ```
 git clone git@github.com:louib/fpm.git
