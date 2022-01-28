@@ -24,7 +24,7 @@ use fpm_core::project::SoftwareProject;
 // manifests at the same time.
 const FPM_MODULES_MANIFEST_PATH: &str = "fpm-modules.yaml";
 const DEFAULT_PACKAGE_LIST_SEP: &str = ",";
-const APP_VERSION: &str = "0.0.2";
+const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 mod config;
 mod utils;
