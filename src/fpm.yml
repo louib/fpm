@@ -14,13 +14,6 @@ args:
         required: false
         help: Show the version and exit.
 subcommands:
-    - checkout:
-        about: Checkout a workspace.
-        args:
-            - env_name:
-                multiple: false
-                required: true
-                help: The name of the workspace to checkout.
     - create:
         about: Create a workspace using a Flatpak manifest.
         args:

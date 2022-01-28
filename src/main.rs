@@ -54,6 +54,11 @@ enum SubCommand {
         /// The path of the Flatpak manifest to build the workspace with.
         manifest_file_path: Option<String>,
     },
+    /// Checkout a workspace.
+    Checkout {
+        /// The name of the workspace to checkout.
+        env_name: String,
+    },
     /// Run a command in the Flatpak workspace, or the default command if none is specified.
     Run {},
     /// Remove the build directories and build artifacts.
@@ -88,6 +93,27 @@ fn main() {
 
     let args = Fpm::parse();
     match &args.command {
+        SubCommand::Checkout { env_name } => {
+            if let Some(current_workspace) = &config.current_workspace {
+                if current_workspace == env_name {
+                    println!("Already in workspace {}.", env_name);
+                    return;
+                }
+            }
+
+            if !config.workspaces.contains_key(env_name) {
+                panic!(
+                    "Workspace {} does not exist. Use `ls` to list the available workspaces and manifests.",
+                    env_name
+                );
+            }
+
+            config.current_workspace = Some(env_name.to_string());
+            match crate::config::write_config(&config) {
+                Ok(c) => c,
+                Err(e) => panic!("Could not write config: {}", e),
+            };
+        },
         SubCommand::Search { search_term } => {
             if search_term.len() < 3 {
                 panic!("{} is too short for a search term!", search_term);
@@ -321,34 +347,6 @@ pub fn run(command_name: &str, args: HashMap<String, String>) -> i32 {
         Ok(c) => c,
         Err(e) => panic!("Could not load or init config: {}", e),
     };
-
-    if command_name == "checkout" {
-        let env_name = match args.get("env_name") {
-            Some(n) => n,
-            None => panic!("An env name is required to checkout."),
-        };
-
-        if let Some(current_workspace) = &config.current_workspace {
-            if current_workspace == env_name {
-                println!("Already in workspace {}.", env_name);
-                return 0;
-            }
-        }
-
-        if !config.workspaces.contains_key(env_name) {
-            eprintln!(
-                "Workspace {} does not exist. Use `ls` to list the available workspaces and manifests.",
-                env_name
-            );
-            return 1;
-        }
-
-        config.current_workspace = Some(env_name.to_string());
-        match crate::config::write_config(&config) {
-            Ok(c) => c,
-            Err(e) => panic!("Could not write config: {}", e),
-        };
-    }
 
     if command_name == "create" {
         let env_name = match args.get("env_name") {
