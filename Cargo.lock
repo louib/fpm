@@ -73,9 +73,9 @@ dependencies = [
 
 [[package]]
 name = "flatpak-rs"
-version = "0.11.0"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0c7d19907e8ba8360a721b7184f90da282f4acb38362a428ecce57b5c2c32aa"
+checksum = "ee96415d8ae18f26ba102a00327f8794abd48acdfeb76936542c1e9db65b7006"
 dependencies = [
  "lazy_static",
  "regex",
