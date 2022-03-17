@@ -101,9 +101,9 @@ dependencies = [
 
 [[package]]
 name = "fpm-core"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9cc1251e6d6d9345dd9eb0ebccda0f707cdc06b0f0c7c5c9870e6f20566ec6b4"
+checksum = "ac66d3518daa6796c9e8872f5ea66a1a349ac9e1e4f28f821805695c8292e9b7"
 dependencies = [
  "flatpak-rs",
  "log",

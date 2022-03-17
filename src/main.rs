@@ -18,7 +18,6 @@ use clap::{AppSettings, Parser, Subcommand};
 use flatpak_rs::application::FlatpakApplication;
 use flatpak_rs::module::{FlatpakModule, FlatpakModuleItem};
 use flatpak_rs::source::FlatpakSource;
-use fpm_core::project::SoftwareProject;
 
 // This might need to become a regex at some point, to allow fpm to manage multiple module
 // manifests at the same time.
@@ -174,16 +173,6 @@ fn main() {
                     module.name,
                     module.get_buildsystem().unwrap_or("unknown".to_string()),
                     main_url
-                );
-            }
-
-            log::debug!("Searching for {} in the projects.", &search_term);
-            let projects: Vec<&SoftwareProject> = db.search_projects(search_term);
-            for project in projects {
-                println!(
-                    "found candidate project {} ({}).",
-                    project.name,
-                    project.get_main_vcs_url()
                 );
             }
         }
