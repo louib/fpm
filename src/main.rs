@@ -97,7 +97,7 @@ enum SubCommand {
 }
 
 fn main() {
-    fpm_core::logger::init();
+    fpm_core::logger::init("FPM_LOG_LEVEL");
 
     let mut config = match crate::config::read_or_init_config() {
         Ok(c) => c,
