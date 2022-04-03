@@ -1,13 +1,26 @@
 use flatpak_rs::source::FlatpakSource;
 
+use serde::{Deserialize, Serialize};
+
 pub const CRATES_IO_URL: &str = "https://static.crates.io/crates";
 
+#[derive(Clone)]
+#[derive(Deserialize)]
+#[derive(Serialize)]
+#[derive(Debug)]
+#[derive(Default)]
 pub struct CargoLock {
-    pub version: String,
+    pub version: i32,
 
-    pub package: Vec<CargoLock>,
+    pub package: Vec<CargoLockPackage>,
 }
 
+#[derive(Clone)]
+#[derive(Deserialize)]
+#[derive(Serialize)]
+#[derive(Debug)]
+#[derive(Default)]
+#[serde(default)]
 pub struct CargoLockPackage {
     pub name: String,
     pub source: String,
@@ -16,8 +29,14 @@ pub struct CargoLockPackage {
     pub dependencies: Vec<String>,
 }
 
-pub fn get_sources(manifest_path: &str) -> Vec<FlatpakSource> {
-    vec![]
+pub fn get_sources(cargo_lock_manifest: &str) -> Result<Vec<FlatpakSource>, String> {
+    let cargo_lock: CargoLock = match toml::from_str(&cargo_lock_manifest) {
+        Ok(c) => c,
+        Err(e) => {
+            return Err(format!("Failed to parse the Cargo.lock manifest: {}.", e));
+        }
+    };
+    Ok(vec![])
 }
 
 #[cfg(test)]
@@ -70,7 +89,7 @@ mod tests {
             source = "registry+https://github.com/rust-lang/crates.io-index"
             checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
         "###;
-        let sources = get_sources(cargo_lock_manifest);
+        let sources = get_sources(cargo_lock_manifest).unwrap();
 
         assert_eq!(sources.len(), 5);
     }
