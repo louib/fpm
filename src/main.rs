@@ -333,15 +333,20 @@ fn main() {
             println!("{}", db.get_stats());
         }
         SubCommand::Import { manifest_file_path } => {
-            let manifest_content = match fs::read_to_string(manifest_file_path) {
-                Ok(c) => c,
-                Err(e) => panic!("Could not read manifest file at {}: {}", &manifest_file_path, e),
-            };
-
             let flatpak_manifest_path = get_manifest_file_path(None).unwrap();
 
-            // FIXME we should branch based on the file path!!
-            let module = importers::cargo::get_cargo_module(&manifest_content);
+            let package_manager = match importers::PackageManager::detect_from_manifest_path(manifest_file_path)
+            {
+                Some(p) => p,
+                None => {
+                    panic!(
+                        "Could not detect package manager associated with {}.",
+                        manifest_file_path
+                    );
+                }
+            };
+
+            let module = package_manager.import_packages(manifest_file_path);
 
             let mut flatpak_application =
                 match FlatpakApplication::load_from_file(flatpak_manifest_path.to_string()) {
