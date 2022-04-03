@@ -24,9 +24,9 @@ use flatpak_rs::source::FlatpakSource;
 const FPM_MODULES_MANIFEST_PATH: &str = "fpm-modules.yaml";
 
 mod config;
+mod importers;
 mod utils;
 mod version;
-mod importers;
 
 /// CLI tool for managing Flatpak manifests and workspaces
 #[derive(Parser)]
