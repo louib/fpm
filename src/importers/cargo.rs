@@ -36,6 +36,10 @@ pub fn get_sources(cargo_lock_manifest: &str) -> Result<Vec<FlatpakSource>, Stri
             return Err(format!("Failed to parse the Cargo.lock manifest: {}.", e));
         }
     };
+    for cargo_package in &cargo_lock.package {
+        println!("{}", cargo_package.name);
+    }
+
     Ok(vec![])
 }
 
@@ -57,7 +61,7 @@ mod tests {
             source = "registry+https://github.com/rust-lang/crates.io-index"
             checksum = "1e37cfd5e7657ada45f742d6e99ca5788580b5c529dc78faf11ece6dc702656f"
             dependencies = [
-            "memchr",
+             "memchr",
             ]
 
             [[package]]
@@ -66,9 +70,9 @@ mod tests {
             source = "registry+https://github.com/rust-lang/crates.io-index"
             checksum = "d9b39be18770d11421cdb1b9947a45dd3f37e93092cbf377614828a319d5fee8"
             dependencies = [
-            "hermit-abi",
-            "libc",
-            "winapi",
+             "hermit-abi",
+             "libc",
+             "winapi",
             ]
 
             [[package]]
