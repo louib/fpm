@@ -76,19 +76,25 @@ enum SubCommand {
     },
     /// Remove the build directories and build artifacts.
     Clean {},
-    /// Lists the available Flatpak workspaces.
+    /// List the available Flatpak workspaces.
     Ls {
         /// Parse the project's files to detect build environments.
         #[clap(long, short)]
         parse: bool,
     },
-    /// install a package in the current Flatpak workspace.
+    /// Install a package in the current Flatpak workspace.
     #[clap(setting(AppSettings::ArgRequiredElseHelp))]
     Install {
         /// Name of the package or artifact to install.
         package_name: String,
         /// The path of the Flatpak manifest to install the package into.
         manifest_file_path: Option<String>,
+    },
+    /// Import packages from a language-specific package manager.
+    #[clap(setting(AppSettings::ArgRequiredElseHelp))]
+    Import {
+        /// Path of the manifest file.
+        manifest_file_path: String,
     },
     /// Show the current build status for the repository.
     Status {},
@@ -326,6 +332,7 @@ fn main() {
             let db = fpm_core::db::Database::get_database();
             println!("{}", db.get_stats());
         }
+        SubCommand::Import { manifest_file_path } => {}
         SubCommand::Status {} => {
             let current_workspace = match config.current_workspace {
                 Some(workspace) => workspace,
