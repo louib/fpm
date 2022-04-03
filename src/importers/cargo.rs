@@ -1,7 +1,7 @@
 use flatpak_rs::archive::FlatpakArchiveType;
 use flatpak_rs::build_system::FlatpakBuildSystem;
 use flatpak_rs::module::FlatpakModule;
-use flatpak_rs::source::{FlatpakSource, FlatpakSourceType};
+use flatpak_rs::source::{FlatpakSource, FlatpakSourceItem, FlatpakSourceType};
 
 use serde::{Deserialize, Serialize};
 
@@ -63,7 +63,7 @@ impl CargoLockPackage {
     }
 }
 
-pub fn get_cargo_module() -> FlatpakModule {
+pub fn get_cargo_module(cargo_lock_manifest: &str) -> FlatpakModule {
     let mut cargo_module = FlatpakModule::default();
     cargo_module.name = "cargo_sources".to_string();
     cargo_module.buildsystem = Some(FlatpakBuildSystem::Simple);
@@ -73,6 +73,9 @@ pub fn get_cargo_module() -> FlatpakModule {
     cargo_module
         .build_commands
         .push("cargo --offline build --release --verbose".to_string());
+    for source in get_sources(cargo_lock_manifest).unwrap() {
+        cargo_module.sources.push(FlatpakSourceItem::Description(source));
+    }
     cargo_module
 }
 

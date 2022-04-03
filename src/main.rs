@@ -332,7 +332,33 @@ fn main() {
             let db = fpm_core::db::Database::get_database();
             println!("{}", db.get_stats());
         }
-        SubCommand::Import { manifest_file_path } => {}
+        SubCommand::Import { manifest_file_path } => {
+            let manifest_content = match fs::read_to_string(manifest_file_path) {
+                Ok(c) => c,
+                Err(e) => panic!("Could not read manifest file at {}: {}", &manifest_file_path, e),
+            };
+
+            let flatpak_manifest_path = get_manifest_file_path(None).unwrap();
+
+            // FIXME we should branch based on the file path!!
+            let module = importers::cargo::get_cargo_module(&manifest_content);
+
+            let mut flatpak_application =
+                match FlatpakApplication::load_from_file(flatpak_manifest_path.to_string()) {
+                    Ok(a) => a,
+                    Err(e) => {
+                        panic!(
+                            "Could not parse Flatpak manifest at {}: {}",
+                            &flatpak_manifest_path, e
+                        );
+                    }
+                };
+
+            // When we support TOML, we should store the packages in a separate file instead.
+            flatpak_application
+                .modules
+                .push(FlatpakModuleItem::Description(module));
+        }
         SubCommand::Status {} => {
             let current_workspace = match config.current_workspace {
                 Some(workspace) => workspace,

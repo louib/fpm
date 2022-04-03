@@ -1,2 +1,2 @@
-mod cargo;
-mod vcpkg;
+pub mod cargo;
+pub mod vcpkg;
