@@ -73,9 +73,9 @@ dependencies = [
 
 [[package]]
 name = "flatpak-rs"
-version = "0.12.3"
+version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4fb7224e7d925158c3f802d68432dcfe238c5e4dd86c0d6d6ca2375713956f0"
+checksum = "2955d54e2f11c1b40ef78e9df9e7f0536974e34ab7dcfa293eda671e6fc9bf2a"
 dependencies = [
  "lazy_static",
  "regex",
@@ -101,9 +101,9 @@ dependencies = [
 
 [[package]]
 name = "fpm-core"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac66d3518daa6796c9e8872f5ea66a1a349ac9e1e4f28f821805695c8292e9b7"
+checksum = "ef943c6fc38c6a4f9ecde6d0db08d4a55705b14fe02a4cb3d62180f50ab659a9"
 dependencies = [
  "flatpak-rs",
  "log",
@@ -157,9 +157,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.121"
+version = "0.2.122"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "efaa7b300f3b5fe8eb6bf21ce3895e1751d9665086af2d64b42f19701015ff4f"
+checksum = "ec647867e2bf0772e28c8bcde4f0d19a9216916e890543b5a03ed8ef27b8f259"
 
 [[package]]
 name = "linked-hash-map"
@@ -217,9 +217,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.36"
+version = "1.0.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7342d5883fbccae1cc37a2353b09c87c9b0f3afd73f5fb9bba687a1f733b029"
+checksum = "ec757218438d5fda206afc041538b2f6d889286160d649a86a24d37e1235afd1"
 dependencies = [
  "unicode-xid",
 ]
@@ -324,9 +324,9 @@ checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "syn"
-version = "1.0.90"
+version = "1.0.91"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "704df27628939572cd88d33f171cd6f896f4eaca85252c6e0a72d8d8287ee86f"
+checksum = "b683b2b825c8eef438b77c36a06dc262294da3d5a5813fac20da149241dcd44d"
 dependencies = [
  "proc-macro2",
  "quote",
