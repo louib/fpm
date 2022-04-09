@@ -1,24 +1,4 @@
-use std::io::{stdin, stdout, Write};
 use std::path::Path;
-
-pub fn ask_yes_no_question(question: String) -> bool {
-    let mut answer = String::new();
-    print!("{}? [Y/n]: ", question);
-    let _ = stdout().flush();
-    stdin()
-        .read_line(&mut answer)
-        .expect("Error while reading answer for question.");
-    if let Some('\n') = answer.chars().next_back() {
-        answer.pop();
-    }
-    if let Some('\r') = answer.chars().next_back() {
-        answer.pop();
-    }
-    if answer == "Y" || answer == "y" {
-        return true;
-    }
-    return false;
-}
 
 pub fn get_candidate_flatpak_manifests(dir_path: &str) -> Result<Vec<String>, String> {
     let mut response: Vec<String> = vec![];

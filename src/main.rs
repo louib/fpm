@@ -296,7 +296,7 @@ fn main() {
             for module in modules {
                 println!("{}", module.dump().unwrap());
                 let answer =
-                    crate::utils::ask_yes_no_question("Is this the module you want to install".to_string());
+                    fpm_core::utils::ask_yes_no_question("Is this the module you want to install".to_string());
                 if answer {
                     module_to_install = Some(module.clone());
                     break;
