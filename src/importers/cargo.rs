@@ -73,6 +73,15 @@ pub fn get_cargo_module(cargo_lock_manifest: &str) -> FlatpakModule {
     cargo_module
         .build_commands
         .push("cargo --offline build --release --verbose".to_string());
+    cargo_module
+        .build_commands
+        .push("install -Dm755 ./target/debug/".to_string());
+    let mut current_cargo_project_source: FlatpakSource = FlatpakSource::default();
+    current_cargo_project_source.r#type = Some(FlatpakSourceType::Git);
+    current_cargo_project_source.path = Some("./".to_string());
+    cargo_module
+        .sources
+        .push(FlatpakSourceItem::Description(current_cargo_project_source));
     for source in get_sources(cargo_lock_manifest).unwrap() {
         cargo_module.sources.push(FlatpakSourceItem::Description(source));
     }
