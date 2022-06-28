@@ -3,10 +3,12 @@ use std::fs;
 use flatpak_rs::module::FlatpakModule;
 
 pub mod cargo;
+pub mod goget;
 pub mod vcpkg;
 
 pub enum PackageManager {
     Cargo,
+    GoGet,
     Vcpkg,
 }
 impl PackageManager {
@@ -30,6 +32,7 @@ impl PackageManager {
                 return cargo::get_cargo_module(&cargo_lock_content);
             }
             PackageManager::Vcpkg => panic!("Not implemented yet."),
+            PackageManager::GoGet => panic!("Not implemented yet."),
         }
     }
 }
