@@ -33,8 +33,8 @@ serde_json = "1.0"
 serde_yaml = "0.8, >0.8.4"
 toml = "0.5"
 
-flatpak-rs = "0.17"
-fpm-core = "0.9"
+flatpak-rs = "0.18"
+fpm-core = "0.10"
 
 log = "0.4"
 
